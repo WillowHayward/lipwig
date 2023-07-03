@@ -15,8 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@lipwig/js": ["libs/js/src/index.ts"],
       "@lipwig/common": ["libs/common/src/index.ts"],
+      "@lipwig/js": ["libs/js/src/index.ts"],
       "@lipwig/utils": ["libs/utils/src/index.ts"]
     }
   },

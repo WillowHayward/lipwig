@@ -1,9 +1,9 @@
 /* eslint-disable */
 export default {
     displayName: 'lipwig-angular',
-    preset: '../../../jest.preset.js',
+    preset: '../../jest.preset.js',
     setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-    coverageDirectory: '../../../coverage/libs/lipwig/angular',
+    coverageDirectory: '../../coverage/libs/lipwig/angular',
     transform: {
         '^.+\\.(ts|mjs|js|html)$': [
             'jest-preset-angular',
