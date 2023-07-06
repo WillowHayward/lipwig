@@ -4,7 +4,9 @@ FROM docker.io/node:lts-alpine as deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /usr/src/app
 COPY ./package.json ./
-RUN npm install --only=production
+COPY ./yarn.lock ./
+RUN corepack enable
+RUN yarn install
 
 # Production image, copy all the files and run nest
 FROM docker.io/node:lts-alpine as runner
