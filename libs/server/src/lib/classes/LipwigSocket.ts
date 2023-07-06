@@ -46,8 +46,8 @@ export class LipwigSocket {
 
     private setHostListeners() {
         this.socket.on('close', (code: CLOSE_CODE, reasonBuffer: Buffer) => {
-            let emit: string;
-            let reason: string;
+            let emit: string | undefined;
+            let reason: string | undefined;
             switch (code) {
                 case CLOSE_CODE.CLOSED:
                     emit = 'close';
@@ -71,8 +71,8 @@ export class LipwigSocket {
 
     private setClientListeners() {
         this.socket.on('close', (code: CLOSE_CODE, reasonBuffer: Buffer) => {
-            let emit: string;
-            let reason: string;
+            let emit: string | undefined;
+            let reason: string | undefined;
             switch (code) {
                 case CLOSE_CODE.LEFT:
                     emit = 'leave';

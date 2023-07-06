@@ -61,7 +61,7 @@ export class RoomService {
         });
     }
 
-    create(user: LipwigSocket, config: CreateOptions) {
+    create(user: LipwigSocket, config: CreateOptions = {}) {
         const existingCodes = Object.keys(this.rooms);
 
         if (config.reconnect && existingCodes.includes(config.reconnect.code)) {
@@ -89,7 +89,7 @@ export class RoomService {
         };
     }
 
-    join(user: LipwigSocket, code: string, options?: JoinOptions) {
+    join(user: LipwigSocket, code: string, options: JoinOptions = {}) {
         // TODO: Join Options
         const room = this.getRoom(code);
 

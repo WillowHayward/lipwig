@@ -20,6 +20,13 @@ interface Poll {
     open: boolean;
 }
 
+interface Pending {
+    [id: string]: {
+        client: LipwigSocket;
+        options: JoinOptions;
+    };
+}
+
 export class Room {
     private id = v4();
     private locked = false;
@@ -32,18 +39,13 @@ export class Room {
     private approvals: boolean;
 
     private users: LipwigSocket[] = [];
-    private pending: {
-        [id: string]: {
-            client: LipwigSocket;
-            options: JoinOptions;
-        };
-    }[] = [];
+    private pending: Pending = {};
     private localUsers: string[] = [];
 
     private polls: Poll[] = [];
 
     // TODO: This feels hacky
-    public onclose: () => void;
+    public onclose: () => void = () => null;
     public closed = false;
 
     constructor(
@@ -152,6 +154,10 @@ export class Room {
             return;
         }
 
+        if (!options.data) {
+            options.data = {};
+        }
+
         const missing: string[] = [];
         for (const param of this.required) {
             if (!(param in options.data)) {
@@ -172,10 +178,11 @@ export class Room {
         if (this.approvals) {
             const tempId = v4();
             Logger.debug(`Client requested to join`, this.id);
-            this.pending[tempId] = {
+            const pending = {
                 client,
                 options,
             };
+            this.pending[tempId] = pending;
 
             this.host.send({
                 event: SERVER_HOST_EVENT.JOIN_REQUEST,
@@ -395,9 +402,15 @@ export class Room {
         }
 
         const target = this.users.find((user) => user.id === id);
-        const index = this.users.indexOf(target);
-        if (!target || index === -1) {
+        if (!target) {
             user.error(ERROR_CODE.USERNOTFOUND);
+            return;
+        }
+
+        const index = this.users.indexOf(target);
+        if (index === -1) {
+            user.error(ERROR_CODE.USERNOTFOUND);
+            return;
         }
 
         if (reason) {
@@ -485,7 +498,7 @@ export class Room {
         }
     }
 
-    pollResponse(user: LipwigSocket, id: string, response: any) {
+    pollResponse(user: LipwigSocket, id: string, response: unknown) {
         const poll = this.polls.find((poll) => poll.id === id);
         if (!poll) {
             user.error(ERROR_CODE.POLLNOTFOUND);
