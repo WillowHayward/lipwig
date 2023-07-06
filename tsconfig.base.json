@@ -16,11 +16,13 @@
         "baseUrl": ".",
         "paths": {
             "@lipwig/angular": ["libs/angular/src/index.ts"],
+            "@lipwig/chat/client": ["libs/chat/client/src/index.ts"],
+            "@lipwig/chat/common": ["libs/chat/common/src/index.ts"],
             "@lipwig/js": ["libs/js/src/index.ts"],
             "@lipwig/model": ["libs/model/src/index.ts"],
             "@lipwig/nx": ["libs/nx/src/index.ts"],
-            "@lipwig/utils": ["libs/utils/src/index.ts"],
-            "@lipwig/server": ["libs/server/src/index.ts"]
+            "@lipwig/server": ["libs/server/src/index.ts"],
+            "@lipwig/utils": ["libs/utils/src/index.ts"]
         }
     },
     "exclude": ["node_modules", "tmp"]
