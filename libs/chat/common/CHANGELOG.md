@@ -2,8 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
-## [0.2.9-next.20](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.9-next.19...v0.2.9-next.20) (2023-07-06)
+## [1.99.1-next.3](https://git.whc.fyi/WillowHayward/lipwig/compare/v1.99.1-next.2...v1.99.1-next.3) (2023-07-06)
 
 
+* feat(workspace)!: 2.0 Release ([afc7bf6](https://git.whc.fyi/WillowHayward/lipwig/commits/afc7bf6163ea9f9c835bb74fe58cb038fe4497f9))
 
-## [0.2.9-next.19](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.9-next.18...v0.2.9-next.19) (2023-07-06)
+
+### BREAKING CHANGES
+
+* Removed CHANGELOGs
