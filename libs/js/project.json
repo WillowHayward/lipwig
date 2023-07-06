@@ -39,11 +39,18 @@
                 }
             }
         },
+        "sync-deps": {
+            "executor": "@lipwig/nx:sync-deps",
+            "options": {
+                "dependencies": ["@lipwig/model", "@lipwig/utils"]
+            }
+        },
         "deploy": {
             "executor": "ngx-deploy-npm:deploy",
             "options": {
                 "access": "public"
-            }
+            },
+            "dependsOn": ["sync-deps"]
         }
     },
     "tags": []

@@ -3,7 +3,7 @@
     "version": "0.2.2",
     "type": "commonjs",
     "dependencies": {
-        "@lipwig/model": "0.2.1",
-        "@lipwig/utils": "0.2.1"
+        "@lipwig/model": "0.2.2",
+        "@lipwig/utils": "0.2.2"
     }
 }
