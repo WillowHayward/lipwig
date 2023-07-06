@@ -5,7 +5,15 @@
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
-            "syncVersions": true,
+        "syncVersions": true,
+        "postTargets": ["workspace:npm"]
+      }
+    },
+    "npm": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public",
+        "dryRun": "${dryRun}"
       }
     }
   }

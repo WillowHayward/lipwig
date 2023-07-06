@@ -3054,9 +3054,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lipwig/source@workspace:.":
+"@lipwig@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@lipwig/source@workspace:."
+  resolution: "@lipwig@workspace:."
   dependencies:
     "@angular-devkit/build-angular": ~16.1.0
     "@angular-devkit/core": ~16.1.0
@@ -3112,6 +3112,7 @@ __metadata:
     jest-preset-angular: ~13.1.0
     loglevel: ^1.8.1
     ng-packagr: ~16.1.0
+    ngx-deploy-npm: ^6.0.0
     nx: 16.4.2
     postcss: ^8.4.5
     postcss-import: ~14.1.0
@@ -12101,6 +12102,16 @@ __metadata:
   bin:
     ng-packagr: cli/main.js
   checksum: 405734f51c430db346d37871c95a501e60c5da4366d3d45ba0bbb04c7648b0eb3dba17f18c7eb8db43b8521109794934cbc323522b26b9c6457dbb0e1957a435
+  languageName: node
+  linkType: hard
+
+"ngx-deploy-npm@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "ngx-deploy-npm@npm:6.0.0"
+  peerDependencies:
+    "@nx/devkit": ^16.0.0
+    tslib: 2.5.0
+  checksum: eb29beb81aed775063ad15c2979b55755c386cee5ca10e936a43b257025281f3030d51e6d5f78c9fefc9147c49875713eceb543dc6aa96b9624fab6f112889f8
   languageName: node
   linkType: hard
 
