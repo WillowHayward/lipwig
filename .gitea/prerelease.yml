@@ -1,0 +1,33 @@
+name: Create and deploy a @lipwig prerelease
+run-name: ${{ gitea.actor }} is creating a @lipwig prerelease
+on:
+    push:
+        branches:
+            - develop
+            - feature/reconnection
+        tags-ignore:
+            - v[0-9]+.[0-9]+.[0-9]+-next.[0-9]+
+jobs:
+  Build-And-Deploy:
+    runs-on: ubuntu-latest
+    container: node:18
+    steps:
+      - name: Adding NPM credentials
+        run: |
+            echo user=willowhayward >> .npmrc
+            echo _authToken=${{ secrets.CI_NPM_TOKEN }} >> .npmrc
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+            corepack enable
+            yarn install
+      - name: Build and deploy prerelease
+        run: yarn nx workspace:version
+      - name: Push changes to repo
+        run: |
+            git config user.email "willow@whc.fyi"
+            git config user.name "Willow Hayward"
+            git remote add gitea https://willowhayward:${{ secrets.CI_GIT_TOKEN }}@https://git.whc.fyi/WillowHayward/lipwig.git
+            git push gitea
+            git push gitea --tags

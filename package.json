@@ -87,6 +87,7 @@
         "includedScripts": []
     },
     "scripts": {
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "nx": "nx"
     }
 }
