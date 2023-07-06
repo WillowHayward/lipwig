@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.7](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.6...v0.2.7) (2023-07-06)
+
+
+
+## [0.2.6](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.5...v0.2.6) (2023-07-06)
+
+
+
 ## [0.2.6](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.5...v0.2.6) (2023-07-06)
 
 

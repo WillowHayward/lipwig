@@ -28,7 +28,7 @@ export default async function runExecutor(options: SyncDepsExecutorSchema, conte
     writeFileSync(path, JSON.stringify(json, null, 4), { encoding: 'utf8' });
 
     // Get tag
-    const tag = spawnSync('git', ['tag', '--points-at', 'HEAD'], { encoding: 'utf8' }).stdout;
+    const tag = spawnSync('git', ['tag', '--points-at', 'HEAD'], { encoding: 'utf8' }).stdout.split('\n').shift();
     console.log('TAG', tag);
 
 
