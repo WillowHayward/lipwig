@@ -1,0 +1,6 @@
+{
+    "name": "@lipwig/nx",
+    "version": "0.2.9-next.19",
+    "type": "commonjs",
+    "executors": "./executors.json"
+}

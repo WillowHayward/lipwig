@@ -6,7 +6,7 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { WsAdapter } from '@nestjs/platform-ws';
-import { defaultConfig } from './app/defaults.model';
+import { defaultConfig } from '@lipwig/server';
 
 import { AppModule } from './app/app.module';
 

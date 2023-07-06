@@ -9,7 +9,7 @@ import {
     ServerClientEvents,
     JoinOptions,
     ERROR_CODE,
-} from '@lipwig/common';
+} from '@lipwig/model';
 import { EventManager } from '../EventManager';
 import { Socket } from '../Socket';
 import * as Logger from 'loglevel';
@@ -21,6 +21,7 @@ export class Client extends EventManager {
     public id = '';
     public roomName?: string;
     public data: Record<string, any>;
+    public options: JoinOptions = {};
 
     /**
      * Attempt to join an existing Lipwig room
@@ -28,19 +29,32 @@ export class Client extends EventManager {
      * @param code  Room code to attempt to join
      * @param data  Data to pass to room host on connection
      */
+    constructor(url: string, room: string, options: JoinOptions);
+    constructor(url: string, room: string, id: string);
     constructor(
         url: string,
         public room: string,
-        public options: JoinOptions = {}
+        optionsOrId: JoinOptions | string
     ) {
         super();
 
-        this.data = options.data || {};
+        const rejoin = typeof optionsOrId === 'string';
+        if (rejoin) {
+            this.data = {};
+        } else {
+
+            this.data = optionsOrId.data || {};
+            this.options = optionsOrId;
+        }
 
         this.socket = new Socket(url, this.name);
 
         this.socket.on('connected', () => {
-            this.connected();
+            if (rejoin) {
+                this.rejoin(optionsOrId);
+            } else {
+                this.connected();
+            }
         });
 
         this.socket.on('error', () => {
@@ -49,7 +63,9 @@ export class Client extends EventManager {
 
         this.socket.on('lw-error', (error: ERROR_CODE, message?: string) => {
             if (message) {
-                Logger.warn(`[${this.name}] Received error ${error} - ${message}`);
+                Logger.warn(
+                    `[${this.name}] Received error ${error} - ${message}`
+                );
             } else {
                 Logger.warn(`[${this.name}] Received error ${error}`);
             }
@@ -106,8 +122,8 @@ export class Client extends EventManager {
             event: CLIENT_EVENT.POLL_RESPONSE,
             data: {
                 id,
-                response
-            }
+                response,
+            },
         });
     }
 
@@ -116,7 +132,7 @@ export class Client extends EventManager {
     }
 
     public ping(full = true): Promise<number> {
-        const now = (new Date()).getTime();
+        const now = new Date().getTime();
 
         if (full) {
             // Round trip to host
@@ -128,34 +144,45 @@ export class Client extends EventManager {
     }
 
     private pingServer(time: number): Promise<number> {
-        const promise = new Promise<number>(resolve => {
-            this.once(SERVER_CLIENT_EVENT.PONG_SERVER, ping => {
+        const promise = new Promise<number>((resolve) => {
+            this.once(SERVER_CLIENT_EVENT.PONG_SERVER, (ping) => {
                 resolve(ping);
             });
         });
         this.socket.send({
             event: CLIENT_EVENT.PING_SERVER,
             data: {
-                time
-            }
+                time,
+            },
         });
 
         return promise;
     }
 
     private pingHost(time: number): Promise<number> {
-        const promise = new Promise<number>(resolve => {
-            this.once(SERVER_CLIENT_EVENT.PONG_HOST, ping => {
+        const promise = new Promise<number>((resolve) => {
+            this.once(SERVER_CLIENT_EVENT.PONG_HOST, (ping) => {
                 resolve(ping);
             });
         });
         this.socket.send({
             event: CLIENT_EVENT.PING_HOST,
             data: {
-                time
-            }
+                time,
+            },
         });
         return promise;
+    }
+
+    protected rejoin(id: string): void {
+        const message: ClientEvents.Rejoin = {
+            event: CLIENT_EVENT.REJOIN,
+            data: {
+                code: this.room,
+                id
+            },
+        };
+        this.socket.send(message);
     }
 
     /**
@@ -183,10 +210,14 @@ export class Client extends EventManager {
 
         switch (message.event) {
             case SERVER_CLIENT_EVENT.JOINED:
+            case SERVER_CLIENT_EVENT.REJOINED:
                 args = this.handleJoined(message.data.id, message.data.name);
                 break;
             case SERVER_CLIENT_EVENT.MESSAGE:
-                [eventName, args] = this.handleMessage(message.data.event, message.data.args);
+                [eventName, args] = this.handleMessage(
+                    message.data.event,
+                    message.data.args
+                );
                 break;
             case SERVER_CLIENT_EVENT.POLL:
                 args = this.handlePoll(message.data.id, message.data.query);
@@ -213,7 +244,10 @@ export class Client extends EventManager {
         this.emit(eventName, ...args);
     }
 
-    private handleJoined(id: string, roomName?: string): [string, string | undefined] {
+    private handleJoined(
+        id: string,
+        roomName?: string
+    ): [string, string | undefined] {
         Logger.debug(`[${this.name}] Joined ${this.room}`);
         this.id = id;
         this.roomName = roomName;
@@ -242,7 +276,7 @@ export class Client extends EventManager {
     }
 
     private handlePong(then: number): [number] {
-        const now = (new Date()).getTime();
+        const now = new Date().getTime();
         const ping = now - then;
 
         return [ping];
@@ -252,8 +286,8 @@ export class Client extends EventManager {
         this.socket.send({
             event: CLIENT_EVENT.PONG_CLIENT,
             data: {
-                time
-            }
+                time,
+            },
         });
     }
 }

@@ -1,0 +1,66 @@
+name: Create and deploy a @lipwig release or prerelease
+run-name: ${{ gitea.actor }} is creating a @lipwig release or prerelease
+on:
+    push:
+        branches:
+            - release
+            - develop
+        tags-ignore:
+            - v[0-9]+.[0-9]+.[0-9]+
+            - v[0-9]+.[0-9]+.[0-9]+-next.[0-9]+
+jobs:
+  Build-And-Deploy:
+    runs-on: ubuntu-latest
+    container: gperdomor/nx-docker:18-alpine
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
+      - name: Setup NPM
+        run: |
+            echo user=willowhayward >> .npmrc
+            echo //registry.yarnpkg.com/:_authToken=${{ secrets.CI_NPM_TOKEN }} >> .npmrc
+      - name: Setup Docker
+        uses: docker/login-action@v2
+        with:
+          username: willowhayward
+          password: ${{ secrets.CI_DOCKER_TOKEN }}
+      - name: Setup Git
+        run: |
+            git config user.email "willow@whc.fyi"
+            git config user.name "Willow Hayward"
+            git remote add gitea https://willowhayward:${{ secrets.CI_GIT_TOKEN }}@git.whc.fyi/WillowHayward/lipwig.git
+      - name: Install dependencies
+        run: |
+            corepack enable
+            yarn install
+      - name: Create and commit release
+        if: ${{ gitea.ref_name == 'release' }}
+        run: |
+            yarn nx run workspace:release
+            yarn nx run-many --targets=sync-deps --projects=tag:deploy
+            git push gitea --follow-tags
+      - name: Create and commit prerelease
+        if: ${{ gitea.ref_name == 'develop' }}
+        run: |
+            yarn nx run workspace:prerelease
+            yarn nx run-many --targets=sync-deps --projects=tag:deploy
+            git push gitea --follow-tags
+      - name: Build
+        run: |
+            yarn nx run-many --targets=build --projects=tag:deploy --configuration=production
+      - name: Deploy release
+        if: ${{ gitea.ref_name == 'release' }}
+        run: |
+            unset GITHUB_ACTIONS
+            export CI_CONTEXT_FALLBACK_TO_LOCAL=true
+            yarn nx run-many --targets=deploy --projects=tag:deploy --configuration=production
+            export GITHUB_ACTIONS=true
+      - name: Deploy prerelease
+        if: ${{ gitea.ref_name == 'develop' }}
+        run: |
+            unset GITHUB_ACTIONS
+            export CI_CONTEXT_FALLBACK_TO_LOCAL=true
+            yarn nx run-many --targets=deploy-prerelease --projects=tag:deploy --configuration=production
+            export GITHUB_ACTIONS=true

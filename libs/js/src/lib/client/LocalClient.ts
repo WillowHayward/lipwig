@@ -8,7 +8,7 @@ import {
     ServerClientEvents,
     ServerHostEvents,
     JoinOptions,
-} from '@lipwig/common';
+} from '@lipwig/model';
 import { Client } from './Client';
 import * as Logger from 'loglevel';
 
@@ -17,11 +17,7 @@ import * as Logger from 'loglevel';
 
 export class LocalClient extends Client {
     protected override name = 'LocalClient';
-    constructor(
-        public host: Host,
-        room: string,
-        options: JoinOptions = {}
-    ) {
+    constructor(public host: Host, room: string, options: JoinOptions = {}) {
         super('', room, options);
 
         const id = host.getNewLocalClientID();
@@ -41,8 +37,8 @@ export class LocalClient extends Client {
                 event: SERVER_HOST_EVENT.JOINED,
                 data: {
                     id,
-                    data: options?.data
-                }
+                    data: options?.data,
+                },
             });
 
             this.emit(SERVER_CLIENT_EVENT.JOINED, id);
@@ -67,9 +63,9 @@ export class LocalClient extends Client {
             event: SERVER_HOST_EVENT.LEFT,
             data: {
                 id: this.id,
-                reason
-            }
-        }
+                reason,
+            },
+        };
 
         this.sendToHost(message);
     }
@@ -97,8 +93,8 @@ export class LocalClient extends Client {
             event: SERVER_HOST_EVENT.PONG_CLIENT,
             data: {
                 time,
-                id: this.id
-            }
+                id: this.id,
+            },
         });
     }
 }

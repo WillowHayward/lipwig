@@ -32,11 +32,11 @@
     "serve": {
       "executor": "@nx/js:node",
       "options": {
-        "buildTarget": "lipwig-server:build"
+        "buildTarget": "lipwig:build"
       },
       "configurations": {
         "production": {
-          "buildTarget": "lipwig-server:build:production"
+          "buildTarget": "lipwig:build:production"
         }
       }
     },
@@ -55,24 +55,38 @@
         "passWithNoTests": true
       }
     },
-    "container": {
+    "deploy": {
       "executor": "@nx-tools/nx-container:build",
       "dependsOn": ["build"],
       "options": {
         "engine": "docker",
+        "push": true,
         "metadata": {
           "images": ["willowhayward/lipwig"],
           "load": true,
           "tags": [
-            "type=schedule",
-            "type=ref,event=branch",
-            "type=ref,event=tag",
-            "type=ref,event=pr",
-            "type=sha,prefix=sha-"
+            "latest",
+            "type=semver,pattern={{raw}}"
+          ]
+        }
+      }
+    },
+    "deploy-prerelease": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "push": true,
+        "metadata": {
+          "images": ["willowhayward/lipwig"],
+          "load": true,
+          "tags": [
+            "next",
+            "type=semver,pattern={{raw}}"
           ]
         }
       }
     }
   },
-  "tags": []
+    "tags": ["deploy"]
 }

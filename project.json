@@ -1,0 +1,22 @@
+{
+  "name": "workspace",
+  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "targets": {
+    "release": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "syncVersions": true,
+        "trackDeps": true,
+      }
+    },
+    "prerelease": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "syncVersions": true,
+        "releaseAs": "prerelease",
+        "preid": "next",
+        "trackDeps": true,
+      }
+    }
+  }
+}

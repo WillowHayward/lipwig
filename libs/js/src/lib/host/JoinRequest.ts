@@ -1,16 +1,16 @@
-import { HOST_EVENT } from "@lipwig/common";
-import { Host } from "./Host";
+import { HOST_EVENT } from '@lipwig/model';
+import { Host } from './Host';
 
 export class JoinRequest {
-    constructor(private host: Host, private id: string) { }
+    constructor(private host: Host, private id: string) {}
 
     public approve() {
         this.host.send({
             event: HOST_EVENT.JOIN_RESPONSE,
             data: {
                 id: this.id,
-                response: true
-            }
+                response: true,
+            },
         });
     }
 
@@ -20,8 +20,8 @@ export class JoinRequest {
             data: {
                 id: this.id,
                 response: false,
-                reason
-            }
+                reason,
+            },
         });
     }
 }

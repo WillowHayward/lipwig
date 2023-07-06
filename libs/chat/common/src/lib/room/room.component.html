@@ -1,0 +1,13 @@
+<ng-container>
+    <h1>
+        Room {{code}}
+        <ng-container *ngIf="isHost">
+            <button (click)="close()">Close</button>
+            <button *ngIf="locked" (click)="unlock()">Unlock</button>
+            <button *ngIf="!locked" (click)="lock()">Lock</button>
+        </ng-container>
+        <button *ngIf="!isHost" (click)="leave()">Leave</button>
+    </h1>
+    <lwc-user-list [isHost]="isHost"></lwc-user-list>
+    <lwc-messages></lwc-messages>
+</ng-container>

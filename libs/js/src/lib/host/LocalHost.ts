@@ -1,11 +1,19 @@
-import { HostEvents, CreateOptions, SERVER_HOST_EVENT, HOST_EVENT, ServerClientEvents, ServerHostEvents, SERVER_CLIENT_EVENT } from "@lipwig/common";
-import { Host } from "./Host";
+import {
+    HostEvents,
+    CreateOptions,
+    SERVER_HOST_EVENT,
+    HOST_EVENT,
+    ServerClientEvents,
+    ServerHostEvents,
+    SERVER_CLIENT_EVENT,
+} from '@lipwig/model';
+import { Host } from './Host';
 import { generateString } from '@lipwig/utils';
 import { v4 } from 'uuid';
 import * as Logger from 'loglevel';
 
 // TODO: Once the event to register a LocalClient with the server is implemented, that may make all of these much simpler
-export class LocalHost extends Host{
+export class LocalHost extends Host {
     protected override name = 'LocalHost';
     public lockReason?: string;
     constructor(public override config: CreateOptions = {}) {
@@ -20,8 +28,8 @@ export class LocalHost extends Host{
                 event: SERVER_HOST_EVENT.CREATED,
                 data: {
                     code,
-                    id
-                }
+                    id,
+                },
             });
         }, 100);
     }
@@ -34,8 +42,8 @@ export class LocalHost extends Host{
                         event: SERVER_CLIENT_EVENT.MESSAGE,
                         data: {
                             event: message.data.event,
-                            args: message.data.args
-                        }
+                            args: message.data.args,
+                        },
                     });
                 }
                 break;
