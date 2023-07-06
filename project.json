@@ -7,7 +7,7 @@
       "options": {
         "syncVersions": true,
         "trackDeps": true,
-        "postTargets": ["server:sync-deps", "server:deploy", "js:sync-deps", "js:deploy", "angular:deploy", "model:deploy", "utils:deploy"]
+        "postTargets": ["model:deploy", "utils:deploy", "server:sync-deps", "server:deploy", "js:sync-deps", "js:deploy", "angular:deploy"]
       }
     },
     "prerelease": {
@@ -17,7 +17,7 @@
         "releaseAs": "prerelease",
         "preid": "next",
         "trackDeps": true,
-        "postTargets": ["server:sync-deps", "server:deploy-prerelease", "js:sync-deps", "js:deploy-prerelease", "angular:deploy-prerelease", "model:deploy-prerelease", "utils:deploy-prerelease"]
+        "postTargets": ["model:deploy-prerelease", "utils:deploy-prerelease", "server:sync-deps", "server:deploy-prerelease", "js:sync-deps", "js:deploy-prerelease", "angular:deploy-prerelease"]
       }
     },
   }

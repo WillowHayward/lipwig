@@ -11,23 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     container: node:18
     steps:
-      - name: Adding NPM credentials
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Setup NPM
         run: |
             echo user=willowhayward >> .npmrc
             echo _authToken=${{ secrets.CI_NPM_TOKEN }} >> .npmrc
-      - name: Check out repository code
-        uses: actions/checkout@v3
+      - name: Setup Git
+        run: |
+            git config user.email "willow@whc.fyi"
+            git config user.name "Willow Hayward"
+            git remote add gitea https://willowhayward:${{ secrets.CI_GIT_TOKEN }}@https://git.whc.fyi/WillowHayward/lipwig.git
       - name: Install dependencies
         run: |
             corepack enable
             yarn install
       - name: Build and deploy release
-        run: yarn nx workspace:version
+        run: yarn nx run workspace:release
       - name: Push changes to repo
         run: |
-            git config user.email "willow@whc.fyi"
-            git config user.name "Willow Hayward"
-            git remote add gitea https://willowhayward:${{ secrets.CI_GIT_TOKEN }}@https://git.whc.fyi/WillowHayward/lipwig.git
             git push gitea
             git push gitea --tags
 
