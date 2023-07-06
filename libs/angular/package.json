@@ -7,7 +7,6 @@
     },
     "dependencies": {
         "tslib": "^2.3.0",
-        "@lipwig/js": "0.1.1",
         "@lipwig/model": "0.1.1"
     },
     "sideEffects": false
