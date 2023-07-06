@@ -1,6 +1,6 @@
 {
     "name": "@lipwig/angular",
-    "version": "1.99.1-next.2",
+    "version": "1.99.1-next.3",
     "peerDependencies": {
         "@angular/common": "^16.1.0",
         "@angular/core": "^16.1.0"
