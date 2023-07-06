@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 COPY ./package.json ./
 COPY ./yarn.lock ./
 RUN corepack enable
-RUN yarn install
+RUN yarn install --production
 
 # Production image, copy all the files and run nest
 FROM docker.io/node:lts-alpine as runner

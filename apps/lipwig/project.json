@@ -55,24 +55,42 @@
         "passWithNoTests": true
       }
     },
-    "container": {
+    "deploy": {
       "executor": "@nx-tools/nx-container:build",
       "dependsOn": ["build"],
       "options": {
         "engine": "docker",
+        "push": true,
         "metadata": {
           "images": ["willowhayward/lipwig"],
           "load": true,
           "tags": [
+            "latest",
             "type=schedule",
-            "type=ref,event=branch",
             "type=ref,event=tag",
-            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
+    },
+    "deploy-prerelease": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "push": true,
+        "metadata": {
+          "images": ["willowhayward/lipwig"],
+          "load": true,
+          "tags": [
+            "next",
+            "type=schedule",
+            "type=ref,event=tag",
             "type=sha,prefix=sha-"
           ]
         }
       }
     }
   },
-  "tags": []
+    "tags": ["deploy"]
 }

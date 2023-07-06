@@ -11,7 +11,7 @@ on:
 jobs:
   Build-And-Deploy:
     runs-on: ubuntu-latest
-    container: node:18
+    container: gperdomor/nx-docker:18-alpine
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -21,6 +21,11 @@ jobs:
         run: |
             echo user=willowhayward >> .npmrc
             echo //registry.yarnpkg.com/:_authToken=${{ secrets.CI_NPM_TOKEN }} >> .npmrc
+      - name: Setup Docker
+        uses: docker/login-action@v2
+        with:
+          username: willowhayward
+          password: ${{ secrets.CI_DOCKER_TOKEN }}
       - name: Setup Git
         run: |
             git config user.email "willow@whc.fyi"
@@ -30,9 +35,17 @@ jobs:
         run: |
             corepack enable
             yarn install
-      - name: Build and deploy prerelease
-        run: yarn nx run workspace:prerelease
-      - name: Push changes to repo
+      - name: Update version and commit
         run: |
-            git push gitea --tags
-            git push gitea
+            yarn nx run workspace:prerelease
+            yarn nx run-many --targets=sync-deps --projects=tag:deploy
+            git push gitea --follow-tags
+      - name: Build
+        run: |
+            yarn nx run-many --targets=build --projects=tag:deploy --configuration=production
+      - name: Deploy
+        run: |
+            unset GITHUB_ACTIONS
+            export CI_CONTEXT_FALLBACK_TO_LOCAL=true
+            yarn nx run-many --targets=deploy-prerelease --projects=tag:deploy --configuration=production
+            export GITHUB_ACTIONS=true
