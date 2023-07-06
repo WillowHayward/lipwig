@@ -2,6 +2,7 @@ import { join } from 'path';
 import { SyncDepsExecutorSchema } from './schema';
 import { ExecutorContext} from '@nx/devkit';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { spawnSync } from 'child_process';
 
 export default async function runExecutor(options: SyncDepsExecutorSchema, context: ExecutorContext) {
     if (!context.projectName) {
@@ -25,6 +26,8 @@ export default async function runExecutor(options: SyncDepsExecutorSchema, conte
     }
 
     writeFileSync(path, JSON.stringify(json, null, 4), { encoding: 'utf8' });
+
+    spawnSync('git', ['commit', '-a', '--amend', '--no-edit']);
 
     return {
         success: true,
