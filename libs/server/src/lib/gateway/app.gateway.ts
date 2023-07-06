@@ -15,7 +15,7 @@ import {
 import { RoomService } from '../room/room.service';
 import { Logger, UseGuards } from '@nestjs/common';
 import { RoomGuard } from '../guards/room.guard';
-import { WebSocket } from '../app/app.model';
+import { WebSocket } from '../lipwig.model';
 import { LipwigSocket } from '../classes/LipwigSocket';
 
 @WebSocketGateway()

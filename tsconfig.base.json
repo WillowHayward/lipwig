@@ -19,7 +19,8 @@
             "@lipwig/js": ["libs/js/src/index.ts"],
             "@lipwig/model": ["libs/model/src/index.ts"],
             "@lipwig/nx": ["libs/nx/src/index.ts"],
-            "@lipwig/utils": ["libs/utils/src/index.ts"]
+            "@lipwig/utils": ["libs/utils/src/index.ts"],
+            "@lipwig/server": ["libs/server/src/index.ts"]
         }
     },
     "exclude": ["node_modules", "tmp"]

@@ -32,11 +32,11 @@
     "serve": {
       "executor": "@nx/js:node",
       "options": {
-        "buildTarget": "lipwig-server:build"
+        "buildTarget": "lipwig:build"
       },
       "configurations": {
         "production": {
-          "buildTarget": "lipwig-server:build:production"
+          "buildTarget": "lipwig:build:production"
         }
       }
     },

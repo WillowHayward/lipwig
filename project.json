@@ -7,7 +7,7 @@
       "options": {
         "syncVersions": true,
         "trackDeps": true,
-        "postTargets": ["js:sync-deps", "js:deploy", "angular:deploy", "model:deploy", "utils:deploy"]
+        "postTargets": ["server:sync-deps", "server:deploy", "js:sync-deps", "js:deploy", "angular:deploy", "model:deploy", "utils:deploy"]
       }
     },
   }

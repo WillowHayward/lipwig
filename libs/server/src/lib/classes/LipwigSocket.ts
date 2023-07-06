@@ -6,7 +6,7 @@ import {
     CLOSE_CODE,
     ServerGenericEvents,
 } from '@lipwig/model';
-import { WebSocket } from '../app/app.model';
+import { WebSocket } from '../lipwig.model';
 import { Room } from './Room';
 import { Logger } from '@nestjs/common';
 
