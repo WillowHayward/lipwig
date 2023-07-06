@@ -1,4 +1,4 @@
-import { Joined, JoinedData, Message, MessageData, Poll } from './lipwig.model';
+import { Joined, JoinedData, Rejoined, Message, MessageData, Poll } from './lipwig.model';
 import {
     Disconnected,
     HostDisconnected,
@@ -24,6 +24,7 @@ export * from './ping.model';
 export type Event =
     // Lipwig Events
     | Joined
+    | Rejoined
     | Message
     | Poll
     // Connection Events

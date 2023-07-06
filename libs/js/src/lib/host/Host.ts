@@ -259,6 +259,9 @@ export class Host extends EventManager {
                     message.data.data
                 );
                 break;
+            case SERVER_HOST_EVENT.REJOINED:
+                user = this.handleRejoined(message.data.id);
+                break;
             case SERVER_HOST_EVENT.JOIN_REQUEST:
                 args = this.handleJoinRequest(
                     message.data.id,
@@ -338,7 +341,7 @@ export class Host extends EventManager {
     private handleJoined(
         id: string,
         data: Record<string, unknown> = {}
-    ): [User, [User, Record<string, unknown>]] {
+    ): [User, [Record<string, unknown>]] {
         Logger.debug(`[${this.name}] ${id} joined`);
         const local = id.startsWith('local-');
         const user = new User(id, this, data, local);
@@ -351,7 +354,18 @@ export class Host extends EventManager {
             }
             user.client = client;
         }
-        return [user, [user, data]];
+        return [user, [data]];
+    }
+
+    private handleRejoined(id: string): User {
+        Logger.debug(`[${this.name}] ${id} rejoined`);
+        const user = this.users.find(user => user.id === id);
+
+        if (!user) {
+            throw new Error('Something went wrong'); // TODO
+        }
+
+        return user;
     }
 
     private handleJoinRequest(

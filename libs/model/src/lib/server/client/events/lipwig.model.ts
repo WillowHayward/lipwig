@@ -13,6 +13,11 @@ export interface JoinedData {
     data?: { [index: string]: any };
 }
 
+export interface Rejoined extends EventStructure {
+    event: SERVER_CLIENT_EVENT.REJOINED;
+    data: JoinedData
+}
+
 export interface Message extends EventStructure {
     event: SERVER_CLIENT_EVENT.MESSAGE;
     data: MessageData;

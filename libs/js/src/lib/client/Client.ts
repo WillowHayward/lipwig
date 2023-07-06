@@ -21,6 +21,7 @@ export class Client extends EventManager {
     public id = '';
     public roomName?: string;
     public data: Record<string, any>;
+    public options: JoinOptions = {};
 
     /**
      * Attempt to join an existing Lipwig room
@@ -28,19 +29,32 @@ export class Client extends EventManager {
      * @param code  Room code to attempt to join
      * @param data  Data to pass to room host on connection
      */
+    constructor(url: string, room: string, options: JoinOptions);
+    constructor(url: string, room: string, id: string);
     constructor(
         url: string,
         public room: string,
-        public options: JoinOptions = {}
+        optionsOrId: JoinOptions | string
     ) {
         super();
 
-        this.data = options.data || {};
+        const rejoin = typeof optionsOrId === 'string';
+        if (rejoin) {
+            this.data = {};
+        } else {
+
+            this.data = optionsOrId.data || {};
+            this.options = optionsOrId;
+        }
 
         this.socket = new Socket(url, this.name);
 
         this.socket.on('connected', () => {
-            this.connected();
+            if (rejoin) {
+                this.rejoin(optionsOrId);
+            } else {
+                this.connected();
+            }
         });
 
         this.socket.on('error', () => {
@@ -160,6 +174,17 @@ export class Client extends EventManager {
         return promise;
     }
 
+    protected rejoin(id: string): void {
+        const message: ClientEvents.Rejoin = {
+            event: CLIENT_EVENT.REJOIN,
+            data: {
+                code: this.room,
+                id
+            },
+        };
+        this.socket.send(message);
+    }
+
     /**
      * Final stage of connection handshake - sends join message to LipwigCore server
      */
@@ -185,6 +210,7 @@ export class Client extends EventManager {
 
         switch (message.event) {
             case SERVER_CLIENT_EVENT.JOINED:
+            case SERVER_CLIENT_EVENT.REJOINED:
                 args = this.handleJoined(message.data.id, message.data.name);
                 break;
             case SERVER_CLIENT_EVENT.MESSAGE:

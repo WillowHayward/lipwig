@@ -4,10 +4,6 @@ export type CreateOptions = Partial<{
     password: string;
     approvals: boolean; // True for Host manually approving join requests
     required: string[]; // List of required paramaters to join a room
-    reconnect: {
-        code: string;
-        id: string;
-    };
 }>;
 
 export type JoinOptions = Partial<{
@@ -15,7 +11,6 @@ export type JoinOptions = Partial<{
         [index: string]: unknown;
     };
     password: string;
-    reconnect: string;
 }>;
 
 export type RoomQuery = Partial<{
@@ -26,6 +21,7 @@ export type RoomQuery = Partial<{
     capacity: number; // Slots remaining
     locked: boolean;
     lockReason?: string;
+    rejoin: boolean; // ID of client for rejoining requests
 }>;
 
 export enum GENERIC_EVENT {
@@ -37,7 +33,7 @@ export enum ERROR_CODE {
     MALFORMED = 'MALFORMED',
     USERNOTFOUND = 'USERNOTFOUND',
     INSUFFICIENTPERMISSIONS = 'INSUFFICIENTPERMISSIONS',
-    // Room join erros
+    // Room join errors
     ROOMNOTFOUND = 'ROOMNOTFOUND',
     ROOMFULL = 'ROOMFULL',
     ROOMCLOSED = 'ROOMCLOSED',
@@ -45,6 +41,8 @@ export enum ERROR_CODE {
     INCORRECTPASSWORD = 'INCORRECTPASSWORD',
     MISSINGPARAM = 'MISSINGPARAM',
     REJECTED = 'REJECTED',
+    // Room rejoin errors
+    ALREADYCONNECTED = 'ALREADYCONNECTED',
     // Poll errors
     POLLCLOSED = 'POLLCLOSED',
     POLLALREADYRESPONSED = 'POLLALREADYRESPONSED',

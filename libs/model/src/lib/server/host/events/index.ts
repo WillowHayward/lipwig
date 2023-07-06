@@ -1,6 +1,7 @@
 import {
     Created,
     Joined,
+    Rejoined,
     JoinRequest,
     Left,
     Message,
@@ -21,6 +22,7 @@ export type Event =
     // Lipwig Events
     | Created
     | Joined
+    | Rejoined
     | JoinRequest
     | Left
     | Message

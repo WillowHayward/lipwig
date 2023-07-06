@@ -18,6 +18,16 @@ export interface JoinData {
     options?: JoinOptions;
 }
 
+export interface Rejoin extends EventStructure {
+    event: CLIENT_EVENT.REJOIN;
+    data: RejoinData;
+}
+
+export interface RejoinData {
+    code: string;
+    id: string;
+}
+
 export interface Message extends EventStructure {
     event: CLIENT_EVENT.MESSAGE;
     data: MessageData;
@@ -77,6 +87,7 @@ export interface PongClientData {
 
 export type Event =
     | Join
+    | Rejoin
     | Message
     | PollResponse
     | Reconnect

@@ -6,6 +6,7 @@ export enum SERVER_CLIENT_EVENT {
 
     // Lipwig events
     JOINED = 'joined',
+    REJOINED = 'rejoined',
     MESSAGE = 'lw-message',
     POLL = 'poll',
 

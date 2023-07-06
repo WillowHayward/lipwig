@@ -88,13 +88,22 @@ export class Room {
         return id === this.host.id;
     }
 
-    query(): RoomQuery {
+    query(id?: string): RoomQuery {
         let isProtected = false;
         const currentSize = this.users.length + this.localUsers.length; // TODO: THis is duplicated, could be a function
         const capacity = this.size - currentSize;
         if (this.password && this.password.length > 0) {
             isProtected = true;
         }
+
+        let rejoin = false;
+        if (id) {
+            const user = this.users.find(user => user.id === id);
+            if (user && !user.connected) {
+                rejoin = true;
+            }
+        }
+
         return {
             exists: true,
             room: this.code,
@@ -103,6 +112,7 @@ export class Room {
             capacity,
             locked: this.locked,
             lockReason: this.lockReason,
+            rejoin
         };
     }
 
@@ -197,6 +207,30 @@ export class Room {
         this.joinSuccess(client, options);
     }
 
+    public rejoin(client: LipwigSocket, id: string) {
+        if (!this.reconnectUser(client, id)) {
+            return;
+        }
+
+        client.send({
+            event: SERVER_CLIENT_EVENT.REJOINED,
+            data: {
+                id,
+                name: this.name,
+            },
+        });
+        // Send to user first to allow listeners to be in localhost
+        // TODO: This may still introduce a race condition
+        this.host.send({
+            event: SERVER_HOST_EVENT.REJOINED,
+            data: {
+                id: client.id,
+            },
+        });
+
+        Logger.debug(`${id} rejoined`, this.id);
+    }
+
     public joinResponse(
         client: LipwigSocket,
         id: string,
@@ -284,6 +318,24 @@ export class Room {
             if (!this.reconnectUser(user, id)) {
                 return false;
             }
+            user.send({
+                event: SERVER_CLIENT_EVENT.RECONNECTED,
+                data: {
+                    room: this.code,
+                    id,
+                },
+            });
+            // Send to user first to allow listeners to be in localhost
+            // TODO: This may still introduce a race condition
+            this.host.send({
+                event: SERVER_HOST_EVENT.CLIENT_RECONNECTED,
+                data: {
+                    room: this.code,
+                    id: user.id,
+                },
+            });
+
+            Logger.debug(`${id} reconnected`, this.id);
         }
 
         user.connected = true;
@@ -328,28 +380,15 @@ export class Room {
             return false;
         }
 
+        if (user.connected) {
+            user.error(ERROR_CODE.ALREADYCONNECTED);
+            return false;
+        }
+
         user.initialize(id, false, this);
 
         this.users.splice(index, 1, user);
 
-        user.send({
-            event: SERVER_CLIENT_EVENT.RECONNECTED,
-            data: {
-                room: this.code,
-                id,
-            },
-        });
-        // Send to user first to allow listeners to be in localhost
-        // TODO: This may still introduce a race condition
-        this.host.send({
-            event: SERVER_HOST_EVENT.CLIENT_RECONNECTED,
-            data: {
-                room: this.code,
-                id: user.id,
-            },
-        });
-
-        Logger.debug(`${id} reconnected`, this.id);
 
         return true;
     }

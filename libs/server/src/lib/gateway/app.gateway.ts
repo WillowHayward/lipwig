@@ -34,7 +34,8 @@ export class AppGateway implements OnGatewayConnection {
     @SubscribeMessage(GENERIC_EVENT.QUERY)
     query(socket: WebSocket, payload: GenericEvents.QueryData) {
         const code = payload.room;
-        this.rooms.query(socket.socket, code);
+        const id = payload.id;
+        this.rooms.query(socket.socket, code, id);
     }
 
     @SubscribeMessage(HOST_EVENT.CREATE)
@@ -48,6 +49,13 @@ export class AppGateway implements OnGatewayConnection {
         const code = payload.code;
         const options = payload.options;
         this.rooms.join(socket.socket, code, options);
+    }
+
+    @SubscribeMessage(CLIENT_EVENT.REJOIN)
+    rejoin(socket: WebSocket, payload: ClientEvents.RejoinData) {
+        const code = payload.code;
+        const id = payload.id;
+        this.rooms.rejoin(socket.socket, code, id);
     }
 
     @SubscribeMessage(HOST_EVENT.JOIN_RESPONSE)

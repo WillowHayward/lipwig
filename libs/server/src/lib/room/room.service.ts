@@ -43,7 +43,7 @@ export class RoomService {
         return this.getRoom(room).isHost(id);
     }
 
-    query(socket: LipwigSocket, code: string) {
+    query(socket: LipwigSocket, code: string, id?: string) {
         let response: RoomQuery;
         if (!this.roomExists(code)) {
             response = {
@@ -52,7 +52,7 @@ export class RoomService {
             };
         } else {
             const room = this.getRoom(code);
-            response = room.query();
+            response = room.query(id);
         }
 
         socket.send({
@@ -63,14 +63,6 @@ export class RoomService {
 
     create(user: LipwigSocket, config: CreateOptions = {}) {
         const existingCodes = Object.keys(this.rooms);
-
-        if (config.reconnect && existingCodes.includes(config.reconnect.code)) {
-            if (
-                this.reconnect(user, config.reconnect.code, config.reconnect.id)
-            ) {
-                return;
-            }
-        }
 
         if (this.roomLimit) {
             if (existingCodes.length >= this.roomLimit) {
@@ -98,13 +90,18 @@ export class RoomService {
             return;
         }
 
-        if (options.reconnect) {
-            if (room.reconnect(user, options.reconnect)) {
-                return;
-            }
+        room.join(user, options);
+    }
+
+    rejoin(user: LipwigSocket, code: string, id: string) {
+        const room = this.getRoom(code);
+
+        if (!room) {
+            user.error(ERROR_CODE.ROOMNOTFOUND);
+            return;
         }
 
-        room.join(user, options);
+        room.rejoin(user, id);
     }
 
     joinResponse(

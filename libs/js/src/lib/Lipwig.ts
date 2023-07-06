@@ -43,7 +43,21 @@ export class Lipwig {
                 resolve(client);
             });
 
-            client.on('reconnected', () => {
+            client.once('error', (error: ERROR_CODE, message?: string) => {
+                reject({ error, message });
+            });
+        });
+    }
+
+    static rejoin(
+        url: string,
+        code: string,
+        id: string
+    ): Promise<Client> {
+        return new Promise((resolve, reject) => {
+            const client = new Client(url, code, id);
+
+            client.on('rejoined', () => {
                 resolve(client);
             });
 
@@ -53,18 +67,7 @@ export class Lipwig {
         });
     }
 
-    static reconnect(
-        url: string,
-        code: string,
-        id: string
-    ): Promise<Host | Client | null> {
-        return new Promise((resolve, reject) => {
-            // TODO
-            resolve(null);
-        });
-    }
-
-    static query(url: string, code: string): Promise<RoomQuery> {
+    static query(url: string, code: string, id?: string): Promise<RoomQuery> {
         return new Promise((resolve) => {
             const socket = new Socket(url, 'Query');
             socket.on('connected', () => {
@@ -72,6 +75,7 @@ export class Lipwig {
                     event: GENERIC_EVENT.QUERY,
                     data: {
                         room: code,
+                        id
                     },
                 });
             });

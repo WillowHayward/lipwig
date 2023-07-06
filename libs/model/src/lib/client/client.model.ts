@@ -6,6 +6,7 @@ export const DEFAULTS = {
 
 export enum CLIENT_EVENT {
     JOIN = 'join',
+    REJOIN = 'rejoin',
     MESSAGE = 'lw-message',
     POLL_RESPONSE = 'poll-response',
     RECONNECT = 'reconnect',

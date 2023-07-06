@@ -22,6 +22,15 @@ export interface JoinedData {
     data?: { [index: string]: any };
 }
 
+export interface Rejoined extends EventStructure {
+    event: SERVER_HOST_EVENT.REJOINED;
+    data: RejoinedData;
+}
+
+export interface RejoinedData {
+    id: string;
+}
+
 export interface JoinRequest extends EventStructure {
     event: SERVER_HOST_EVENT.JOIN_REQUEST;
     data: JoinRequestData;

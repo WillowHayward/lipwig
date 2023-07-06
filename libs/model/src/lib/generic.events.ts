@@ -11,6 +11,7 @@ export interface Query extends EventStructure {
 
 export interface QueryData {
     room: string;
+    id?: string; // For rejoin checking
 }
 
 export type Event = Query;
