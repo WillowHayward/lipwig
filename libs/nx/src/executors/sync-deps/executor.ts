@@ -29,6 +29,8 @@ export default async function runExecutor(options: SyncDepsExecutorSchema, conte
 
     // Get tag
     const tag = spawnSync('git', ['tag', '--points-at', 'HEAD'], { encoding: 'utf8' }).stdout;
+    console.log('TAG', tag);
+
 
     spawnSync('git', ['commit', '-a', '--amend', '--no-edit']);
 
