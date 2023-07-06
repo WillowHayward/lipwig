@@ -12,11 +12,11 @@ import {
 import { LipwigSocket } from '../classes/LipwigSocket';
 
 interface Validator {
-  required?: string[]; // Required paramaters on request
-  roomExists?: boolean; // Code parameter passed is real room
-  validUser?: boolean; // User is valid (initialised, exists in room)
-  isHost?: boolean; // If the user is or isn't the host. Leave undefined for either.
-  other?: (args: any) => boolean; // Event-specific validation function
+    required?: string[]; // Required paramaters on request
+    roomExists?: boolean; // Code parameter passed is real room
+    validUser?: boolean; // User is valid (initialised, exists in room)
+    isHost?: boolean; // If the user is or isn't the host. Leave undefined for either.
+    other?: (args: any) => boolean; // Event-specific validation function
 }
 
 @Injectable()
@@ -46,7 +46,7 @@ export class RoomGuard implements CanActivate {
 
         if (
             validator.required &&
-      !this.validateParameters(args, validator.required)
+            !this.validateParameters(args, validator.required)
         ) {
             return false;
         }
@@ -155,8 +155,8 @@ export class RoomGuard implements CanActivate {
                     required: ['code', 'id'],
                     roomExists: true,
                 };
-                //case CLIENT_EVENT.ADMINISTRATE:
-                //return {}; // TODO: Determine administrate flow
+            //case CLIENT_EVENT.ADMINISTRATE:
+            //return {}; // TODO: Determine administrate flow
             case CLIENT_EVENT.MESSAGE:
                 return {
                     required: ['event', 'args'],
@@ -179,11 +179,11 @@ export class RoomGuard implements CanActivate {
                         return true;
                     },
                 };
-                /*case CLIENT_EVENT.PING:
-      return {
-          required: ['time'],
-          validUser: true,
-      };*/
+            /*case CLIENT_EVENT.PING:
+  return {
+      required: ['time'],
+      validUser: true,
+  };*/
             case HOST_EVENT.PING_CLIENT:
             case HOST_EVENT.PONG_HOST:
                 return {
