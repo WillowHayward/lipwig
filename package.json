@@ -1,6 +1,6 @@
 {
     "name": "lipwig",
-    "version": "0.2.9-next.3",
+    "version": "0.2.9-next.6",
     "license": "GPL-3.0-or-later",
     "private": true,
     "devDependencies": {

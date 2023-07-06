@@ -4,8 +4,10 @@ on:
     push:
         branches:
             - release
+            - develop
         tags-ignore:
             - v[0-9]+.[0-9]+.[0-9]+
+            - v[0-9]+.[0-9]+.[0-9]+-next.[0-9]+
 jobs:
   Build-And-Deploy:
     runs-on: ubuntu-latest
@@ -16,18 +18,22 @@ jobs:
       - name: Setup NPM
         run: |
             echo user=willowhayward >> .npmrc
-            echo _authToken=${{ secrets.CI_NPM_TOKEN }} >> .npmrc
+            echo //registry.yarnpkg.com/:_authToken=${{ secrets.CI_NPM_TOKEN }} >> .npmrc
       - name: Setup Git
         run: |
             git config user.email "willow@whc.fyi"
             git config user.name "Willow Hayward"
-            git remote add gitea https://willowhayward:${{ secrets.CI_GIT_TOKEN }}@https://git.whc.fyi/WillowHayward/lipwig.git
+            git remote add gitea willowhayward:${{ secrets.CI_GIT_TOKEN }}@https://git.whc.fyi/WillowHayward/lipwig.git
       - name: Install dependencies
         run: |
             corepack enable
             yarn install
       - name: Build and deploy release
+        if: ${{ gittea.ref_name == 'release' }}
         run: yarn nx run workspace:release
+      - name: Build and deploy prerelease
+        if: ${{ gittea.ref_name == 'develop' }}
+        run: yarn nx run workspace:prerelease
       - name: Push changes to repo
         run: |
             git push gitea

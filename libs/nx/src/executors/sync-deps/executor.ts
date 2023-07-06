@@ -35,7 +35,7 @@ export default async function runExecutor(options: SyncDepsExecutorSchema, conte
     spawnSync('git', ['commit', '-a', '--amend', '--no-edit']);
 
     spawnSync('git', ['tag', '-d', tag]);
-    spawnSync('git', ['tag', tag]);
+    spawnSync('git', ['tag', tag, '-a', `Release ${tag}`]);
 
     return {
         success: true,
