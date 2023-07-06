@@ -66,9 +66,7 @@
           "load": true,
           "tags": [
             "latest",
-            "type=schedule",
-            "type=ref,event=tag",
-            "type=sha,prefix=sha-"
+            "type=semver,pattern={{raw}}"
           ]
         }
       }
@@ -84,9 +82,7 @@
           "load": true,
           "tags": [
             "next",
-            "type=schedule",
-            "type=ref,event=tag",
-            "type=sha,prefix=sha-"
+            "type=semver,pattern={{raw}}"
           ]
         }
       }

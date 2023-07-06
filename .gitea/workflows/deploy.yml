@@ -1,8 +1,9 @@
-name: Create and deploy a @lipwig prerelease
-run-name: ${{ gitea.actor }} is creating a @lipwig prerelease
+name: Create and deploy a @lipwig release or prerelease
+run-name: ${{ gitea.actor }} is creating a @lipwig release or prerelease
 on:
     push:
         branches:
+            - release
             - develop
             - feature/reconnection
         tags-ignore:
@@ -35,9 +36,19 @@ jobs:
         run: |
             corepack enable
             yarn install
+      - name: Set to 'release' mode
+        if: ${{ gittea.ref_name == 'release' }}
+        run: |
+            export RELEASE_COMMAND=release
+            export DEPLOY_COMMAND=deploy
+      - name: Set to 'prerelease' mode
+        if: ${{ gittea.ref_name != 'release' }}
+        run: |
+            export RELEASE_COMMAND=prerelease
+            export DEPLOY_COMMAND=deploy-prerelease
       - name: Update version and commit
         run: |
-            yarn nx run workspace:prerelease
+            yarn nx run workspace:$RELEASE_COMMAND
             yarn nx run-many --targets=sync-deps --projects=tag:deploy
             git push gitea --follow-tags
       - name: Build
@@ -47,5 +58,5 @@ jobs:
         run: |
             unset GITHUB_ACTIONS
             export CI_CONTEXT_FALLBACK_TO_LOCAL=true
-            yarn nx run-many --targets=deploy-prerelease --projects=tag:deploy --configuration=production
+            yarn nx run-many --targets=$DEPLOY_COMMAND --projects=tag:deploy --configuration=production
             export GITHUB_ACTIONS=true
