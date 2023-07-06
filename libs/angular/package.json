@@ -1,13 +1,12 @@
 {
     "name": "@lipwig/angular",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "peerDependencies": {
         "@angular/common": "^16.1.0",
         "@angular/core": "^16.1.0"
     },
     "dependencies": {
-        "tslib": "^2.3.0",
-        "@lipwig/model": "0.1.1"
+        "tslib": "^2.3.0"
     },
     "sideEffects": false
 }
