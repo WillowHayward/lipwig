@@ -52,6 +52,13 @@
                 "access": "public",
                 "buildTarget": "production"
             }
+        },
+        "deploy-prerelease": {
+            "executor": "ngx-deploy-npm:deploy",
+            "options": {
+                "access": "public",
+                "tag": "next"
+            }
         }
     }
 }

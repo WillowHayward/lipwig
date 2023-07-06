@@ -2,6 +2,36 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.9-next.1](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.9-next.0...v0.2.9-next.1) (2023-07-06)
+
+
+
+## [0.2.9-next.0](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.8...v0.2.9-next.0) (2023-07-06)
+
+
+
+## [0.2.8](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.8-next.1...v0.2.8) (2023-07-06)
+
+
+
+## [0.2.8-next.1](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.8-next.0...v0.2.8-next.1) (2023-07-06)
+
+
+
+## [0.2.8-next.0](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.7...v0.2.8-next.0) (2023-07-06)
+
+
+### Features
+
+* **@lipwig/angular:** Added rejoin, url now set at service scope ([d961fec](https://git.whc.fyi/WillowHayward/lipwig/commits/d961fec7e0d20685505fcc6b82bce35c125025de))
+
+
+### BREAKING CHANGES
+
+* **@lipwig/angular:** Lipwig functions no longer accept url as parameter
+
+
+
 ## [0.2.7](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.2.6...v0.2.7) (2023-07-06)
 
 

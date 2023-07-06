@@ -50,6 +50,13 @@
             "options": {
                 "access": "public"
             }
+        },
+        "deploy-prerelease": {
+            "executor": "ngx-deploy-npm:deploy",
+            "options": {
+                "access": "public",
+                "tag": "next"
+            }
         }
     },
     "tags": []

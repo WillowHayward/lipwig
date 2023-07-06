@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { LipwigService, LazyLoaderService } from '@lipwig/angular';
 import { NgForm } from '@angular/forms';
+import { Client } from '@lipwig/js';
 
 @Component({
     selector: 'lwc-join',
@@ -10,29 +11,37 @@ import { NgForm } from '@angular/forms';
 export class JoinComponent implements OnInit {
     @ViewChild('joinForm', { static: true }) joinForm: NgForm;
     canJoin = false;
+    canRejoin = false;
     roomInfo?: string;
     join = {
         name: '',
         code: ''
     }
 
+    private id?: string;
+
     constructor(private lipwig: LipwigService, private lazy: LazyLoaderService) {
         lazy.register('lipwig-chat', 'Lipwig Chat', () => import('@lipwig/chat/client').then(mod => mod.lipwigChatClientRoutes));
     }
 
     ngOnInit(): void {
-        const lwHost = 'ws://localhost:8989';
+        this.id = window.sessionStorage.getItem('id') || undefined;
+        this.joinListener();
+    }
+
+    private joinListener() {
         this.joinForm.valueChanges?.subscribe(value => {
             if (!value.code) {
                 return;
             }
 
             if (value.code.length === 4) {
-                this.lipwig.query(lwHost, value.code).then(response => {
+                this.lipwig.query(value.code, this.id).then(response => {
                     if (response.room !== value.code) {
                         // Query for another code
                         return;
                     }
+
 
                     if (!response.exists) {
                         this.roomInfo = 'Room Not Found';
@@ -45,6 +54,14 @@ export class JoinComponent implements OnInit {
                     }
 
                     const appName = this.lazy.getAppName(response.name);
+
+                    if (response.rejoin) {
+                        this.roomInfo = appName;
+                        this.lazy.preload(response.name);
+                        this.canJoin = true;
+                        this.canRejoin = true;
+                        return;
+                    }
 
                     if (response.locked) {
                         this.roomInfo = `${appName} (${response.lockReason ?? 'Cannot Join Room'})`;
@@ -65,39 +82,31 @@ export class JoinComponent implements OnInit {
             } else {
                 this.roomInfo = undefined;
                 this.canJoin = false;
+                this.canRejoin = false;
             }
         });
+
     }
 
-
     onJoin() {
-        const lwHost = 'ws://localhost:8989';
-        console.log(this.join);
-        const url = lwHost;
-        const name = this.join.name;
         const code = this.join.code;
-        this.lipwig.join(url, code, {
-            data: {
-                name
-            }
-        }).then(() => {
+
+        let promise: Promise<Client>;
+        if (this.canRejoin) {
+            promise = this.lipwig.rejoin(code, this.id as string);
+        } else {
+            const name = this.join.name;
+            promise = this.lipwig.join(code, {
+                data: {
+                    name
+                }
+            });
+        }
+        promise.then(client => {
+            window.sessionStorage.setItem('id', client.id);
             this.lazy.navigate(code);
         }).catch(() => {
             alert('Could not join room');
         });
-    }
-
-    private setSessionData(
-        name: string,
-        code: string,
-        id: string,
-        isHost: boolean
-    ) {
-        window.sessionStorage.setItem('name', name);
-        window.sessionStorage.setItem('code', code);
-        window.sessionStorage.setItem('id', id);
-
-        const host = isHost ? 'true' : 'false';
-        window.sessionStorage.setItem('host', host);
     }
 }

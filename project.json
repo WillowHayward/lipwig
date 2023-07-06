@@ -2,12 +2,22 @@
   "name": "workspace",
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "targets": {
-    "version": {
+    "release": {
       "executor": "@jscutlery/semver:version",
       "options": {
         "syncVersions": true,
         "trackDeps": true,
         "postTargets": ["server:sync-deps", "server:deploy", "js:sync-deps", "js:deploy", "angular:deploy", "model:deploy", "utils:deploy"]
+      }
+    },
+    "prerelease": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "syncVersions": true,
+        "releaseAs": "prerelease",
+        "preid": "next",
+        "trackDeps": true,
+        "postTargets": ["server:sync-deps", "server:deploy-prerelease", "js:sync-deps", "js:deploy-prerelease", "angular:deploy-prerelease", "model:deploy-prerelease", "utils:deploy-prerelease"]
       }
     },
   }

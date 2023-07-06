@@ -1,23 +1,22 @@
 import { Injectable } from '@angular/core';
 import { LipwigService } from '@lipwig/angular';
 import { Client, Host, JoinRequest, User } from '@lipwig/js';
-import { Chatter, Reconnectable } from './chat.model';
+import { Chatter } from './chat.model';
 import { ClientService } from './client.service';
 
 @Injectable({
     providedIn: 'root'
 })
-export class HostService implements Reconnectable {
+export class HostService {
     private host: Host;
-    //private url = window.env['LIPWIG_HOST'];
-    private url = 'ws://localhost:8989';
 
     constructor(private lipwig: LipwigService, private client: ClientService) { }
 
     async connect(name: string): Promise<Client> {
-        const host = await this.lipwig.create(this.url, {
+        const host = await this.lipwig.create({
             name: 'lipwig-chat',
-            required: ['name']
+            required: ['name'],
+            approvals: true,
         });
         this.host = host;
 
@@ -31,39 +30,6 @@ export class HostService implements Reconnectable {
         this.setup();
 
         return local;
-    }
-
-    async reconnect(code: string, id: string): Promise<Client> {
-        const host = await this.lipwig.create(this.url, {
-            reconnect: {
-                code, id
-            }
-        });
-        this.host = host;
-        this.setup();
-
-
-        // Get local client here
-        const users = host.getUsers();
-        if (!users.length) {
-            throw new Error('Users not properly initialized');
-        }
-
-        let client: Client | null = null;
-        for (const user of users) {
-            client = user.getLocalClient();
-            if (client) {
-                break;
-            }
-        }
-
-        if (!client) {
-            throw new Error('Local users not initialized');
-        }
-
-        this.client.setClient(client);
-
-        return client;
     }
 
     kick(id: string, reason?: string) {
@@ -91,15 +57,20 @@ export class HostService implements Reconnectable {
     private setup() {
         //this.setPingServerListener();
         this.host.on('joined', (user: User, data: any) => {
+            console.log(data);
             user.send('chatters', this.getChatters());
 
             //this.setPingListener(user);
 
-
             this.host.sendToAllExcept('newChatter', user, data.name, user.id);
         });
 
-        this.host.on('join-request', (request: JoinRequest, data: {[key: string]: any}) => {
+        this.host.on('rejoined', (user: User) => {
+            //this.setPingListener(user);
+            user.send('chatters', this.getChatters());
+        });
+
+        this.host.on('join-request', (request: JoinRequest, data: { [key: string]: any }) => {
             const name = data['name'];
             if (this.host.getUsers().some(user => user.data['name'] === name)) {
                 request.reject(`User with name '${name}' already in room`);

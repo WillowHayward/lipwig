@@ -4,7 +4,7 @@
     <h1>Code</h1>
     <input [(ngModel)]="join.code" name="code" type="text" />
     <p>
-        <button type="submit" [disabled]="!canJoin">Join</button>
+        <button type="submit" [disabled]="!canJoin">{{canRejoin ? 'Rejoin' : 'Join'}}</button>
     </p>
 </form>
 <p *ngIf="roomInfo">

@@ -1,18 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Client } from '@lipwig/js';
 import { Observable } from 'rxjs';
-import { Chatter, Reconnectable } from './chat.model';
+import { Chatter } from './chat.model';
 import { LipwigService } from '@lipwig/angular';
 import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
-export class ClientService implements Reconnectable {
+export class ClientService {
     private client: Client;
     private chatters: Chatter[] = [];
-    //private url = window.env['LIPWIG_HOST'];
-    private url = 'ws://localhost:8989';
 
     constructor(private lipwig: LipwigService, private router: Router) { }
 
@@ -22,7 +20,7 @@ export class ClientService implements Reconnectable {
     }
 
     async connect(name: string, code: string): Promise<Client> {
-        const client = await this.lipwig.join(this.url, code, {
+        const client = await this.lipwig.join(code, {
             data: { name }
         });
         this.setClient(client);
@@ -30,14 +28,14 @@ export class ClientService implements Reconnectable {
         return client;
     }
 
-    async reconnect(code: string, id: string): Promise<Client> {
-        const client = await this.lipwig.join(this.url, code, {
+    /*async reconnect(code: string, id: string): Promise<Client> {
+        const client = await this.lipwig.join(code, {
             reconnect: id
         });
         this.setClient(client);
 
         return client;
-    }
+    }*/
 
     getMessages(): Observable<string> {
         return new Observable(observer => {
@@ -65,6 +63,7 @@ export class ClientService implements Reconnectable {
             });
 
             this.client.on('newChatter', (name: string, id: string) => {
+                console.log(name, id);
                 this.chatters.push({
                     name,
                     id
@@ -104,12 +103,12 @@ export class ClientService implements Reconnectable {
 
         this.client.on('kicked', (reason?: string) => {
             alert(`Kicked. Reason: ${reason}`);
-            this.router.navigate(['/']);
+            this.router.navigate(['/join']);
         });
 
         this.client.on('closed', (reason?: string) => {
             alert(`Room closed. Reason: ${reason}`);
-            this.router.navigate(['/']);
+            this.router.navigate(['/join']);
         });
     }
     private setPingListener() {

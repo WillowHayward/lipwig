@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { LipwigService } from '@lipwig/angular';
 
 @Component({
     selector: 'lwc-root',
@@ -7,4 +8,8 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
     title = 'lipwig-chat';
+
+    constructor(lipwig: LipwigService) {
+        lipwig.setUrl('ws://localhost:8989');
+    }
 }
