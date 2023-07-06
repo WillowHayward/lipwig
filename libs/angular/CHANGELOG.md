@@ -2,6 +2,42 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.1.1](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.1.0...v0.1.1) (2023-07-06)
+
+
+### Bug Fixes
+
+* **@lipwig/angular:** Added error on premature navigation ([fd8e9ac](https://git.whc.fyi/WillowHayward/lipwig/commits/fd8e9ac84fa2f92d10148177b97904d6b535ac4c))
+
+
+
+## [0.1.1](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.1.0...v0.1.1) (2023-07-06)
+
+
+### Bug Fixes
+
+* **@lipwig/angular:** Added error on premature navigation ([fd8e9ac](https://git.whc.fyi/WillowHayward/lipwig/commits/fd8e9ac84fa2f92d10148177b97904d6b535ac4c))
+
+
+
+## [0.1.1](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.1.0...v0.1.1) (2023-07-06)
+
+
+### Bug Fixes
+
+* **@lipwig/angular:** Added error on premature navigation ([fd8e9ac](https://git.whc.fyi/WillowHayward/lipwig/commits/fd8e9ac84fa2f92d10148177b97904d6b535ac4c))
+
+
+
+## [0.1.1](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.1.0...v0.1.1) (2023-07-06)
+
+
+### Bug Fixes
+
+* **@lipwig/angular:** Added error on premature navigation ([fd8e9ac](https://git.whc.fyi/WillowHayward/lipwig/commits/fd8e9ac84fa2f92d10148177b97904d6b535ac4c))
+
+
+
 # [0.1.0](https://git.whc.fyi/WillowHayward/lipwig/compare/v0.0.2...v0.1.0) (2023-07-06)
 
 

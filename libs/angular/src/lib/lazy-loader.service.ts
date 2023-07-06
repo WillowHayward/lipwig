@@ -12,7 +12,7 @@ export class LazyLoaderService {
     }> = {
         }
 
-    private routes: Promise<Route[]>;
+    private routes?: Promise<Route[]>;
 
     constructor(private router: Router) { }
 
@@ -55,6 +55,9 @@ export class LazyLoaderService {
     }
 
     async navigate(code: string, skipLocationChange = true): Promise<void> {
+        if (!this.routes) {
+            throw new Error('No routes loaded');
+        }
         this.routes.then(() => {
             this.router.navigate([code], { skipLocationChange });
         });
