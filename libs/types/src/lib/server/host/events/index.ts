@@ -1,16 +1,16 @@
 import {
-  Created,
-  Joined,
-  JoinRequest,
-  Left,
-  Message,
-  PollResponse,
+    Created,
+    Joined,
+    JoinRequest,
+    Left,
+    Message,
+    PollResponse,
 } from './lipwig.model';
 import {
-  Disconnected,
-  ClientDisconnected,
-  Reconnected,
-  ClientReconnected,
+    Disconnected,
+    ClientDisconnected,
+    Reconnected,
+    ClientReconnected,
 } from './connection.model';
 import { PingHost, PongClient, PongServer } from './ping.model';
 export * from './lipwig.model';

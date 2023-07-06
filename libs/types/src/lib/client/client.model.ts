@@ -1,7 +1,7 @@
 import { PING_EVENT } from '../common.model';
 
 export const DEFAULTS = {
-  port: 8989,
+    port: 8989,
 };
 
 export enum CLIENT_EVENT {

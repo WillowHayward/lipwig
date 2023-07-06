@@ -59,6 +59,7 @@
     "@nestjs/platform-ws": "^10.0.4",
     "@nestjs/websockets": "^10.0.4",
     "axios": "^1.0.0",
+    "loglevel": "^1.8.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0",

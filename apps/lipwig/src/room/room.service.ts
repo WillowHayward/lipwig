@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
 import {
-  SERVER_GENERIC_EVENTS,
-  ERROR_CODE,
-  ClientEvents,
-  HostEvents,
-  CreateOptions,
-  JoinOptions,
-  RoomQuery,
+    SERVER_GENERIC_EVENTS,
+    ERROR_CODE,
+    ClientEvents,
+    HostEvents,
+    CreateOptions,
+    JoinOptions,
+    RoomQuery,
 } from '@lipwig/types';
 
 import { generateString } from '@lipwig/utils';
@@ -20,169 +20,169 @@ import { BANNED_WORDS } from '../app/app.model';
 // TODO: Make exception which sends error?
 @Injectable()
 export class RoomService {
-  private rooms: { [code: string]: Room } = {};
-  private roomLimit = 0; // 0 for no limit
+    private rooms: { [code: string]: Room } = {};
+    private roomLimit = 0; // 0 for no limit
 
-  getRoom(room: string): Room {
-    return this.rooms[room];
-  }
-
-  roomExists(room: string): boolean {
-    if (this.getRoom(room)) {
-      return true;
+    getRoom(room: string): Room {
+        return this.rooms[room];
     }
 
-    return false;
-  }
+    roomExists(room: string): boolean {
+        if (this.getRoom(room)) {
+            return true;
+        }
 
-  userInRoom(room: string, id: string): boolean {
-    return this.getRoom(room).inRoom(id);
-  }
-
-  userIsHost(room: string, id: string): boolean {
-    return this.getRoom(room).isHost(id);
-  }
-
-  query(socket: LipwigSocket, code: string) {
-    let response: RoomQuery;
-    if (!this.roomExists(code)) {
-      response = {
-        exists: false,
-        room: code,
-      };
-    } else {
-      const room = this.getRoom(code);
-      response = room.query();
+        return false;
     }
 
-    socket.send({
-      event: SERVER_GENERIC_EVENTS.QUERY_RESPONSE,
-      data: response,
-    });
-  }
-
-  create(user: LipwigSocket, config: CreateOptions) {
-    const existingCodes = Object.keys(this.rooms);
-
-    if (config.reconnect && existingCodes.includes(config.reconnect.code)) {
-      if (this.reconnect(user, config.reconnect.code, config.reconnect.id)) {
-        return;
-      }
+    userInRoom(room: string, id: string): boolean {
+        return this.getRoom(room).inRoom(id);
     }
 
-    if (this.roomLimit) {
-      if (existingCodes.length >= this.roomLimit) {
-        // TODO: Implement room limit
-        return;
-      }
+    userIsHost(room: string, id: string): boolean {
+        return this.getRoom(room).isHost(id);
     }
-    let code: string;
-    do {
-      code = generateString(4);
-    } while (existingCodes.includes(code) || BANNED_WORDS.includes(code)); // TODO: Allow custom ban list
-    const room = new Room(user, code, config);
-    this.rooms[code] = room;
-    room.onclose = () => {
-      delete this.rooms[code];
-    };
-  }
 
-  join(user: LipwigSocket, code: string, options?: JoinOptions) {
+    query(socket: LipwigSocket, code: string) {
+        let response: RoomQuery;
+        if (!this.roomExists(code)) {
+            response = {
+                exists: false,
+                room: code,
+            };
+        } else {
+            const room = this.getRoom(code);
+            response = room.query();
+        }
+
+        socket.send({
+            event: SERVER_GENERIC_EVENTS.QUERY_RESPONSE,
+            data: response,
+        });
+    }
+
+    create(user: LipwigSocket, config: CreateOptions) {
+        const existingCodes = Object.keys(this.rooms);
+
+        if (config.reconnect && existingCodes.includes(config.reconnect.code)) {
+            if (this.reconnect(user, config.reconnect.code, config.reconnect.id)) {
+                return;
+            }
+        }
+
+        if (this.roomLimit) {
+            if (existingCodes.length >= this.roomLimit) {
+                // TODO: Implement room limit
+                return;
+            }
+        }
+        let code: string;
+        do {
+            code = generateString(4);
+        } while (existingCodes.includes(code) || BANNED_WORDS.includes(code)); // TODO: Allow custom ban list
+        const room = new Room(user, code, config);
+        this.rooms[code] = room;
+        room.onclose = () => {
+            delete this.rooms[code];
+        };
+    }
+
+    join(user: LipwigSocket, code: string, options?: JoinOptions) {
     // TODO: Join Options
-    const room = this.getRoom(code);
+        const room = this.getRoom(code);
 
-    if (!room) {
-      user.error(ERROR_CODE.ROOMNOTFOUND);
-      return;
+        if (!room) {
+            user.error(ERROR_CODE.ROOMNOTFOUND);
+            return;
+        }
+
+        if (options.reconnect) {
+            if (room.reconnect(user, options.reconnect)) {
+                return;
+            }
+        }
+
+        room.join(user, options);
     }
 
-    if (options.reconnect) {
-      if (room.reconnect(user, options.reconnect)) {
-        return;
-      }
+    joinResponse(
+        user: LipwigSocket,
+        id: string,
+        response: boolean,
+        reason?: string
+    ) {
+        const room = user.room;
+        room.joinResponse(user, id, response, reason);
     }
 
-    room.join(user, options);
-  }
+    lock(user: LipwigSocket, reason?: string) {
+        const room = user.room;
+        room.lock(user, reason);
+    }
 
-  joinResponse(
-    user: LipwigSocket,
-    id: string,
-    response: boolean,
-    reason?: string
-  ) {
-    const room = user.room;
-    room.joinResponse(user, id, response, reason);
-  }
+    unlock(user: LipwigSocket) {
+        const room = user.room;
+        room.unlock(user);
+    }
 
-  lock(user: LipwigSocket, reason?: string) {
-    const room = user.room;
-    room.lock(user, reason);
-  }
+    reconnect(user: LipwigSocket, code: string, id: string): boolean {
+        const room = this.getRoom(code);
 
-  unlock(user: LipwigSocket) {
-    const room = user.room;
-    room.unlock(user);
-  }
+        return room.reconnect(user, id);
+    }
 
-  reconnect(user: LipwigSocket, code: string, id: string): boolean {
-    const room = this.getRoom(code);
+    //administrate(user: LipwigSocket, payload: AdministrateEventData) {}
 
-    return room.reconnect(user, id);
-  }
+    message(
+        user: LipwigSocket,
+        payload: HostEvents.MessageData | ClientEvents.MessageData
+    ) {
+        const room = user.room;
+        room.handle(user, payload);
+    }
 
-  //administrate(user: LipwigSocket, payload: AdministrateEventData) {}
+    poll(user: LipwigSocket, id: string, query: string, recipients: string[]) {
+        const room = user.room;
+        room.poll(user, id, query, recipients);
+    }
 
-  message(
-    user: LipwigSocket,
-    payload: HostEvents.MessageData | ClientEvents.MessageData
-  ) {
-    const room = user.room;
-    room.handle(user, payload);
-  }
+    pollResponse(user: LipwigSocket, id: string, response: any) {
+        const room = user.room;
+        room.pollResponse(user, id, response);
+    }
 
-  poll(user: LipwigSocket, id: string, query: string, recipients: string[]) {
-    const room = user.room;
-    room.poll(user, id, query, recipients);
-  }
+    pingHost(user: LipwigSocket, time: number) {
+        const room = user.room;
+        room.pingHost(user, time);
+    }
 
-  pollResponse(user: LipwigSocket, id: string, response: any) {
-    const room = user.room;
-    room.pollResponse(user, id, response);
-  }
+    pongHost(user: LipwigSocket, time: number, id: string) {
+        const room = user.room;
+        room.pongHost(user, time, id);
+    }
 
-  pingHost(user: LipwigSocket, time: number) {
-    const room = user.room;
-    room.pingHost(user, time);
-  }
+    pingClient(user: LipwigSocket, time: number, id: string) {
+        const room = user.room;
+        room.pingClient(user, time, id);
+    }
 
-  pongHost(user: LipwigSocket, time: number, id: string) {
-    const room = user.room;
-    room.pongHost(user, time, id);
-  }
+    pongClient(user: LipwigSocket, time: number) {
+        const room = user.room;
+        room.pongClient(user, time);
+    }
 
-  pingClient(user: LipwigSocket, time: number, id: string) {
-    const room = user.room;
-    room.pingClient(user, time, id);
-  }
+    kick(user: LipwigSocket, id: string, reason?: string) {
+        const room = user.room;
+        room.kick(user, id, reason);
+    }
 
-  pongClient(user: LipwigSocket, time: number) {
-    const room = user.room;
-    room.pongClient(user, time);
-  }
+    localJoin(user: LipwigSocket, id: string) {
+        const room = user.room;
+        room.localJoin(user, id);
+    }
 
-  kick(user: LipwigSocket, id: string, reason?: string) {
-    const room = user.room;
-    room.kick(user, id, reason);
-  }
-
-  localJoin(user: LipwigSocket, id: string) {
-    const room = user.room;
-    room.localJoin(user, id);
-  }
-
-  localLeave(user: LipwigSocket, id: string) {
-    const room = user.room;
-    room.localLeave(user, id);
-  }
+    localLeave(user: LipwigSocket, id: string) {
+        const room = user.room;
+        room.localLeave(user, id);
+    }
 }

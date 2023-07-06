@@ -1,19 +1,19 @@
 import { Joined, JoinedData, Message, MessageData, Poll } from './lipwig.model';
 import {
-  Disconnected,
-  HostDisconnected,
-  Reconnected,
-  HostReconnected,
-  DisconnectedData,
-  HostReconnectedData,
+    Disconnected,
+    HostDisconnected,
+    Reconnected,
+    HostReconnected,
+    DisconnectedData,
+    HostReconnectedData,
 } from './connection.model';
 import {
-  PingClient,
-  PingClientData,
-  PongHost,
-  PongHostData,
-  PongServer,
-  PongServerData,
+    PingClient,
+    PingClientData,
+    PongHost,
+    PongHostData,
+    PongServer,
+    PongServerData,
 } from './ping.model';
 import { ReconnectData } from '../../../host/events.model';
 
