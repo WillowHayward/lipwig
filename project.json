@@ -6,15 +6,8 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "syncVersions": true,
-        "postTargets": ["workspace:npm"]
+        "postTargets": ["js:deploy", "angular:deploy", "model:deploy", "utils:deploy"]
       }
     },
-    "npm": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "access": "public",
-        "dryRun": "${dryRun}"
-      }
-    }
   }
 }
