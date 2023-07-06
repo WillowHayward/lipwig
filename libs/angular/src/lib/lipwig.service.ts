@@ -8,16 +8,27 @@ import { Client, Host, Lipwig, LocalClient, LocalHost } from '@lipwig/js';
     providedIn: 'root',
 })
 export class LipwigService {
+    private url?: string;
     private host?: Host;
     private client?: Client;
     public connected = false;
 
-    public async query(url: string, room: string): Promise<RoomQuery> {
-        return Lipwig.query(url, room);
+    public setUrl(url: string) {
+        this.url = url;
     }
 
-    public async create(url: string, options: CreateOptions): Promise<Host> {
-        const promise = Lipwig.create(url, options);
+    public async query(room: string, id?: string): Promise<RoomQuery> {
+        if (!this.url) {
+            throw new Error('Lipwig URL not set');
+        }
+        return Lipwig.query(this.url, room, id);
+    }
+
+    public async create(options: CreateOptions): Promise<Host> {
+        if (!this.url) {
+            throw new Error('Lipwig URL not set');
+        }
+        const promise = Lipwig.create(this.url, options);
         promise.then((host) => {
             this.host = host;
             this.connected = true;
@@ -32,11 +43,27 @@ export class LipwigService {
     }
 
     public async join(
-        url: string,
         code: string,
         options: JoinOptions
     ): Promise<Client> {
-        const promise = Lipwig.join(url, code, options);
+        if (!this.url) {
+            throw new Error('Lipwig URL not set');
+        }
+        const promise = Lipwig.join(this.url, code, options);
+        promise.then((client) => {
+            this.client = client;
+            this.connected = true;
+        });
+        return promise;
+    }
+
+    public async rejoin(
+        code: string,
+        id: string): Promise<Client> {
+        if (!this.url) {
+            throw new Error('Lipwig URL not set');
+        }
+        const promise = Lipwig.rejoin(this.url, code, id);
         promise.then((client) => {
             this.client = client;
             this.connected = true;
