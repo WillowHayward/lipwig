@@ -1,4 +1,4 @@
-import { LipwigOptions } from '@lipwig/types';
+import { LipwigOptions } from '@lipwig/model';
 
 export const defaultConfig: LipwigOptions = {
     port: 8989,

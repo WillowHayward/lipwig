@@ -9,15 +9,15 @@ import {
     CreateOptions,
     JoinOptions,
     RoomQuery,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { LipwigSocket } from './LipwigSocket';
 import { Logger } from '@nestjs/common';
 
 interface Poll {
-  id: string;
-  pending: string[];
-  received: string[];
-  open: boolean;
+    id: string;
+    pending: string[];
+    received: string[];
+    open: boolean;
 }
 
 export class Room {
@@ -33,11 +33,11 @@ export class Room {
 
     private users: LipwigSocket[] = [];
     private pending: {
-    [id: string]: {
-      client: LipwigSocket;
-      options: JoinOptions;
-    };
-  }[] = [];
+        [id: string]: {
+            client: LipwigSocket;
+            options: JoinOptions;
+        };
+    }[] = [];
     private localUsers: string[] = [];
 
     private polls: Poll[] = [];
@@ -47,11 +47,11 @@ export class Room {
     public closed = false;
 
     constructor(
-    private host: LipwigSocket,
-    public code: string,
-    config: CreateOptions
+        private host: LipwigSocket,
+        public code: string,
+        config: CreateOptions
     ) {
-    // TODO: Room config
+        // TODO: Room config
         this.initialiseHost(host);
         Logger.debug(`${this.code} created by ${host.id}`, this.id);
 
@@ -162,7 +162,9 @@ export class Room {
         if (missing.length) {
             client.error(
                 ERROR_CODE.MISSINGPARAM,
-                `Join request missing the following parameters: ${missing.join(', ')}`
+                `Join request missing the following parameters: ${missing.join(
+                    ', '
+                )}`
             );
             return;
         }
@@ -442,7 +444,10 @@ export class Room {
     }
 
     private handleClient(client: LipwigSocket, data: ClientEvents.MessageData) {
-        Logger.debug(`Received '${data.event}' message from ${client.id}`, this.id);
+        Logger.debug(
+            `Received '${data.event}' message from ${client.id}`,
+            this.id
+        );
         this.host.send({
             event: SERVER_HOST_EVENT.MESSAGE,
             data: {

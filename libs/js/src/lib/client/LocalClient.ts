@@ -8,7 +8,7 @@ import {
     ServerClientEvents,
     ServerHostEvents,
     JoinOptions,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { Client } from './Client';
 import * as Logger from 'loglevel';
 
@@ -84,7 +84,7 @@ export class LocalClient extends Client {
     }
 
     public override ping(full?: boolean): Promise<number> {
-    // TODO
+        // TODO
         return Promise.resolve(0);
     }
 

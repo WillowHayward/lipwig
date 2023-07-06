@@ -8,7 +8,7 @@ import {
     CreateOptions,
     JoinOptions,
     RoomQuery,
-} from '@lipwig/types';
+} from '@lipwig/model';
 
 import { generateString } from '@lipwig/utils';
 
@@ -65,7 +65,9 @@ export class RoomService {
         const existingCodes = Object.keys(this.rooms);
 
         if (config.reconnect && existingCodes.includes(config.reconnect.code)) {
-            if (this.reconnect(user, config.reconnect.code, config.reconnect.id)) {
+            if (
+                this.reconnect(user, config.reconnect.code, config.reconnect.id)
+            ) {
                 return;
             }
         }
@@ -88,7 +90,7 @@ export class RoomService {
     }
 
     join(user: LipwigSocket, code: string, options?: JoinOptions) {
-    // TODO: Join Options
+        // TODO: Join Options
         const room = this.getRoom(code);
 
         if (!room) {

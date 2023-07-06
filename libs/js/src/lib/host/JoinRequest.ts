@@ -1,4 +1,4 @@
-import { HOST_EVENT } from '@lipwig/types';
+import { HOST_EVENT } from '@lipwig/model';
 import { Host } from './Host';
 
 export class JoinRequest {

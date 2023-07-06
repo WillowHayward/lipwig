@@ -6,7 +6,7 @@ import {
     ServerClientEvents,
     ServerHostEvents,
     SERVER_CLIENT_EVENT,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { Host } from './Host';
 import { generateString } from '@lipwig/utils';
 import { v4 } from 'uuid';
@@ -64,7 +64,7 @@ export class LocalHost extends Host {
     }
 
     public override close(reason?: string) {
-    // TODO
+        // TODO
     }
 
     public override handle(message: ServerHostEvents.Event) {

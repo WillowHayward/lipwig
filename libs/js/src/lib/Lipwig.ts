@@ -9,7 +9,7 @@ import {
     JoinOptions,
     RoomQuery,
     GENERIC_EVENT,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { Host } from './host';
 import { Client } from './client';
 import { Socket } from './Socket';

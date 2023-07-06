@@ -1,4 +1,4 @@
-import { SERVER_CLIENT_EVENT, SERVER_HOST_EVENT } from '@lipwig/types';
+import { SERVER_CLIENT_EVENT, SERVER_HOST_EVENT } from '@lipwig/model';
 import { WebSocket } from '../app/app.model';
 import { LipwigSocket } from './LipwigSocket';
 import { Room } from './Room';
@@ -16,7 +16,7 @@ jest.mock('../app/app.model', () => {
 });
 
 const mockedLipwigSocket = LipwigSocket as jest.MockedClass<
-  typeof LipwigSocket
+    typeof LipwigSocket
 >;
 
 describe('Room', () => {

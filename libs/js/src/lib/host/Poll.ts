@@ -1,16 +1,16 @@
 import { v4 } from 'uuid';
 import { Host } from './Host';
-import { HOST_EVENT } from '@lipwig/types';
+import { HOST_EVENT } from '@lipwig/model';
 import { EventManager } from '../EventManager';
 import { User } from './User';
 
 export class Poll extends EventManager {
     public id: string;
     constructor(
-    private host: Host,
-    users: User[],
-    public query: string,
-    id?: string
+        private host: Host,
+        users: User[],
+        public query: string,
+        id?: string
     ) {
         super();
         this.id = id || v4();

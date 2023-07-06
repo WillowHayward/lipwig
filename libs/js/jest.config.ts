@@ -1,16 +1,14 @@
 /* eslint-disable */
 export default {
-    displayName: 'lipwig-js',
+    displayName: 'js',
     preset: '../../jest.preset.js',
-    globals: {},
+    testEnvironment: 'node',
     transform: {
         '^.+\\.[tj]s$': [
             'ts-jest',
-            {
-                tsconfig: '<rootDir>/tsconfig.spec.json',
-            },
+            { tsconfig: '<rootDir>/tsconfig.spec.json' },
         ],
     },
     moduleFileExtensions: ['ts', 'js', 'html'],
-    coverageDirectory: '../../coverage/libs/lipwig/js',
+    coverageDirectory: '../../coverage/libs/js',
 };

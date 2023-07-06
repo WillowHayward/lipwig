@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { CreateOptions, JoinOptions, RoomQuery } from '@lipwig/types';
+import { CreateOptions, JoinOptions, RoomQuery } from '@lipwig/model';
 import { Client, Host, Lipwig, LocalClient, LocalHost } from '@lipwig/js';
 
 // TODO: It's an edge case, but accounting for multiple hosts/clients in a single connection could be neat

@@ -8,7 +8,7 @@ import {
     ERROR_CODE,
     GENERIC_EVENT,
     HOST_EVENT,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { LipwigSocket } from '../classes/LipwigSocket';
 
 interface Validator {
@@ -23,14 +23,17 @@ interface Validator {
 export class RoomGuard implements CanActivate {
     private socket: LipwigSocket;
 
-    constructor(private reflector: Reflector, private rooms: RoomService) { }
+    constructor(private reflector: Reflector, private rooms: RoomService) {}
 
     canActivate(
         context: ExecutionContext
     ): boolean | Promise<boolean> | Observable<boolean> {
         const rawSocket: WebSocket = context.switchToWs().getClient();
         this.socket = rawSocket.socket;
-        const event = this.reflector.get<string>('message', context.getHandler());
+        const event = this.reflector.get<string>(
+            'message',
+            context.getHandler()
+        );
         const args: any = context.getArgs()[1];
 
         return this.validate(event, args);

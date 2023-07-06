@@ -5,7 +5,7 @@ import {
     ServerHostEvents,
     CLOSE_CODE,
     ServerGenericEvents,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { WebSocket } from '../app/app.model';
 import { Room } from './Room';
 import { Logger } from '@nestjs/common';
@@ -14,8 +14,8 @@ type Callback = (...args: any[]) => void;
 
 export class LipwigSocket {
     private events: {
-    [event: string]: Callback[];
-  } = {};
+        [event: string]: Callback[];
+    } = {};
     id: string;
     isHost: boolean;
     room: Room;
@@ -96,9 +96,9 @@ export class LipwigSocket {
 
     send(
         message:
-      | ServerHostEvents.Event
-      | ServerClientEvents.Event
-      | ServerGenericEvents.Event
+            | ServerHostEvents.Event
+            | ServerClientEvents.Event
+            | ServerGenericEvents.Event
     ) {
         const context = this.id || 'Uninitialized Socket';
         Logger.debug(`Sending event '${message.event}'`, context);

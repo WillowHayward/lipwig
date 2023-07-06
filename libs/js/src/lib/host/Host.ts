@@ -11,7 +11,7 @@ import {
     CreateOptions,
     JoinOptions,
     ERROR_CODE,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { User } from './User';
 import { LocalClient } from '../client';
 import { EventManager } from '../EventManager';
@@ -35,10 +35,10 @@ export class Host extends EventManager {
     public locked = false;
 
     /**
-   * Create a new Lipwig room
-   * @param url       Websocket url of LipwigCore server
-   * @param options   Options with which to create room
-   */
+     * Create a new Lipwig room
+     * @param url       Websocket url of LipwigCore server
+     * @param options   Options with which to create room
+     */
     constructor(url: string, public config: CreateOptions = {}) {
         super();
 
@@ -54,7 +54,9 @@ export class Host extends EventManager {
 
         this.socket.on('lw-error', (error: ERROR_CODE, message?: string) => {
             if (message) {
-                Logger.warn(`[${this.name}] Received error ${error} - ${message}`);
+                Logger.warn(
+                    `[${this.name}] Received error ${error} - ${message}`
+                );
             } else {
                 Logger.warn(`[${this.name}] Received error ${error}`);
             }
@@ -78,8 +80,8 @@ export class Host extends EventManager {
     }
 
     /**
-   * @return map of all users in room
-   */
+     * @return map of all users in room
+     */
     public getUsers(): User[] {
         return this.users.slice();
     }
@@ -102,7 +104,11 @@ export class Host extends EventManager {
         this.sendTo(event, recipients, ...args);
     }
 
-    public sendToGroup(event: string, group: string | Group, ...args: unknown[]) {
+    public sendToGroup(
+        event: string,
+        group: string | Group,
+        ...args: unknown[]
+    ) {
         if (typeof group === 'string') {
             group = this.getGroup(group);
         }
@@ -225,8 +231,8 @@ export class Host extends EventManager {
     }
 
     /**
-   * Final stage of connection handshake - sends create message to LipwigCore server
-   */
+     * Final stage of connection handshake - sends create message to LipwigCore server
+     */
     private connected(): void {
         const message: HostEvents.Create = {
             event: HOST_EVENT.CREATE,
@@ -248,10 +254,16 @@ export class Host extends EventManager {
                 args = this.handleCreated(message.data.id, message.data.code);
                 break;
             case SERVER_HOST_EVENT.JOINED:
-                [user, args] = this.handleJoined(message.data.id, message.data.data);
+                [user, args] = this.handleJoined(
+                    message.data.id,
+                    message.data.data
+                );
                 break;
             case SERVER_HOST_EVENT.JOIN_REQUEST:
-                args = this.handleJoinRequest(message.data.id, message.data.data);
+                args = this.handleJoinRequest(
+                    message.data.id,
+                    message.data.data
+                );
                 break;
             case SERVER_HOST_EVENT.MESSAGE:
                 [eventName, sender, args] = this.handleMessage(
@@ -282,7 +294,10 @@ export class Host extends EventManager {
                 args = this.handleClientDisconnected(message.data.id);
                 break;
             case SERVER_HOST_EVENT.LEFT:
-                [user, args] = this.handleLeft(message.data.id, message.data.reason);
+                [user, args] = this.handleLeft(
+                    message.data.id,
+                    message.data.reason
+                );
                 break;
             case SERVER_HOST_EVENT.PING_HOST:
                 user = this.handlePingHost(message.data.id, message.data.time);

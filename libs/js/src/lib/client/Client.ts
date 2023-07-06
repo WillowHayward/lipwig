@@ -9,7 +9,7 @@ import {
     ServerClientEvents,
     JoinOptions,
     ERROR_CODE,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { EventManager } from '../EventManager';
 import { Socket } from '../Socket';
 import * as Logger from 'loglevel';
@@ -23,15 +23,15 @@ export class Client extends EventManager {
     public data: Record<string, any>;
 
     /**
- * Attempt to join an existing Lipwig room
- * @param url   Websocket url of LipwigCore server
- * @param code  Room code to attempt to join
- * @param data  Data to pass to room host on connection
- */
+     * Attempt to join an existing Lipwig room
+     * @param url   Websocket url of LipwigCore server
+     * @param code  Room code to attempt to join
+     * @param data  Data to pass to room host on connection
+     */
     constructor(
         url: string,
-    public room: string,
-    public options: JoinOptions = {}
+        public room: string,
+        public options: JoinOptions = {}
     ) {
         super();
 
@@ -49,7 +49,9 @@ export class Client extends EventManager {
 
         this.socket.on('lw-error', (error: ERROR_CODE, message?: string) => {
             if (message) {
-                Logger.warn(`[${this.name}] Received error ${error} - ${message}`);
+                Logger.warn(
+                    `[${this.name}] Received error ${error} - ${message}`
+                );
             } else {
                 Logger.warn(`[${this.name}] Received error ${error}`);
             }
@@ -86,10 +88,10 @@ export class Client extends EventManager {
     }
 
     /**
- * Send a message to the host
- * @param event The event name
- * @param args  Arguments to send
- */
+     * Send a message to the host
+     * @param event The event name
+     * @param args  Arguments to send
+     */
     public send(event: string, ...args: unknown[]): void {
         const message: ClientEvents.Message = {
             event: CLIENT_EVENT.MESSAGE,
@@ -159,8 +161,8 @@ export class Client extends EventManager {
     }
 
     /**
- * Final stage of connection handshake - sends join message to LipwigCore server
- */
+     * Final stage of connection handshake - sends join message to LipwigCore server
+     */
     protected connected(): void {
         const message: ClientEvents.Join = {
             event: CLIENT_EVENT.JOIN,
@@ -173,9 +175,9 @@ export class Client extends EventManager {
     }
 
     /**
- * Handle received message
- * @param event
- */
+     * Handle received message
+     * @param event
+     */
     public handle(message: ServerClientEvents.Event): void {
         Logger.debug(`[${this.name}] Received '${message.event}' event`);
         let eventName: string = message.event;

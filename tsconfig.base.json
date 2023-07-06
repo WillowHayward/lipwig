@@ -1,24 +1,25 @@
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
-    "lib": ["es2020", "dom"],
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@lipwig/js": ["libs/js/src/index.ts"],
-      "@lipwig/types": ["libs/types/src/index.ts"],
-      "@lipwig/utils": ["libs/utils/src/index.ts"]
-    }
-  },
-  "exclude": ["node_modules", "tmp"]
+    "compileOnSave": false,
+    "compilerOptions": {
+        "rootDir": ".",
+        "sourceMap": true,
+        "declaration": false,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "target": "es2015",
+        "module": "esnext",
+        "lib": ["es2020", "dom"],
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "@lipwig/angular": ["libs/angular/src/index.ts"],
+            "@lipwig/js": ["libs/js/src/index.ts"],
+            "@lipwig/model": ["libs/model/src/index.ts"],
+            "@lipwig/utils": ["libs/utils/src/index.ts"]
+        }
+    },
+    "exclude": ["node_modules", "tmp"]
 }

@@ -10,7 +10,7 @@ import {
     SERVER_CLIENT_EVENT,
     HostEvents,
     ServerClientEvents,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { Poll } from './Poll';
 
 // TODO: Can the local stuff be moved into Host?
@@ -20,10 +20,10 @@ export class User extends EventManager {
     private groups: Group[] = [];
 
     constructor(
-    public id: string,
-    private parent: Host,
-    data?: { [key: string]: any },
-    public local = false
+        public id: string,
+        private parent: Host,
+        data?: { [key: string]: any },
+        public local = false
     ) {
         super();
         if (!data) {

@@ -5,7 +5,7 @@ import {
     ClientEvents,
     HostEvents,
     GenericEvents,
-} from '@lipwig/types';
+} from '@lipwig/model';
 import { EventManager } from './EventManager';
 import * as Logger from 'loglevel';
 // TODO: "this.name" is never Local*
@@ -91,9 +91,9 @@ export class Socket extends EventManager {
     public send(
         message: GenericEvents.Event | ClientEvents.Event | HostEvents.Event
     ): void {
-    //TODO: Add in contingency system for messages sent during a disconnection
-    //CONT: A queue of messages to be sent in bulk on resumption of connection
-    //CONT: Possible return unsent messages from this method
+        //TODO: Add in contingency system for messages sent during a disconnection
+        //CONT: A queue of messages to be sent in bulk on resumption of connection
+        //CONT: Possible return unsent messages from this method
         this.socket?.send(JSON.stringify(message));
     }
 
