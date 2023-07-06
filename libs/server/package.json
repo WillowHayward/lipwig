@@ -1,9 +1,9 @@
 {
     "name": "@lipwig/server",
-    "version": "1.99.1-next.0",
+    "version": "1.99.1-next.1",
     "type": "commonjs",
     "dependencies": {
-        "@lipwig/model": "1.99.1-next.0",
-        "@lipwig/utils": "1.99.1-next.0"
+        "@lipwig/model": "1.99.1-next.1",
+        "@lipwig/utils": "1.99.1-next.1"
     }
 }
