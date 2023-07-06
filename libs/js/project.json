@@ -49,8 +49,7 @@
             "executor": "ngx-deploy-npm:deploy",
             "options": {
                 "access": "public"
-            },
-            "dependsOn": ["sync-deps"]
+            }
         }
     },
     "tags": []
