@@ -1,8 +1,8 @@
 import { SERVER_CLIENT_EVENT, SERVER_HOST_EVENT } from '@lipwig/model';
 import { WebSocket } from '../app/app.model';
-import { LipwigSocket } from './LipwigSocket';
+import { AbstractSocket } from './AbstractSocket';
 import { Room } from './Room';
-jest.mock('./LipwigSocket');
+jest.mock('./AbstractSocket');
 jest.mock('../app/app.model', () => {
     return {
         WebSocket: jest.fn().mockImplementation(() => {
@@ -15,17 +15,17 @@ jest.mock('../app/app.model', () => {
     };
 });
 
-const mockedLipwigSocket = LipwigSocket as jest.MockedClass<
-    typeof LipwigSocket
+const mockedAbstractSocket = AbstractSocket as jest.MockedClass<
+    typeof AbstractSocket
 >;
 
 describe('Room', () => {
     let socket: WebSocket;
-    let host: LipwigSocket;
+    let host: AbstractSocket;
     beforeEach(async () => {
-        mockedLipwigSocket.mockClear();
+        mockedAbstractSocket.mockClear();
         socket = new WebSocket('');
-        host = new LipwigSocket(socket);
+        host = new AbstractSocket(socket);
         host.id = 'HOSTID';
     });
 
@@ -43,7 +43,7 @@ describe('Room', () => {
 
     it('should alert host and client on joining', () => {
         const room = new Room(host, 'ROOMCODE', {});
-        const client = new LipwigSocket(socket);
+        const client = new AbstractSocket(socket);
         client.id = 'CLIENTID';
 
         room.join(client, {});
@@ -67,7 +67,7 @@ describe('Room', () => {
     /* TODO: Figure out testing event listeners w/ jest
         * it ('should alert host on client disconnection', () => {
         const room = new Room(host, 'ROOMCODE', {});
-        const client = new LipwigSocket(socket);
+        const client = new AbstractSocket(socket);
         client.id = 'CLIENTID';
 
         room.join(client, {});

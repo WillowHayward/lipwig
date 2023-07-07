@@ -2,14 +2,16 @@ import { Reflector } from '@nestjs/core';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { RoomService } from '../room/room.service';
-import { WebSocket } from '../../common/lipwig.model';
+import { SOCKET_TYPE, WebSocket } from '../../common/lipwig.model';
+import { AbstractSocket } from '../../common/classes/AbstractSocket';
 import {
     CLIENT_EVENT,
     ERROR_CODE,
     GENERIC_EVENT,
     HOST_EVENT,
 } from '@lipwig/model';
-import { LipwigSocket } from '../classes/LipwigSocket';
+import { HostSocket } from '../classes/HostSocket';
+import { ClientSocket } from '../classes/ClientSocket';
 
 interface Validator {
     required?: string[]; // Required paramaters on request
@@ -21,7 +23,7 @@ interface Validator {
 
 @Injectable()
 export class RoomGuard implements CanActivate {
-    private socket: LipwigSocket;
+    private socket: AbstractSocket;
 
     constructor(private reflector: Reflector, private rooms: RoomService) {}
 
@@ -63,7 +65,7 @@ export class RoomGuard implements CanActivate {
         }
 
         if (validator.isHost !== undefined) {
-            const isHost = this.socket.isHost;
+            const isHost = this.socket.type === SOCKET_TYPE.HOST;
             if (!isHost && validator.isHost) {
                 this.socket.error(ERROR_CODE.INSUFFICIENTPERMISSIONS);
                 return false;
@@ -129,13 +131,19 @@ export class RoomGuard implements CanActivate {
     }
 
     private validateUser(): boolean {
-        if (!this.socket.initialized) {
-            // socket improperly initialized
-            this.socket.error(ERROR_CODE.MALFORMED);
-            return false;
+        switch (this.socket.type) {
+            case SOCKET_TYPE.UNINITIALIZED:
+                // socket improperly initialized
+                this.socket.error(ERROR_CODE.MALFORMED);
+                return false;
+            case SOCKET_TYPE.ADMIN:
+                // I'm not even sure how this would happen
+                this.socket.error(ERROR_CODE.MALFORMED);
+                return false;
         }
 
-        const room = this.socket.room;
+        const socket: HostSocket | ClientSocket = this.socket as HostSocket; //TODO: Try to make this more generic than hostsocket
+        const room = socket.room;
         if (room.closed) {
             this.socket.error(ERROR_CODE.ROOMCLOSED);
             return false;
@@ -165,13 +173,13 @@ export class RoomGuard implements CanActivate {
                     required: ['event', 'args'],
                     validUser: true,
                     other: (args: any) => {
-                        if (this.socket.isHost && !args.recipients) {
+                        if (this.socket.type === SOCKET_TYPE.HOST && !args.recipients) {
                             this.socket.error(
                                 ERROR_CODE.MALFORMED,
                                 'Message from host must contain recipients'
                             );
                             return false;
-                        } else if (!this.socket.isHost && args.recipients) {
+                        } else if (this.socket.type !== SOCKET_TYPE.HOST && args.recipients) {
                             this.socket.error(
                                 ERROR_CODE.MALFORMED,
                                 'Message from client must not contain recipients'

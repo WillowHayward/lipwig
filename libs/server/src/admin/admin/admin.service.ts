@@ -1,41 +1,44 @@
 import { SERVER_ADMIN_EVENT } from '@lipwig/model';
-import { LipwigSocket } from '../../lipwig/classes/LipwigSocket';
 import { RoomService } from '../../lipwig/room/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
+import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { AdminSocket } from '../classes/AdminSocket';
 
 // TODO: Guards - AdminGuard to check they're admin sending the commands
 @Injectable()
 export class AdminService {
-    private admin: LipwigSocket[] = [];
+    private admin: AdminSocket[] = [];
     constructor(private rooms: RoomService) { }
 
-    getAdmin(): LipwigSocket[] {
+    getAdmin(): AdminSocket[] {
         return this.admin;
     }
 
-    administrate(user: LipwigSocket) {
+    administrate(user: UninitializedSocket) {
         const id = v4();
-        user.setId(id);
-        this.admin.push(user);
-        user.send({
+        const socket = user.socket;
+        const admin = new AdminSocket(socket, id);
+
+        this.admin.push(admin);
+        admin.send({
             event: SERVER_ADMIN_EVENT.ADMINISTRATING,
         });
     }
 
-    subscribe(user: LipwigSocket) {
+    subscribe(user: AdminSocket) {
 
     }
 
-    unsubscribe(user: LipwigSocket) {
+    unsubscribe(user: AdminSocket) {
 
     }
 
-    subscribeRoom(user: LipwigSocket, id: string) {
+    subscribeRoom(user: AdminSocket, id: string) {
 
     }
 
-    unsubscribeRoom(user: LipwigSocket, id: string) {
+    unsubscribeRoom(user: AdminSocket, id: string) {
 
     }
 }

@@ -10,8 +10,11 @@ import {
     JoinOptions,
     RoomQuery,
 } from '@lipwig/model';
-import { LipwigSocket } from './LipwigSocket';
 import { Logger } from '@nestjs/common';
+import { ClientSocket } from './ClientSocket';
+import { HostSocket } from './HostSocket';
+import { SOCKET_TYPE } from '../../common/lipwig.model';
+import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
 
 interface Poll {
     id: string;
@@ -22,7 +25,7 @@ interface Poll {
 
 interface Pending {
     [id: string]: {
-        client: LipwigSocket;
+        client: UninitializedSocket;
         options: JoinOptions;
     };
 }
@@ -38,9 +41,10 @@ export class Room {
     private required: string[];
     private approvals: boolean;
 
-    private users: LipwigSocket[] = [];
+    private host: HostSocket;
+    private clients: ClientSocket[] = [];
     private pending: Pending = {};
-    private localUsers: string[] = [];
+    private localClients: string[] = [];
 
     private polls: Poll[] = [];
 
@@ -49,13 +53,13 @@ export class Room {
     public closed = false;
 
     constructor(
-        private host: LipwigSocket,
+        host: UninitializedSocket,
         public code: string,
         config: CreateOptions
     ) {
         // TODO: Room config
-        this.initialiseHost(host);
-        Logger.debug(`${this.code} created by ${host.id}`, this.id);
+        this.host = this.initializeHost(host);
+        Logger.debug(`${this.code} created by ${this.host.id}`, this.id);
 
         this.name = config.name;
         if (config.password && config.password.length) {
@@ -67,11 +71,11 @@ export class Room {
 
         this.size = config.size || 8; //TODO: Turn default into config
 
-        host.send({
+        this.host.send({
             event: SERVER_HOST_EVENT.CREATED,
             data: {
                 code,
-                id: host.id,
+                id: this.host.id,
             },
         });
     }
@@ -81,7 +85,7 @@ export class Room {
             return true;
         }
 
-        return this.users.some((user) => id === user.id);
+        return this.clients.some((client) => id === client.id);
     }
 
     isHost(id: string) {
@@ -90,7 +94,7 @@ export class Room {
 
     query(id?: string): RoomQuery {
         let isProtected = false;
-        const currentSize = this.users.length + this.localUsers.length; // TODO: THis is duplicated, could be a function
+        const currentSize = this.clients.length + this.localClients.length; // TODO: THis is duplicated, could be a function
         const capacity = this.size - currentSize;
         if (this.password && this.password.length > 0) {
             isProtected = true;
@@ -98,8 +102,8 @@ export class Room {
 
         let rejoin = false;
         if (id) {
-            const user = this.users.find(user => user.id === id);
-            if (user && !user.connected) {
+            const client = this.clients.find(client => client.id === id);
+            if (client && !client.connected) {
                 rejoin = true;
             }
         }
@@ -116,32 +120,41 @@ export class Room {
         };
     }
 
-    private initialiseClient(client: LipwigSocket) {
-        const id = v4();
-        client.initialize(id, false, this);
-        client.on('leave', (reason?: string) => {
-            this.leave(client, reason);
+    private initializeClient(client: UninitializedSocket, id?: string): ClientSocket {
+        id = id || v4();
+        const socket = client.socket;
+        const newClient = new ClientSocket(socket, id, this);
+        socket.socket = newClient;
+
+        newClient.on('leave', (reason?: string) => {
+            this.leave(newClient, reason);
         });
 
-        client.on('disconnect', () => {
-            this.disconnect(client);
+        newClient.on('disconnect', () => {
+            this.disconnect(newClient);
         });
+
+        return newClient;
     }
 
-    private initialiseHost(host: LipwigSocket) {
-        const id = v4();
-        host.initialize(id, true, this);
+    private initializeHost(host: UninitializedSocket, id?: string): HostSocket {
+        id = id || v4();
+        const socket = host.socket;
+        const newHost = new HostSocket(socket, id, this);
+        socket.socket = newHost;
 
-        host.on('close', (reason?: string) => {
+        newHost.on('close', (reason?: string) => {
             this.close(reason);
         });
 
-        host.on('disconnect', () => {
-            this.disconnect(host);
+        newHost.on('disconnect', () => {
+            this.disconnect(newHost);
         });
+
+        return newHost;
     }
 
-    join(client: LipwigSocket, options: JoinOptions) {
+    join(client: UninitializedSocket, options: JoinOptions) {
         if (this.password) {
             if (!options.password) {
                 client.error(ERROR_CODE.INCORRECTPASSWORD, 'Password required');
@@ -158,7 +171,7 @@ export class Room {
             return;
         }
 
-        const currentSize = this.users.length + this.localUsers.length;
+        const currentSize = this.clients.length + this.localClients.length;
         if (currentSize >= this.size) {
             client.error(ERROR_CODE.ROOMFULL);
             return;
@@ -207,8 +220,9 @@ export class Room {
         this.joinSuccess(client, options);
     }
 
-    public rejoin(client: LipwigSocket, id: string) {
-        if (!this.reconnectUser(client, id)) {
+    public rejoin(socket: UninitializedSocket, id: string) {
+        const client = this.reconnectClient(socket, id)
+        if (!client) {
             return;
         }
 
@@ -232,14 +246,14 @@ export class Room {
     }
 
     public joinResponse(
-        client: LipwigSocket,
+        host: HostSocket,
         id: string,
         response: boolean,
         reason?: string
     ) {
         const target = this.pending[id];
         if (!target) {
-            client.error(ERROR_CODE.USERNOTFOUND);
+            host.error(ERROR_CODE.USERNOTFOUND);
             return;
         }
 
@@ -252,10 +266,10 @@ export class Room {
         delete this.pending[id];
     }
 
-    private joinSuccess(client: LipwigSocket, options: JoinOptions) {
-        this.initialiseClient(client);
+    private joinSuccess(socket: UninitializedSocket, options: JoinOptions) {
+        const client = this.initializeClient(socket);
         const id = client.id;
-        this.users.push(client);
+        this.clients.push(client);
 
         client.send({
             event: SERVER_CLIENT_EVENT.JOINED,
@@ -275,7 +289,7 @@ export class Room {
         Logger.debug(`${id} joined`, this.id);
     }
 
-    public lock(user: LipwigSocket, reason?: string) {
+    public lock(host: HostSocket, reason?: string) {
         this.locked = true;
         this.lockReason = reason;
         if (reason) {
@@ -285,17 +299,17 @@ export class Room {
         }
     }
 
-    public unlock(user: LipwigSocket) {
+    public unlock(host: HostSocket) {
         this.locked = false;
         this.lockReason = undefined;
         Logger.debug('Unlocked', this.id);
     }
 
-    private disconnect(disconnected: LipwigSocket) {
+    private disconnect(disconnected: HostSocket | ClientSocket) {
         disconnected.connected = false;
-        if (disconnected.isHost) {
-            for (const user of this.users) {
-                user.send({
+        if (disconnected.type === SOCKET_TYPE.HOST) {
+            for (const client of this.clients) {
+                client.send({
                     event: SERVER_CLIENT_EVENT.HOST_DISCONNECTED,
                 });
             }
@@ -309,16 +323,17 @@ export class Room {
         }
     }
 
-    reconnect(user: LipwigSocket, id: string): boolean {
+    reconnect(socket: UninitializedSocket, id: string): boolean {
         if (this.isHost(id)) {
-            if (!this.reconnectHost(user, id)) {
+            if (!this.reconnectHost(socket, id)) {
                 return false;
             }
         } else {
-            if (!this.reconnectUser(user, id)) {
+            const client = this.reconnectClient(socket, id);
+            if (!client) {
                 return false;
             }
-            user.send({
+            client.send({
                 event: SERVER_CLIENT_EVENT.RECONNECTED,
                 data: {
                     room: this.code,
@@ -331,38 +346,35 @@ export class Room {
                 event: SERVER_HOST_EVENT.CLIENT_RECONNECTED,
                 data: {
                     room: this.code,
-                    id: user.id,
+                    id: client.id,
                 },
             });
 
             Logger.debug(`${id} reconnected`, this.id);
         }
 
-        user.connected = true;
-
         return true;
     }
 
-    private reconnectHost(host: LipwigSocket, id: string): boolean {
-        this.host = host;
-        host.initialize(id, true, this);
+    private reconnectHost(host: UninitializedSocket, id: string): boolean {
+        this.host = this.initializeHost(host, id);
 
-        host.send({
+        this.host.send({
             event: SERVER_HOST_EVENT.RECONNECTED,
             data: {
                 room: this.code,
-                id: host.id,
-                users: this.users.map((user) => user.id),
-                local: this.localUsers,
+                id: this.host.id,
+                users: this.clients.map((client) => client.id),
+                local: this.localClients,
             },
         });
 
-        for (const user of this.users) {
-            user.send({
+        for (const client of this.clients) {
+            client.send({
                 event: SERVER_CLIENT_EVENT.HOST_RECONNECTED,
                 data: {
                     room: this.code,
-                    id: host.id,
+                    id: this.host.id, // TODO: Why does this get sent?
                 },
             });
         }
@@ -372,31 +384,31 @@ export class Room {
         return true;
     }
 
-    private reconnectUser(user: LipwigSocket, id: string): boolean {
-        const index = this.users.findIndex((other) => other.id === id);
+    private reconnectClient(socket: UninitializedSocket, id: string): ClientSocket | void {
+        const index = this.clients.findIndex((other) => other.id === id);
         if (index === -1) {
             // Could not find user
-            user.error(ERROR_CODE.USERNOTFOUND);
-            return false;
+            socket.error(ERROR_CODE.USERNOTFOUND);
+            return;
         }
 
-        if (user.connected) {
-            user.error(ERROR_CODE.ALREADYCONNECTED);
-            return false;
+        const existing = this.clients[index];
+        if (existing.connected) {
+            socket.error(ERROR_CODE.ALREADYCONNECTED);
+            return;
         }
 
-        user.initialize(id, false, this);
+        const client = this.initializeClient(socket, id);
 
-        this.users.splice(index, 1, user);
+        this.clients.splice(index, 1, client);
 
-
-        return true;
+        return client;
     }
 
     close(reason?: string) {
         this.closed = true;
-        for (const user of this.users) {
-            user.close(CLOSE_CODE.CLOSED, reason);
+        for (const client of this.clients) {
+            client.close(CLOSE_CODE.CLOSED, reason);
         }
 
         if (reason) {
@@ -410,45 +422,45 @@ export class Room {
         }
     }
 
-    leave(user: LipwigSocket, reason?: string) {
+    leave(client: ClientSocket, reason?: string) {
         this.host.send({
             event: SERVER_HOST_EVENT.LEFT,
             data: {
-                id: user.id,
+                id: client.id,
                 reason,
             },
         });
 
-        const index = this.users.indexOf(user);
+        const index = this.clients.indexOf(client);
         if (index === -1) {
             // TODO: Handle
             return;
         }
 
         if (reason) {
-            Logger.debug(`${user.id} left - ${reason}`, this.id);
+            Logger.debug(`${client.id} left - ${reason}`, this.id);
         } else {
-            Logger.debug(`${user.id} left`, this.id);
+            Logger.debug(`${client.id} left`, this.id);
         }
 
-        this.users.splice(index, 1);
+        this.clients.splice(index, 1);
     }
 
-    kick(user: LipwigSocket, id: string, reason?: string) {
-        if (!user.isHost) {
-            user.error(ERROR_CODE.INSUFFICIENTPERMISSIONS);
+    kick(host: HostSocket, id: string, reason?: string) {
+        if (host.type !== SOCKET_TYPE.HOST) {
+            host.error(ERROR_CODE.INSUFFICIENTPERMISSIONS);
             return;
         }
 
-        const target = this.users.find((user) => user.id === id);
+        const target = this.clients.find((client) => client.id === id);
         if (!target) {
-            user.error(ERROR_CODE.USERNOTFOUND);
+            host.error(ERROR_CODE.USERNOTFOUND);
             return;
         }
 
-        const index = this.users.indexOf(target);
+        const index = this.clients.indexOf(target);
         if (index === -1) {
-            user.error(ERROR_CODE.USERNOTFOUND);
+            host.error(ERROR_CODE.USERNOTFOUND);
             return;
         }
 
@@ -459,33 +471,32 @@ export class Room {
         }
 
         target.close(CLOSE_CODE.KICKED, reason);
-        this.users.splice(index, 1);
+        this.clients.splice(index, 1);
     }
 
-    //administrate(user: LipwigSocket, payload: AdministrateEventData) {}
 
     handle(
-        sender: LipwigSocket,
+        sender: HostSocket | ClientSocket,
         data: HostEvents.MessageData | ClientEvents.MessageData
     ) {
-        if (sender.isHost) {
-            this.handleHost(sender, data as HostEvents.MessageData);
+        if (sender.type === SOCKET_TYPE.HOST) {
+            this.handleHost(sender as HostSocket, data as HostEvents.MessageData);
         } else {
-            this.handleClient(sender, data as ClientEvents.MessageData);
+            this.handleClient(sender as ClientSocket, data as ClientEvents.MessageData);
         }
     }
 
-    private handleHost(host: LipwigSocket, data: HostEvents.MessageData) {
+    private handleHost(host: HostSocket, data: HostEvents.MessageData) {
         Logger.debug(`Received '${data.event}' message from host`, this.id);
         for (const id of data.recipients) {
             //TODO: Disconnected message queuing
-            const user = this.users.find((value) => id === value.id);
-            if (!user) {
+            const client = this.clients.find((value) => id === value.id);
+            if (!client) {
                 host.error(ERROR_CODE.USERNOTFOUND);
                 continue;
             }
 
-            user.send({
+            client.send({
                 event: SERVER_CLIENT_EVENT.MESSAGE,
                 data: {
                     event: data.event,
@@ -495,7 +506,7 @@ export class Room {
         }
     }
 
-    private handleClient(client: LipwigSocket, data: ClientEvents.MessageData) {
+    private handleClient(client: ClientSocket, data: ClientEvents.MessageData) {
         Logger.debug(
             `Received '${data.event}' message from ${client.id}`,
             this.id
@@ -510,7 +521,7 @@ export class Room {
         });
     }
 
-    poll(host: LipwigSocket, id: string, query: string, recipients: string[]) {
+    poll(host: HostSocket, id: string, query: string, recipients: string[]) {
         const poll: Poll = {
             id,
             pending: recipients,
@@ -520,14 +531,14 @@ export class Room {
 
         this.polls.push(poll);
 
-        for (const userId of recipients) {
-            const user = this.users.find((user) => user.id === userId);
-            if (!user) {
+        for (const clientId of recipients) {
+            const client = this.clients.find((client) => client.id === clientId);
+            if (!client) {
                 host.error(ERROR_CODE.USERNOTFOUND);
                 continue;
             }
 
-            user.send({
+            client.send({
                 event: SERVER_CLIENT_EVENT.POLL,
                 data: {
                     id,
@@ -537,33 +548,33 @@ export class Room {
         }
     }
 
-    pollResponse(user: LipwigSocket, id: string, response: unknown) {
+    pollResponse(client: ClientSocket, id: string, response: unknown) {
         const poll = this.polls.find((poll) => poll.id === id);
         if (!poll) {
-            user.error(ERROR_CODE.POLLNOTFOUND);
+            client.error(ERROR_CODE.POLLNOTFOUND);
             return;
         }
 
-        const client = user.id;
+        const clientId = client.id;
 
-        if (poll.received.includes(client)) {
-            user.error(ERROR_CODE.POLLALREADYRESPONSED);
+        if (poll.received.includes(clientId)) {
+            client.error(ERROR_CODE.POLLALREADYRESPONSED);
             return;
         }
 
-        if (!poll.pending.includes(client)) {
-            user.error(ERROR_CODE.POLLUSERNOTFOUND);
+        if (!poll.pending.includes(clientId)) {
+            client.error(ERROR_CODE.POLLUSERNOTFOUND);
             return;
         }
 
         if (!poll.open) {
-            user.error(ERROR_CODE.POLLCLOSED);
+            client.error(ERROR_CODE.POLLCLOSED);
             return;
         }
 
-        const userIndex = poll.pending.indexOf(client);
-        poll.pending.splice(userIndex, 1);
-        poll.received.push(client);
+        const clientIndex = poll.pending.indexOf(clientId);
+        poll.pending.splice(clientIndex, 1);
+        poll.received.push(clientId);
 
         if (!poll.pending.length) {
             poll.open = false;
@@ -573,14 +584,14 @@ export class Room {
             event: SERVER_HOST_EVENT.POLL_RESPONSE,
             data: {
                 id,
-                client,
+                client: clientId,
                 response,
             },
         });
     }
 
-    pingHost(socket: LipwigSocket, time: number) {
-        const id = socket.id;
+    pingHost(client: ClientSocket, time: number) {
+        const id = client.id;
 
         this.host.send({
             event: SERVER_HOST_EVENT.PING_HOST,
@@ -591,15 +602,15 @@ export class Room {
         });
     }
 
-    pongHost(socket: LipwigSocket, time: number, id: string) {
-        const user = this.users.find((user) => user.id === id);
+    pongHost(host: HostSocket, time: number, id: string) {
+        const client = this.clients.find((client) => client.id === id);
 
-        if (!user) {
-            socket.error(ERROR_CODE.USERNOTFOUND);
+        if (!client) {
+            host.error(ERROR_CODE.USERNOTFOUND);
             return;
         }
 
-        user.send({
+        client.send({
             event: SERVER_CLIENT_EVENT.PONG_HOST,
             data: {
                 time,
@@ -607,15 +618,15 @@ export class Room {
         });
     }
 
-    pingClient(socket: LipwigSocket, time: number, id: string) {
-        const user = this.users.find((user) => user.id === id);
+    pingClient(host: HostSocket, time: number, id: string) {
+        const client = this.clients.find((client) => client.id === id);
 
-        if (!user) {
-            socket.error(ERROR_CODE.USERNOTFOUND);
+        if (!client) {
+            host.error(ERROR_CODE.USERNOTFOUND);
             return;
         }
 
-        user.send({
+        client.send({
             event: SERVER_CLIENT_EVENT.PING_CLIENT,
             data: {
                 time,
@@ -623,8 +634,8 @@ export class Room {
         });
     }
 
-    pongClient(socket: LipwigSocket, time: number) {
-        const id = socket.id;
+    pongClient(client: ClientSocket, time: number) {
+        const id = client.id;
 
         this.host.send({
             event: SERVER_HOST_EVENT.PONG_CLIENT,
@@ -635,19 +646,19 @@ export class Room {
         });
     }
 
-    localJoin(user: LipwigSocket, id: string) {
+    localJoin(host: HostSocket, id: string) {
         Logger.debug(`${id} joined (local)`, this.id);
-        this.localUsers.push(id);
+        this.localClients.push(id);
     }
 
-    localLeave(user: LipwigSocket, id: string) {
-        const index = this.localUsers.indexOf(id);
+    localLeave(host: HostSocket, id: string) {
+        const index = this.localClients.indexOf(id);
 
         if (index === -1) {
-            user.error(ERROR_CODE.USERNOTFOUND, `Local user ${id} not found`);
+            host.error(ERROR_CODE.USERNOTFOUND, `Local user ${id} not found`);
         }
 
-        this.localUsers.splice(index, 1);
+        this.localClients.splice(index, 1);
         Logger.debug(`${id} left (local)`, this.id);
     }
 }

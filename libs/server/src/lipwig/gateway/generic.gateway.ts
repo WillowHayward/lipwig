@@ -7,28 +7,25 @@ import {
     HostEvents,
 } from '@lipwig/model';
 import { WebSocket } from '../../common/lipwig.model';
-import { LipwigSocket } from '../classes/LipwigSocket';
-import { Logger } from '@nestjs/common';
 import { RoomService } from '../room/room.service';
+import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { HostSocket } from '../classes/HostSocket';
 
 @WebSocketGateway()
 export class GenericGateway implements OnGatewayConnection {
-    constructor(private rooms: RoomService) {}
+    constructor(private rooms: RoomService) { }
 
     handleConnection(socket: WebSocket) {
         // TODO: This is firing twice on reconnection, for some reason
-        Logger.debug('New Websocket Connection', 'Uninitialized Socket');
-        const lipwigSocket = new LipwigSocket(socket);
-        socket.socket = lipwigSocket;
+        socket.socket = new UninitializedSocket(socket);
     }
-
 
     // TODO: Should this be a HTTP request?
     @SubscribeMessage(GENERIC_EVENT.QUERY)
     query(socket: WebSocket, payload: GenericEvents.QueryData) {
         const code = payload.room;
         const id = payload.id;
-        this.rooms.query(socket.socket, code, id);
+        this.rooms.query(socket.socket as UninitializedSocket, code, id);
     }
 
     @SubscribeMessage(GENERIC_EVENT.RECONNECT)
@@ -38,7 +35,7 @@ export class GenericGateway implements OnGatewayConnection {
     ) {
         const code = payload.code;
         const id = payload.id;
-        this.rooms.reconnect(socket.socket, code, id);
+        this.rooms.reconnect(socket.socket as UninitializedSocket, code, id);
     }
 
     // TODO: Can these be merged into a generic event? They have different args
@@ -47,7 +44,7 @@ export class GenericGateway implements OnGatewayConnection {
         socket: WebSocket,
         payload: HostEvents.MessageData | ClientEvents.MessageData
     ) {
-        this.rooms.message(socket.socket, payload);
+        this.rooms.message(socket.socket as HostSocket, payload); // TODO: Make this more generic
     }
 
     @SubscribeMessage(PING_EVENT.PING_SERVER)
