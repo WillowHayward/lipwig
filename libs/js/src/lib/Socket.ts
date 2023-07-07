@@ -5,6 +5,7 @@ import {
     ClientEvents,
     HostEvents,
     GenericEvents,
+    AdminEvents,
 } from '@lipwig/model';
 import { EventManager } from './EventManager';
 import * as Logger from 'loglevel';
@@ -89,7 +90,7 @@ export class Socket extends EventManager {
     }
 
     public send(
-        message: GenericEvents.Event | ClientEvents.Event | HostEvents.Event
+        message: GenericEvents.Event | ClientEvents.Event | HostEvents.Event | AdminEvents.Events
     ): void {
         //TODO: Add in contingency system for messages sent during a disconnection
         //CONT: A queue of messages to be sent in bulk on resumption of connection

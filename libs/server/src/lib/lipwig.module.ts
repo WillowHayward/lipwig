@@ -8,6 +8,6 @@ import { RoomService } from './room/room.service';
 @Module({
     controllers: [],
     providers: [HostGateway, ClientGateway, GenericGateway, RoomService],
-    exports: [],
+    exports: [RoomService],
 })
 export class LipwigModule {}

@@ -13,8 +13,28 @@ import {
 import { Host } from './host';
 import { Client } from './client';
 import { Socket } from './Socket';
+import { Admin } from './admin';
 
 export class Lipwig {
+    static query(url: string, code: string, id?: string): Promise<RoomQuery> {
+        return new Promise((resolve) => {
+            const socket = new Socket(url, 'Query');
+            socket.on('connected', () => {
+                socket.send({
+                    event: GENERIC_EVENT.QUERY,
+                    data: {
+                        room: code,
+                        id
+                    },
+                });
+            });
+
+            socket.on('query-response', (response: RoomQuery) => {
+                resolve(response);
+            });
+        });
+    }
+
     static create(url: string, config: CreateOptions = {}): Promise<Host> {
         return new Promise((resolve, reject) => {
             const host = new Host(url, config);
@@ -67,21 +87,18 @@ export class Lipwig {
         });
     }
 
-    static query(url: string, code: string, id?: string): Promise<RoomQuery> {
-        return new Promise((resolve) => {
-            const socket = new Socket(url, 'Query');
-            socket.on('connected', () => {
-                socket.send({
-                    event: GENERIC_EVENT.QUERY,
-                    data: {
-                        room: code,
-                        id
-                    },
-                });
+    static administrate(
+        url: string,
+    ): Promise<Admin> {
+        return new Promise((resolve, reject) => {
+            const admin = new Admin(url);
+
+            admin.on('administrating', () => {
+                resolve(admin);
             });
 
-            socket.on('query-response', (response: RoomQuery) => {
-                resolve(response);
+            admin.once('error', (error: ERROR_CODE, message?: string) => {
+                reject({ error, message });
             });
         });
     }

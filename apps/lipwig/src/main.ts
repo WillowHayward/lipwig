@@ -15,7 +15,7 @@ async function bootstrap() {
     app.useWebSocketAdapter(new WsAdapter(app));
     const port = defaultConfig.port;
     await app.listen(port);
-    Logger.log(`🚀 Application is running on: ws://localhost:${port}`);
+    Logger.log(`Lipwig server is running on: ws://localhost:${port}`);
 }
 
 bootstrap();

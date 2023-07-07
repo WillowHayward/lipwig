@@ -1,11 +1,11 @@
-import { ADMIN_EVENTS } from "./admin.model";
+import { ADMIN_EVENT } from "./admin.model";
 
 interface EventStructure {
-    event: ADMIN_EVENTS;
+    event: ADMIN_EVENT;
 }
 
 export interface Administrate extends EventStructure {
-    event: ADMIN_EVENTS.ADMINISTRATE;
+    event: ADMIN_EVENT.ADMINISTRATE;
 }
 
 export type Events = Administrate;

@@ -5,6 +5,7 @@ import {
     ServerHostEvents,
     CLOSE_CODE,
     ServerGenericEvents,
+    ServerAdminEvents,
 } from '@lipwig/model';
 import { WebSocket } from '../lipwig.model';
 import { Room } from './Room';
@@ -99,6 +100,7 @@ export class LipwigSocket {
             | ServerHostEvents.Event
             | ServerClientEvents.Event
             | ServerGenericEvents.Event
+            | ServerAdminEvents.Event
     ) {
         const context = this.id || 'Uninitialized Socket';
         Logger.debug(`Sending event '${message.event}'`, context);

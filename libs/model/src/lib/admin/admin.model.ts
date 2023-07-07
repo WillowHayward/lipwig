@@ -1,3 +1,3 @@
-export enum ADMIN_EVENTS {
+export enum ADMIN_EVENT {
     ADMINISTRATE = 'administrate'
 }

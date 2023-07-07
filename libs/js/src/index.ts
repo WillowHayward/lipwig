@@ -1,8 +1,8 @@
 export * from './lib/Lipwig';
 export * from './lib/host';
 export * from './lib/client';
+export * from './lib/admin';
 import * as Logger from 'loglevel';
-//export * from './lib/Admin';
 
 Logger.setDefaultLevel(Logger.levels.DEBUG);
 
