@@ -1,6 +1,6 @@
 import {
-    CLIENT_EVENT,
     SERVER_GENERIC_EVENTS,
+    GENERIC_EVENT,
     CLOSE_CODE,
     ClientEvents,
     HostEvents,
@@ -131,8 +131,8 @@ export class Socket extends EventManager {
         this.socket = socket;
         this.addListeners();
         //TODO: Try and make this account for ServerClient and ServerHost split
-        const message: ClientEvents.Reconnect = {
-            event: CLIENT_EVENT.RECONNECT,
+        const message: GenericEvents.Reconnect = {
+            event: GENERIC_EVENT.RECONNECT,
             data: {
                 code: this.room,
                 id: this.id,

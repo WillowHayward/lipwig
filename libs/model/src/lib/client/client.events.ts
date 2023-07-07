@@ -47,16 +47,6 @@ export interface PollResponseData {
     response: any;
 }
 
-export interface Reconnect extends EventStructure {
-    event: CLIENT_EVENT.RECONNECT;
-    data: ReconnectData;
-}
-
-export interface ReconnectData {
-    code: string;
-    id: string;
-}
-
 export interface PingHost extends EventStructure {
     event: CLIENT_EVENT.PING_HOST;
     data: PingHostData;
@@ -89,7 +79,6 @@ export type Event =
     | Rejoin
     | Message
     | PollResponse
-    | Reconnect
     | PingServer
     | PingHost
     | PongClient;
@@ -97,7 +86,6 @@ export type EventData =
     | JoinData
     | MessageData
     | PollResponseData
-    | ReconnectData
     | PingServerData
     | PingHostData
     | PongClientData;

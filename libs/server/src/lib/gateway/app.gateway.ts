@@ -21,7 +21,7 @@ import { LipwigSocket } from '../classes/LipwigSocket';
 @WebSocketGateway()
 @UseGuards(RoomGuard)
 export class AppGateway implements OnGatewayConnection {
-    constructor(private rooms: RoomService) {}
+    constructor(private rooms: RoomService) { }
 
     handleConnection(socket: WebSocket) {
         // TODO: This is firing twice on reconnection, for some reason
@@ -77,23 +77,15 @@ export class AppGateway implements OnGatewayConnection {
         this.rooms.unlock(socket.socket);
     }
 
-    @SubscribeMessage(HOST_EVENT.RECONNECT)
-    @SubscribeMessage(CLIENT_EVENT.RECONNECT)
+    @SubscribeMessage(GENERIC_EVENT.RECONNECT)
     reconnect(
         socket: WebSocket,
-        payload: HostEvents.ReconnectData | ClientEvents.ReconnectData
+        payload: GenericEvents.ReconnectData
     ) {
         const code = payload.code;
         const id = payload.id;
         this.rooms.reconnect(socket.socket, code, id);
     }
-
-    /* TODO
-     * @SubscribeMessage(HOST_EVENT.ADMINISTRATE)
-     * administrate(socket: WebSocket, payload: AdministrateEventData) {
-     *   this.rooms.administrate(socket, payload);
-     * }
-     */
 
     @SubscribeMessage(HOST_EVENT.MESSAGE)
     @SubscribeMessage(CLIENT_EVENT.MESSAGE)

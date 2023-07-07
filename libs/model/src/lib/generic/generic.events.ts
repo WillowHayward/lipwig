@@ -14,5 +14,16 @@ export interface QueryData {
     id?: string; // For rejoin checking
 }
 
-export type Event = Query;
-export type EventData = QueryData;
+export interface Reconnect extends EventStructure {
+    event: GENERIC_EVENT.RECONNECT;
+    data: ReconnectData;
+}
+
+export interface ReconnectData {
+    code: string;
+    id: string;
+}
+
+
+export type Event = Query | Reconnect;
+export type EventData = QueryData | ReconnectData;

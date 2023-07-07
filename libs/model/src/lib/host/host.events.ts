@@ -69,16 +69,6 @@ export interface KickData {
     reason?: string;
 }
 
-export interface Reconnect extends EventStructure {
-    event: HOST_EVENT.RECONNECT;
-    data: ReconnectData;
-}
-
-export interface ReconnectData {
-    code: string;
-    id: string;
-}
-
 export interface LocalJoin extends EventStructure {
     event: HOST_EVENT.LOCAL_JOIN;
     data: LocalJoinData;

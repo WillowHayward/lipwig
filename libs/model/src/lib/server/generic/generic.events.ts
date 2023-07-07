@@ -1,4 +1,4 @@
-import { ERROR_CODE, RoomQuery } from '../../common.model';
+import { ERROR_CODE, RoomQuery } from '../../generic';
 import { SERVER_GENERIC_EVENTS } from './generic.model';
 
 // Generic events dispatched by the server
