@@ -15,7 +15,6 @@
         "skipDefaultLibCheck": true,
         "baseUrl": ".",
         "paths": {
-            "@lipwig/admin": ["libs/admin/src/index.ts"],
             "@lipwig/angular": ["libs/angular/src/index.ts"],
             "@lipwig/chat/client": ["libs/chat/client/src/index.ts"],
             "@lipwig/chat/common": ["libs/chat/common/src/index.ts"],

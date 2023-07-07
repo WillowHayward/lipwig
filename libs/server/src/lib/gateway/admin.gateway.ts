@@ -1,7 +1,7 @@
 import { ADMIN_EVENT } from '@lipwig/model';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
-import { AdminService } from './admin/admin.service';
-import { WebSocket } from '@lipwig/server'
+import { AdminService } from '../admin/admin.service';
+import { WebSocket } from '../lipwig.model'
 
 @WebSocketGateway()
 export class AdminGateway {
