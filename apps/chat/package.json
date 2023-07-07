@@ -2,5 +2,5 @@
     "envVars": [
         "LIPWIG_HOST"
     ],
-    "version": "1.99.1-next.3"
+    "version": "2.0.0"
 }
