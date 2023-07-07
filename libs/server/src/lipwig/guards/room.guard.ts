@@ -2,7 +2,7 @@ import { Reflector } from '@nestjs/core';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { RoomService } from '../room/room.service';
-import { WebSocket } from '../lipwig.model';
+import { WebSocket } from '../../common/lipwig.model';
 import {
     CLIENT_EVENT,
     ERROR_CODE,

@@ -1,6 +1,6 @@
 import { SERVER_ADMIN_EVENT } from '@lipwig/model';
-import { LipwigSocket } from '../classes/LipwigSocket';
-import { RoomService } from '../room/room.service';
+import { LipwigSocket } from '../../lipwig/classes/LipwigSocket';
+import { RoomService } from '../../lipwig/room/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 

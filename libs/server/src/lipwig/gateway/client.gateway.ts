@@ -4,7 +4,7 @@ import {
     ClientEvents
 } from '@lipwig/model';
 import { RoomService } from '../room/room.service';
-import { WebSocket } from '../lipwig.model';
+import { WebSocket } from '../../common/lipwig.model';
 
 @WebSocketGateway()
 export class ClientGateway {

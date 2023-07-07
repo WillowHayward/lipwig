@@ -6,7 +6,7 @@ import {
     ClientEvents,
     HostEvents,
 } from '@lipwig/model';
-import { WebSocket } from '../lipwig.model';
+import { WebSocket } from '../../common/lipwig.model';
 import { LipwigSocket } from '../classes/LipwigSocket';
 import { Logger } from '@nestjs/common';
 import { RoomService } from '../room/room.service';

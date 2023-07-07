@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { LipwigModule } from '@lipwig/server';
-import { LipwigAdminModule } from '@lipwig/admin';
+import { LipwigAdminModule, LipwigModule } from '@lipwig/server';
 
 @Module({
     imports: [LipwigModule, LipwigAdminModule],

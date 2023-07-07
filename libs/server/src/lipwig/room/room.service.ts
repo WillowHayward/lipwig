@@ -14,7 +14,7 @@ import { generateString } from '@lipwig/utils';
 
 import { LipwigSocket } from '../classes/LipwigSocket';
 import { Room } from '../classes/Room';
-import { BANNED_WORDS } from '../lipwig.model';
+import { BANNED_WORDS } from '../../common/lipwig.model';
 import { Observable, Subject } from 'rxjs';
 
 // TODO: Make @SubscribeHostEvent and @SubscribeClientEvent method decorators

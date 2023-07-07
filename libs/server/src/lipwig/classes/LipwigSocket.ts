@@ -7,7 +7,7 @@ import {
     ServerGenericEvents,
     ServerAdminEvents,
 } from '@lipwig/model';
-import { WebSocket } from '../lipwig.model';
+import { WebSocket } from '../../common/lipwig.model';
 import { Room } from './Room';
 import { Logger } from '@nestjs/common';
 
