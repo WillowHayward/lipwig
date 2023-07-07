@@ -1,2 +1,2 @@
-export * as HostEvents from './events.model';
+export * as HostEvents from './host.events';
 export * from './host.model';

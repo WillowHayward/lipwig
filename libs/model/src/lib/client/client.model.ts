@@ -1,8 +1,15 @@
-import { PING_EVENT } from '../common.model';
+import { PING_EVENT } from '../generic';
 
 export const DEFAULTS = {
-    port: 8989,
+    port: 8989, //TODO: Is this needed?
 };
+
+export type JoinOptions = Partial<{
+    data: {
+        [index: string]: unknown;
+    };
+    password: string;
+}>;
 
 export enum CLIENT_EVENT {
     JOIN = 'join',
@@ -14,3 +21,4 @@ export enum CLIENT_EVENT {
     PING_SERVER = PING_EVENT.PING_SERVER,
     PONG_CLIENT = PING_EVENT.PONG_CLIENT,
 }
+

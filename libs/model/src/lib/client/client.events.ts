@@ -1,5 +1,4 @@
-import { JoinOptions } from '../common.model';
-import { CLIENT_EVENT } from './client.model';
+import { CLIENT_EVENT, JoinOptions } from './client.model';
 
 /**
  * @author: WillHayCode

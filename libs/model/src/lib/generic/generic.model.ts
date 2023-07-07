@@ -1,18 +1,3 @@
-export type CreateOptions = Partial<{
-    size: number;
-    name: string;
-    password: string;
-    approvals: boolean; // True for Host manually approving join requests
-    required: string[]; // List of required paramaters to join a room
-}>;
-
-export type JoinOptions = Partial<{
-    data: {
-        [index: string]: unknown;
-    };
-    password: string;
-}>;
-
 export type RoomQuery = Partial<{
     room: string;
     exists: boolean;
@@ -23,10 +8,6 @@ export type RoomQuery = Partial<{
     lockReason?: string;
     rejoin: boolean; // ID of client for rejoining requests
 }>;
-
-export enum GENERIC_EVENT {
-    QUERY = 'query',
-}
 
 export enum ERROR_CODE {
     SUCCESS = 'SUCCESS',
@@ -65,4 +46,8 @@ export enum PING_EVENT {
     PONG_HOST = 'lw-pong-host',
     PING_CLIENT = 'lw-ping-client',
     PONG_CLIENT = 'lw-pong-client',
+}
+
+export enum GENERIC_EVENT {
+    QUERY = 'query',
 }

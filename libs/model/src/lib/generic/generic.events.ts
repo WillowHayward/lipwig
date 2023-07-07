@@ -1,4 +1,4 @@
-import { GENERIC_EVENT } from './common.model';
+import { GENERIC_EVENT } from './generic.model';
 
 export interface EventStructure {
     event: GENERIC_EVENT;

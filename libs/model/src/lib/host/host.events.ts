@@ -1,5 +1,4 @@
-import { CreateOptions } from '../common.model';
-import { HOST_EVENT } from './host.model';
+import { HOST_EVENT, CreateOptions } from './host.model';
 
 interface EventStructure {
     event: HOST_EVENT;
