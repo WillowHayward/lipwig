@@ -1,6 +1,6 @@
-import { Logger } from '@nestjs/common';
 import { SOCKET_TYPE, WebSocket } from '../lipwig.model';
 import { CLOSE_CODE, ERROR_CODE, SERVER_GENERIC_EVENTS, ServerAdminEvents, ServerClientEvents, ServerGenericEvents, ServerHostEvents } from '@lipwig/model';
+import { LipwigLogger } from '../../logging/logger/logger.service';
 
 type Callback = (...args: any[]) => void;
 
@@ -8,23 +8,27 @@ export abstract class AbstractSocket {
     private events: {
         [event: string]: Callback[];
     } = {};
+    protected logger: LipwigLogger;
 
     public connected = false;
 
-    constructor(public socket: WebSocket, public id: string, public type: SOCKET_TYPE) {
+    constructor(public socket: WebSocket, public id: string, public type: SOCKET_TYPE, room?: string) {
         this.connected = true;
+        this.logger = new LipwigLogger(type, id);
+        if (room) {
+            this.logger.setRoom(room);
+        }
         this.setListeners();
-        Logger.debug('Initialised', this.id);
+        this.logger.debug('Initialised');
     }
 
     protected abstract setListeners(): void;
 
     error(error: ERROR_CODE, message?: string) {
-        const context = this.id || 'Uninitialized Socket';
         if (message) {
-            Logger.debug(`Sending error ${error} - ${message}`, context);
+            this.logger.debug(`Sending error ${error} - ${message}`);
         } else {
-            Logger.debug(`Sending error ${error}`, context);
+            this.logger.debug(`Sending error ${error}`);
         }
 
         const errorMessage: ServerGenericEvents.Error = {
@@ -43,8 +47,7 @@ export abstract class AbstractSocket {
             | ServerGenericEvents.Event
             | ServerAdminEvents.Event
     ) {
-        const context = this.id || 'Uninitialized Socket';
-        Logger.debug(`Sending event '${message.event}'`, context);
+        this.logger.debug(`Sending event '${message.event}'`);
         const messageString = JSON.stringify(message);
         this.socket.send(messageString);
     }

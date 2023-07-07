@@ -5,7 +5,7 @@ import { Room } from "./Room";
 
 export class ClientSocket extends AbstractSocket {
     constructor(socket: WebSocket, id: string, public room: Room) {
-        super(socket, id, SOCKET_TYPE.CLIENT);
+        super(socket, id, SOCKET_TYPE.CLIENT, room.id);
     }
 
     protected setListeners(): void {

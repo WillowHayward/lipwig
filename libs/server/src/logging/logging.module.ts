@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoomEntity } from './entities/room.entity';
+import { LipwigLogger } from './logger/logger.service';
 
 @Module({
     imports: [
@@ -11,6 +12,7 @@ import { RoomEntity } from './entities/room.entity';
             synchronize: true
         })
     ],
-    exports: [TypeOrmModule]
+    providers: [LipwigLogger],
+    exports: [TypeOrmModule, LipwigLogger]
 })
 export class LoggingModule { }

@@ -10,13 +10,13 @@ import {
     JoinOptions,
     RoomQuery,
 } from '@lipwig/model';
-import { Logger } from '@nestjs/common';
 import { ClientSocket } from './ClientSocket';
 import { HostSocket } from './HostSocket';
 import { SOCKET_TYPE } from '../../common/lipwig.model';
 import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
 import { Repository } from 'typeorm';
 import { RoomEntity } from '../../logging/entities/room.entity';
+import { LipwigLogger } from '../../logging/logger/logger.service';
 
 interface Poll {
     id: string;
@@ -33,7 +33,7 @@ interface Pending {
 }
 
 export class Room {
-    private id = v4();
+    public id = v4();
     private locked = false;
     private lockReason: string | undefined;
 
@@ -52,6 +52,8 @@ export class Room {
 
     private polls: Poll[] = [];
 
+    private logger: LipwigLogger;
+
     // TODO: This feels hacky
     public onclose: () => void = () => null;
     public closed = false;
@@ -63,6 +65,7 @@ export class Room {
         private repository: Repository<RoomEntity>
     ) {
         // TODO: Room config
+        this.logger = new LipwigLogger('Room', this.id);
         const host = this.initializeHost(socket);
         this.host = host;
 
@@ -78,7 +81,7 @@ export class Room {
 
         this.initEntity();
 
-        Logger.debug(`${this.code} created by ${host.id}`, this.id);
+        this.logger.debug(`${this.code} created by ${host.id}`);
         host.send({
             event: SERVER_HOST_EVENT.CREATED,
             data: {
@@ -208,7 +211,7 @@ export class Room {
 
         if (this.approvals) {
             const tempId = v4();
-            Logger.debug(`Client requested to join`, this.id);
+            this.logger.debug(`Client requested to join`);
             const pending = {
                 client,
                 options,
@@ -250,7 +253,7 @@ export class Room {
             },
         });
 
-        Logger.debug(`${id} rejoined`, this.id);
+        this.logger.debug(`${id} rejoined`);
     }
 
     public joinResponse(
@@ -295,23 +298,23 @@ export class Room {
                 data: options?.data,
             },
         });
-        Logger.debug(`${id} joined`, this.id);
+        this.logger.debug(`${id} joined`);
     }
 
     public lock(host: HostSocket, reason?: string) {
         this.locked = true;
         this.lockReason = reason;
         if (reason) {
-            Logger.debug(`Locked - ${reason}`, this.id);
+            this.logger.debug(`Locked - ${reason}`);
         } else {
-            Logger.debug('Locked', this.id);
+            this.logger.debug('Locked');
         }
     }
 
     public unlock(host: HostSocket) {
         this.locked = false;
         this.lockReason = undefined;
-        Logger.debug('Unlocked', this.id);
+        this.logger.debug('Unlocked');
     }
 
     private disconnect(disconnected: HostSocket | ClientSocket) {
@@ -359,7 +362,7 @@ export class Room {
                 },
             });
 
-            Logger.debug(`${id} reconnected`, this.id);
+            this.logger.debug(`${id} reconnected`);
         }
 
         return true;
@@ -388,7 +391,7 @@ export class Room {
             });
         }
 
-        Logger.debug(`Host reconnected`, this.id);
+        this.logger.debug(`Host reconnected`);
 
         return true;
     }
@@ -421,9 +424,9 @@ export class Room {
         }
 
         if (reason) {
-            Logger.debug(`Closed - ${reason}`, this.id);
+            this.logger.debug(`Closed - ${reason}`);
         } else {
-            Logger.debug('Closed', this.id);
+            this.logger.debug('Closed');
         }
 
         const closedAt = (new Date()).getTime();
@@ -453,9 +456,9 @@ export class Room {
         }
 
         if (reason) {
-            Logger.debug(`${client.id} left - ${reason}`, this.id);
+            this.logger.debug(`${client.id} left - ${reason}`);
         } else {
-            Logger.debug(`${client.id} left`, this.id);
+            this.logger.debug(`${client.id} left`);
         }
 
         this.clients.splice(index, 1);
@@ -481,9 +484,9 @@ export class Room {
         }
 
         if (reason) {
-            Logger.debug(`${id} kicked - ${reason}`, this.id);
+            this.logger.debug(`${id} kicked - ${reason}`);
         } else {
-            Logger.debug(`${id} kicked`, this.id);
+            this.logger.debug(`${id} kicked`);
         }
 
         target.close(CLOSE_CODE.KICKED, reason);
@@ -504,7 +507,7 @@ export class Room {
     }
 
     private handleHost(host: HostSocket, data: HostEvents.MessageData) {
-        Logger.debug(`Received '${data.event}' message from host`, this.id);
+        this.logger.debug(`Received '${data.event}' message from host`);
         for (const id of data.recipients) {
             //TODO: Disconnected message queuing
             const client = this.clients.find((value) => id === value.id);
@@ -524,9 +527,8 @@ export class Room {
     }
 
     private handleClient(client: ClientSocket, data: ClientEvents.MessageData) {
-        Logger.debug(
-            `Received '${data.event}' message from ${client.id}`,
-            this.id
+        this.logger.debug(
+            `Received '${data.event}' message from ${client.id}`
         );
         this.host.send({
             event: SERVER_HOST_EVENT.MESSAGE,
@@ -664,7 +666,7 @@ export class Room {
     }
 
     localJoin(host: HostSocket, id: string) {
-        Logger.debug(`${id} joined (local)`, this.id);
+        this.logger.debug(`${id} joined (local)`);
         this.localClients.push(id);
         this.syncClients(id);
     }
@@ -678,7 +680,7 @@ export class Room {
 
         this.localClients.splice(index, 1);
         this.syncClients();
-        Logger.debug(`${id} left (local)`, this.id);
+        this.logger.debug(`${id} left (local)`);
     }
 
     // Database functions

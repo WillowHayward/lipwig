@@ -1,12 +1,11 @@
 import { CLOSE_CODE } from "@lipwig/model";
 import { SOCKET_TYPE, WebSocket } from "../lipwig.model";
 import { AbstractSocket } from "./AbstractSocket";
-import { Logger } from "@nestjs/common";
 
 export class UninitializedSocket extends AbstractSocket {
     constructor(socket: WebSocket) {
-        super(socket, 'Uninitialized Socket', SOCKET_TYPE.UNINITIALIZED);
-        Logger.debug('New Websocket Connection', 'Uninitialized Socket');
+        super(socket, 'Uninitialized', SOCKET_TYPE.UNINITIALIZED);
+        this.logger.debug('New Websocket Connection');
     }
 
     protected override setListeners(): void {
@@ -16,8 +15,13 @@ export class UninitializedSocket extends AbstractSocket {
 
         // This should persist past initialization, hopefully
         this.socket.on('close', (code: CLOSE_CODE) => {
-            const context = this.socket.socket?.id || 'Uninitialized Socket';
-            Logger.debug(`Disconnected with code ${code}`, context);
+            // Update logger for close after initialization
+            const socket = this.socket.socket;
+            this.logger.setName(socket.type);
+            this.logger.setId(socket.id);
+
+            const reason = CLOSE_CODE[code];
+            this.logger.debug(`Disconnected with code ${code} (${reason})`);
         });
     }
 }
