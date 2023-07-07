@@ -23,7 +23,7 @@ import { ClientSocket } from '../classes/ClientSocket';
 // TODO: Make exception which sends error?
 @Injectable()
 export class RoomService {
-    private rooms: { [code: string]: Room } = {};
+    private rooms: Record<string, Room> = {};
     private roomLimit = 0; // 0 for no limit
     private creationObservable: Subject<Room>;
     private closeObservable: Subject<Room>;
@@ -35,6 +35,10 @@ export class RoomService {
 
     getRoom(room: string): Room {
         return this.rooms[room];
+    }
+
+    getRooms(): Record<string, Room> {
+        return this.rooms;
     }
 
     roomExists(room: string): boolean {

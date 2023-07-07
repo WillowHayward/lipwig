@@ -1,11 +1,10 @@
 /**
  * @author: WillHayCode
  */
-
 import { Socket } from "../Socket";
 import { EventManager } from "../EventManager";
 import * as Logger from 'loglevel';
-import { ADMIN_EVENT, AdminEvents, ERROR_CODE, SERVER_ADMIN_EVENT, ServerAdminEvents } from "@lipwig/model";
+import { ADMIN_EVENT, AdminEvents, ERROR_CODE, LipwigSummary, SERVER_ADMIN_EVENT, ServerAdminEvents } from "@lipwig/model";
 
 
 export class Admin extends EventManager {
@@ -47,6 +46,15 @@ export class Admin extends EventManager {
         });
     }
 
+    public summary(subscribe = false) {
+        this.socket.send({
+            event: ADMIN_EVENT.SUMMARY_REQUEST,
+            data: {
+                subscribe
+            }
+        });
+    }
+
     private connected() {
         const message: AdminEvents.Administrate = {
             event: ADMIN_EVENT.ADMINISTRATE
@@ -55,11 +63,26 @@ export class Admin extends EventManager {
     }
 
     private handle(message: ServerAdminEvents.Event) {
+        Logger.debug(`[${this.name}] Received '${message.event}' event`);
+        let args: unknown[] = [];
+
         switch (message.event) {
             case SERVER_ADMIN_EVENT.ADMINISTRATING:
                 Logger.debug(`[${this.name}] Administrating`);
                 break;
+            case SERVER_ADMIN_EVENT.SUMMARY:
+                args = this.handleSummary(message.data.summary);
+                break;
         }
+
+        args.push(message);
+
+        this.emit(message.event, ...args);
+    }
+
+    private handleSummary(summary: LipwigSummary): [LipwigSummary] {
+        Logger.debug(`[${this.name}] Received summary`);
+        return [summary];
     }
 
 }

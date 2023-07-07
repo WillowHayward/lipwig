@@ -9,37 +9,18 @@ export interface Administrate extends EventStructure {
     // TODO: Authentication
 }
 
-export interface Subscribe extends EventStructure {
-    event: ADMIN_EVENT.SUBSCRIBE
-    data: SubscribeData;
+export interface SummaryRequest extends EventStructure {
+    event: ADMIN_EVENT.SUMMARY_REQUEST;
+    data: SummaryRequestData;
 }
 
-export interface SubscribeData {
-    existing?: boolean;
+export interface SummaryRequestData {
+    subscribe?: boolean;
 }
 
-export interface Unsubscribe extends EventStructure {
-    event: ADMIN_EVENT.UNSUBSCRIBE;
+export interface SummaryUnsubscribe extends EventStructure {
+    event: ADMIN_EVENT.SUMMARY_UNSUBSCRIBE;
 }
 
-export interface SubscribeRoom extends EventStructure {
-    event: ADMIN_EVENT.SUBSCRIBE_ROOM;
-    data: SubscribeRoomData;
-}
-
-export interface SubscribeRoomData {
-    id: string;
-    historical?: boolean;
-}
-
-export interface UnsubscribeRoom extends EventStructure {
-    event: ADMIN_EVENT.UNSUBSCRIBE_ROOM;
-    data: UnsubscribeRoomData;
-}
-
-export interface UnsubscribeRoomData {
-    id: string;
-}
-
-export type Event = Administrate | Subscribe | Unsubscribe | SubscribeRoom | UnsubscribeRoom;
-export type EventData = SubscribeData | SubscribeRoomData | UnsubscribeRoomData;
+export type Event = Administrate | SummaryRequest | SummaryUnsubscribe;
+export type EventData = SummaryRequestData;

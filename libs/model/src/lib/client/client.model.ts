@@ -1,4 +1,5 @@
-import { GENERIC_EVENT, PING_EVENT } from '../generic';
+import { GENERIC_EVENT } from '../generic';
+import { PING_EVENT } from '../server';
 
 export const DEFAULTS = {
     port: 8989, //TODO: Is this needed?

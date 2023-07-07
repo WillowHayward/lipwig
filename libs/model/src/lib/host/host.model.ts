@@ -2,7 +2,8 @@
  *
  * @author: Willow Hayward, whc.fyi
  */
-import { GENERIC_EVENT, PING_EVENT } from '../generic';
+import { GENERIC_EVENT } from '../generic';
+import { PING_EVENT } from '../server';
 
 export type CreateOptions = Partial<{
     size: number;

@@ -2,10 +2,10 @@ import * as WSSocket from 'ws';
 import type { UninitializedSocket } from './classes/UninitializedSocket';
 import type { HostSocket } from '../lipwig/classes/HostSocket';
 import type { ClientSocket } from '../lipwig/classes/ClientSocket';
-import type { AdminSocket } from '../admin/classes/AdminSocket';
+import type { Admin } from '../admin/classes/Admin';
 
 export declare class WebSocket extends WSSocket {
-    socket: UninitializedSocket | HostSocket | ClientSocket | AdminSocket;
+    socket: UninitializedSocket | HostSocket | ClientSocket | Admin;
 }
 
 // TODO: Expand beyond 4 letter words?

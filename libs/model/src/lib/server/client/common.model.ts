@@ -1,4 +1,4 @@
-import { PING_EVENT } from '../../generic';
+import { PING_EVENT } from "../generic";
 
 export enum SERVER_CLIENT_EVENT {
     // Generic Events

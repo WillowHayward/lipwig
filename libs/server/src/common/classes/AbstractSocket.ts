@@ -38,8 +38,7 @@ export abstract class AbstractSocket {
     }
 
     send(
-        message:
-            | ServerHostEvents.Event
+        message: ServerHostEvents.Event
             | ServerClientEvents.Event
             | ServerGenericEvents.Event
             | ServerAdminEvents.Event

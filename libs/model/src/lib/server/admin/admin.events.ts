@@ -1,4 +1,4 @@
-import { SERVER_ADMIN_EVENT } from "./admin.model";
+import { LipwigSummary, SERVER_ADMIN_EVENT } from "./admin.model";
 
 interface EventStructure {
     event: SERVER_ADMIN_EVENT;
@@ -8,26 +8,15 @@ export interface Administrating extends EventStructure {
     event: SERVER_ADMIN_EVENT.ADMINISTRATING;
 }
 
-export interface Subscribed extends EventStructure {
-    event: SERVER_ADMIN_EVENT.SUBSCRIBED;
-    data: SubscribedData;
+export interface Summary extends EventStructure {
+    event: SERVER_ADMIN_EVENT.SUMMARY;
+    data: SummaryData;
 }
 
-export interface SubscribedData {
-    rooms: {
-        id: string;
-        code: string;
-    }[];
+export interface SummaryData {
+    summary: LipwigSummary;
+    subscribed: boolean;
 }
 
-export interface RoomSubscribed extends EventStructure {
-    event: SERVER_ADMIN_EVENT.ROOM_SUBSCRIBED;
-    data: RoomSubscribedData;
-}
-
-export interface RoomSubscribedData {
-    historical?: unknown; // Historical logs
-}
-
-export type Event = Administrating | Subscribed | RoomSubscribed;
-export type EventData = SubscribedData | RoomSubscribedData;
+export type Event = Administrating | Summary;
+export type EventData = SummaryData;
