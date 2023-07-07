@@ -15,6 +15,8 @@ import { ClientSocket } from './ClientSocket';
 import { HostSocket } from './HostSocket';
 import { SOCKET_TYPE } from '../../common/lipwig.model';
 import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { Repository } from 'typeorm';
+import { RoomEntity } from '../../logging/entities/room.entity';
 
 interface Poll {
     id: string;
@@ -35,6 +37,8 @@ export class Room {
     private locked = false;
     private lockReason: string | undefined;
 
+    private entity: RoomEntity;
+
     private name?: string;
     private password?: string;
     private size: number;
@@ -53,13 +57,14 @@ export class Room {
     public closed = false;
 
     constructor(
-        host: UninitializedSocket,
+        socket: UninitializedSocket,
         public code: string,
-        config: CreateOptions
+        config: CreateOptions,
+        private repository: Repository<RoomEntity>
     ) {
         // TODO: Room config
-        this.host = this.initializeHost(host);
-        Logger.debug(`${this.code} created by ${this.host.id}`, this.id);
+        const host = this.initializeHost(socket);
+        this.host = host;
 
         this.name = config.name;
         if (config.password && config.password.length) {
@@ -71,11 +76,14 @@ export class Room {
 
         this.size = config.size || 8; //TODO: Turn default into config
 
-        this.host.send({
+        this.initEntity();
+
+        Logger.debug(`${this.code} created by ${host.id}`, this.id);
+        host.send({
             event: SERVER_HOST_EVENT.CREATED,
             data: {
                 code,
-                id: this.host.id,
+                id: host.id,
             },
         });
     }
@@ -270,6 +278,7 @@ export class Room {
         const client = this.initializeClient(socket);
         const id = client.id;
         this.clients.push(client);
+        this.syncClients(id);
 
         client.send({
             event: SERVER_CLIENT_EVENT.JOINED,
@@ -417,6 +426,12 @@ export class Room {
             Logger.debug('Closed', this.id);
         }
 
+        const closedAt = (new Date()).getTime();
+
+        this.entity.closedAt = closedAt;
+        this.entity.closed = true;
+        this.saveEntity();
+
         if (this.onclose) {
             this.onclose();
         }
@@ -444,6 +459,7 @@ export class Room {
         }
 
         this.clients.splice(index, 1);
+        this.syncClients();
     }
 
     kick(host: HostSocket, id: string, reason?: string) {
@@ -472,6 +488,7 @@ export class Room {
 
         target.close(CLOSE_CODE.KICKED, reason);
         this.clients.splice(index, 1);
+        this.syncClients();
     }
 
 
@@ -649,6 +666,7 @@ export class Room {
     localJoin(host: HostSocket, id: string) {
         Logger.debug(`${id} joined (local)`, this.id);
         this.localClients.push(id);
+        this.syncClients(id);
     }
 
     localLeave(host: HostSocket, id: string) {
@@ -659,6 +677,44 @@ export class Room {
         }
 
         this.localClients.splice(index, 1);
+        this.syncClients();
         Logger.debug(`${id} left (local)`, this.id);
     }
+
+    // Database functions
+    private initEntity() {
+        const createdAt = (new Date()).getTime();
+        this.entity = this.repository.create({
+            uid: this.id,
+            code: this.code,
+            createdAt,
+            host: this.host.id,
+            clients: [],
+            currentClients: [],
+            closed: false,
+
+            name: this.name,
+            size: this.size,
+            password: this.password
+        });
+        this.saveEntity();
+    }
+
+    private saveEntity() {
+        this.repository.save(this.entity);
+    }
+
+    private syncClients(add?: string) {
+        const currentClients: string[] = [];
+        currentClients.push(...this.clients.map(client => client.id));
+        currentClients.push(...this.localClients);
+        this.entity.currentClients = currentClients;
+
+        if (add) {
+            this.entity.clients.push(add);
+        }
+
+        this.saveEntity();
+    }
+
 }

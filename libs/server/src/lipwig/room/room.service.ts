@@ -14,10 +14,12 @@ import { generateString } from '@lipwig/utils';
 
 import { Room } from '../classes/Room';
 import { BANNED_WORDS } from '../../common/lipwig.model';
-import { Observable, Subject } from 'rxjs';
 import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
 import { HostSocket } from '../classes/HostSocket';
 import { ClientSocket } from '../classes/ClientSocket';
+import { InjectRepository } from '@nestjs/typeorm';
+import { RoomEntity } from '../../logging/entities/room.entity';
+import { Repository } from 'typeorm';
 
 // TODO: Make @SubscribeHostEvent and @SubscribeClientEvent method decorators
 // TODO: Make exception which sends error?
@@ -25,13 +27,10 @@ import { ClientSocket } from '../classes/ClientSocket';
 export class RoomService {
     private rooms: Record<string, Room> = {};
     private roomLimit = 0; // 0 for no limit
-    private creationObservable: Subject<Room>;
-    private closeObservable: Subject<Room>;
 
-    constructor() {
-        this.creationObservable = new Subject<Room>();
-        this.closeObservable = new Subject<Room>();
-    }
+    constructor(
+        @InjectRepository(RoomEntity) private roomRepository: Repository<RoomEntity>
+    ) { }
 
     getRoom(room: string): Room {
         return this.rooms[room];
@@ -56,12 +55,6 @@ export class RoomService {
 
     clientIsHost(room: string, id: string): boolean {
         return this.getRoom(room).isHost(id);
-    }
-
-    subscribe(): Observable<Room>;
-    subscribe(room: string): Observable<unknown>;
-    subscribe(room?: string): Observable<Room | unknown> {
-        return this.creationObservable;
     }
 
     query(socket: UninitializedSocket, code: string, id?: string) {
@@ -95,11 +88,9 @@ export class RoomService {
         do {
             code = generateString(4);
         } while (existingCodes.includes(code) || BANNED_WORDS.includes(code)); // TODO: Allow custom ban list
-        const room = new Room(socket, code, config);
+        const room = new Room(socket, code, config, this.roomRepository);
         this.rooms[code] = room;
-        this.creationObservable.next(room);
         room.onclose = () => {
-            this.closeObservable.next(room);
             delete this.rooms[code];
         };
     }
