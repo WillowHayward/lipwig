@@ -33,7 +33,7 @@ export class LipwigSocket {
     public initialize(id: string, isHost: boolean, room: Room) {
         this.isHost = isHost;
         this.room = room;
-        this.id = id;
+        this.setId(id);
         this.connected = true;
         this.initialized = true;
 
@@ -43,6 +43,10 @@ export class LipwigSocket {
             this.setClientListeners();
         }
         Logger.debug('Initialised', this.id);
+    }
+
+    public setId(id: string) {
+        this.id = id;
     }
 
     private setHostListeners() {

@@ -90,7 +90,7 @@ export class Socket extends EventManager {
     }
 
     public send(
-        message: GenericEvents.Event | ClientEvents.Event | HostEvents.Event | AdminEvents.Events
+        message: GenericEvents.Event | ClientEvents.Event | HostEvents.Event | AdminEvents.Event
     ): void {
         //TODO: Add in contingency system for messages sent during a disconnection
         //CONT: A queue of messages to be sent in bulk on resumption of connection

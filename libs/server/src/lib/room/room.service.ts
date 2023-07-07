@@ -15,6 +15,7 @@ import { generateString } from '@lipwig/utils';
 import { LipwigSocket } from '../classes/LipwigSocket';
 import { Room } from '../classes/Room';
 import { BANNED_WORDS } from '../lipwig.model';
+import { Observable, Subject } from 'rxjs';
 
 // TODO: Make @SubscribeHostEvent and @SubscribeClientEvent method decorators
 // TODO: Make exception which sends error?
@@ -22,6 +23,13 @@ import { BANNED_WORDS } from '../lipwig.model';
 export class RoomService {
     private rooms: { [code: string]: Room } = {};
     private roomLimit = 0; // 0 for no limit
+    private creationObservable: Subject<Room>;
+    private closeObservable: Subject<Room>;
+
+    constructor() {
+        this.creationObservable = new Subject<Room>();
+        this.closeObservable = new Subject<Room>();
+    }
 
     getRoom(room: string): Room {
         return this.rooms[room];
@@ -41,6 +49,12 @@ export class RoomService {
 
     userIsHost(room: string, id: string): boolean {
         return this.getRoom(room).isHost(id);
+    }
+
+    subscribe(): Observable<Room>;
+    subscribe(room: string): Observable<unknown>;
+    subscribe(room?: string): Observable<Room | unknown> {
+        return this.creationObservable;
     }
 
     query(socket: LipwigSocket, code: string, id?: string) {
@@ -76,7 +90,9 @@ export class RoomService {
         } while (existingCodes.includes(code) || BANNED_WORDS.includes(code)); // TODO: Allow custom ban list
         const room = new Room(user, code, config);
         this.rooms[code] = room;
+        this.creationObservable.next(room);
         room.onclose = () => {
+            this.closeObservable.next(room);
             delete this.rooms[code];
         };
     }
