@@ -88,5 +88,6 @@
       }
     }
   },
-    "tags": ["deploy"]
+    "tags": ["deploy"],
+    "implicitDependencies": ["admin-ui"]
 }
