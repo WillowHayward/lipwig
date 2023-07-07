@@ -51,4 +51,5 @@ export enum PING_EVENT {
 export enum GENERIC_EVENT {
     QUERY = 'query',
     RECONNECT = 'reconnect',
+    MESSAGE = 'lw-message',
 }

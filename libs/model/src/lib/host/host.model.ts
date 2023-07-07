@@ -2,7 +2,7 @@
  *
  * @author: Willow Hayward, whc.fyi
  */
-import { PING_EVENT } from '../generic';
+import { GENERIC_EVENT, PING_EVENT } from '../generic';
 
 export type CreateOptions = Partial<{
     size: number;
@@ -18,7 +18,7 @@ export enum HOST_EVENT {
     JOIN_RESPONSE = 'join-response',
     LOCK = 'lock',
     UNLOCK = 'unlock',
-    MESSAGE = 'lw-message',
+    MESSAGE = GENERIC_EVENT.MESSAGE,
     POLL = 'poll',
     KICK = 'lw-kick',
     RECONNECT = 'reconnect',

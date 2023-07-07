@@ -1,4 +1,4 @@
-import { PING_EVENT } from '../generic';
+import { GENERIC_EVENT, PING_EVENT } from '../generic';
 
 export const DEFAULTS = {
     port: 8989, //TODO: Is this needed?
@@ -14,7 +14,7 @@ export type JoinOptions = Partial<{
 export enum CLIENT_EVENT {
     JOIN = 'join',
     REJOIN = 'rejoin',
-    MESSAGE = 'lw-message',
+    MESSAGE = GENERIC_EVENT.MESSAGE,
     POLL_RESPONSE = 'poll-response',
     RECONNECT = 'reconnect',
     PING_HOST = PING_EVENT.PING_HOST,

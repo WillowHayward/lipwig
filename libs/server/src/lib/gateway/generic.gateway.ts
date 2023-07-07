@@ -1,8 +1,6 @@
 import { OnGatewayConnection, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import {
     GENERIC_EVENT,
-    CLIENT_EVENT,
-    HOST_EVENT,
     PING_EVENT,
     GenericEvents,
     ClientEvents,
@@ -44,8 +42,7 @@ export class GenericGateway implements OnGatewayConnection {
     }
 
     // TODO: Can these be merged into a generic event? They have different args
-    @SubscribeMessage(HOST_EVENT.MESSAGE)
-    @SubscribeMessage(CLIENT_EVENT.MESSAGE)
+    @SubscribeMessage(GENERIC_EVENT.MESSAGE)
     message(
         socket: WebSocket,
         payload: HostEvents.MessageData | ClientEvents.MessageData
