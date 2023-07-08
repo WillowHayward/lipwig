@@ -1,9 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { Logger, createLogger, transports } from 'winston';
+import 'winston-daily-rotate-file';
+
 import { DataTransport } from "./data.transport";
 import { Loggers } from "./loggers.singleton";
 import { SocketLog } from "../logging.model";
-import { formatSocketLog } from "./formatting";
+import { formatConsole, formatFile } from "./formatting";
 
 @Injectable()
 export class SocketLogger {
@@ -14,8 +16,12 @@ export class SocketLogger {
             level: 'debug',
             transports: [
                 new transports.Console({
-                    format: formatSocketLog
+                    format: formatConsole,
                 }),
+                new transports.DailyRotateFile({
+                    format: formatFile,
+                    filename: 'logs/lipwig.sockets.log.%DATE%'
+                })
                 //new DataTransport(),
             ]
         });

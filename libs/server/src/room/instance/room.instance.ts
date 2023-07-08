@@ -667,7 +667,7 @@ export class Room {
 
     private log(event: string, message = '', subevent?: string) {
         this.logger.log({
-            roomId: this.id,
+            id: this.id,
             event,
             subevent,
             message

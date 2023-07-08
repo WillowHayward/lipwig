@@ -5,18 +5,14 @@ export enum MESSAGE_DIRECTION {
     FROM = 1
 }
 
-interface Log {
+export interface RoomLog {
     message: string;
     event: string;
     subevent?: string;
+    id: string;
 }
 
-export interface RoomLog extends Log {
-    roomId: string; // TODO: Switch to number to use entity relationship
-}
-
-export interface SocketLog extends Log {
-    socketId: string;
+export interface SocketLog extends RoomLog {
     type: SOCKET_TYPE;
-    roomId?: string;
+    room?: string;
 }

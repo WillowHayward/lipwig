@@ -24,7 +24,23 @@ export abstract class AbstractSocket {
         this.setCloseListener();
         this.setListeners();
 
-        this.log('Initialized', type);
+        let message: string;
+        switch(type) {
+            case SOCKET_TYPE.ANONYMOUS:
+                message = 'Anonymous Socket';
+                break;
+            case SOCKET_TYPE.HOST:
+                message = 'Host Socket';
+                break;
+            case SOCKET_TYPE.CLIENT:
+                message = 'Client Socket';
+                break;
+            case SOCKET_TYPE.ADMIN:
+                message = 'Admin Socket';
+                break;
+        }
+
+        this.log('Initialized', message);
     }
 
     protected abstract setListeners(): void;
@@ -80,9 +96,9 @@ export abstract class AbstractSocket {
             event,
             subevent,
             message,
-            socketId: this.id,
+            id: this.id,
             type: this.type,
-            roomId: this.room?.id
+            room: this.room?.id
         });
     }
 

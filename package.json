@@ -86,6 +86,7 @@
         "typeorm": "^0.3.17",
         "uuid": "^9.0.0",
         "winston": "^3.9.0",
+        "winston-daily-rotate-file": "^4.7.1",
         "zone.js": "~0.13.0"
     },
     "nx": {

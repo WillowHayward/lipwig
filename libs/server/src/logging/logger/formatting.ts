@@ -3,11 +3,11 @@ const { combine, timestamp, printf, colorize } = format;
 
 const idColorizer = colorize({
     colors: {
-        Room: 'magenta bold',
-        Anonymous: 'grey bold',
-        Host: 'cyan bold',
-        Client: 'yellow bold',
-        Admin: 'green bold'
+        ROOM: 'magenta bold',
+        ANON: 'grey bold',
+        HOST: 'cyan bold',
+        CLNT: 'yellow bold',
+        ADMN: 'green bold'
     }
 });
 
@@ -18,23 +18,34 @@ const levelColorizer = colorize({
     }
 });
 
-//timestamp [Type - id] event (subevent): message
-export const formatRoomLog = combine(
-    timestamp(),
-    printf(({ timestamp, level, roomId, event, subevent, message }) => {
-        const fullId = idColorizer.colorize('Room', `[Room - ${roomId}]`);
-        const fullEvent = subevent ? `${event} (${subevent})` : event;
-        const fullMessage = levelColorizer.colorize(level, `${fullEvent}: ${message}`);
-        return `${timestamp} ${fullId} ${fullMessage}`;
-    })
-);
+const formatSections = (id: string, event: string, message: string, type?: string, subevent?: string): [string, string] => {
+    const fullId = `[${type} - ${id}]`;
+    const fullEvent = subevent ? `${event} (${subevent})` : event;
+    const fullMessage = `${fullEvent}: ${message}`;
 
-export const formatSocketLog = combine(
+    return [fullId, fullMessage];
+}
+
+export const formatConsole = combine(
     timestamp(),
-    printf(({ timestamp, level, type, socketId, event, subevent, message }) => {
-        const fullId = idColorizer.colorize(type, `[${type} - ${socketId}]`);
-        const fullEvent = subevent ? `${event} (${subevent})` : event;
-        const fullMessage = levelColorizer.colorize(level, `${fullEvent}: ${message}`);
+    printf(({ timestamp, level, id, type, event, subevent, message }) => {
+        if (!type) {
+            type = 'ROOM';
+        }
+        let [fullId, fullMessage] = formatSections(id, event, message, type, subevent);
+        fullId = idColorizer.colorize(type, fullId);
+        fullMessage = levelColorizer.colorize(level, fullMessage);
         return `${timestamp} ${fullId} ${fullMessage}`;
     })
-);
+)
+
+export const formatFile = combine(
+    timestamp(),
+    printf(({ timestamp, id, type, event, subevent, message }) => {
+        if (!type) {
+            type = 'ROOM';
+        }
+        const [fullId, fullMessage] = formatSections(id, event, message, type, subevent);
+        return `${timestamp} ${fullId} ${fullMessage}`;
+    })
+)

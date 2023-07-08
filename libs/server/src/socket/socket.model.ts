@@ -1,7 +1,7 @@
 export enum SOCKET_TYPE {
-    ANONYMOUS = 'Anonymous',
-    HOST = 'Host',
-    CLIENT = 'Client',
-    ADMIN = 'Admin'
+    ANONYMOUS = 'ANON',
+    HOST = 'HOST',
+    CLIENT = 'CLNT',
+    ADMIN = 'ADMN'
 }
 

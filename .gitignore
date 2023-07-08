@@ -2,6 +2,10 @@
 
 # sqlite
 *.db
+
+#logs
+logs
+
 # NPM
 .npmrc
 
