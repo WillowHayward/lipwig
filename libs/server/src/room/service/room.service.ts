@@ -18,6 +18,7 @@ import { AnonymousSocket, HostSocket, ClientSocket } from '../../socket';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomEntity } from '../../data/entities/room.entity';
 import { Repository } from 'typeorm';
+import { LipwigLogger } from '../../logging/logger/lipwig.logger';
 
 // TODO: Make @SubscribeHostEvent and @SubscribeClientEvent method decorators
 // TODO: Make exception which sends error?
@@ -27,7 +28,8 @@ export class RoomService {
     private roomLimit = 0; // 0 for no limit
 
     constructor(
-        @InjectRepository(RoomEntity) private roomRepository: Repository<RoomEntity>
+        @InjectRepository(RoomEntity) private roomRepository: Repository<RoomEntity>,
+        private logger: LipwigLogger
     ) { }
 
     getRoom(room: string): Room {
@@ -86,7 +88,7 @@ export class RoomService {
         do {
             code = generateString(4);
         } while (existingCodes.includes(code) || BANNED_WORDS.includes(code)); // TODO: Allow custom ban list
-        const room = new Room(socket, code, config, this.roomRepository);
+        const room = new Room(socket, code, config, this.roomRepository, this.logger);
         this.rooms[code] = room;
         room.onclose = () => {
             delete this.rooms[code];

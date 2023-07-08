@@ -2,10 +2,11 @@ import { CLOSE_CODE } from "@lipwig/model";
 import { AbstractSocket } from "./abstract.socket";
 import { LipwigSocket } from "./lipwig.socket";
 import { SOCKET_TYPE } from "./socket.model";
+import { LipwigLogger } from "../logging/logger/lipwig.logger";
 
 export class AnonymousSocket extends AbstractSocket {
-    constructor(socket: LipwigSocket) {
-        super(socket, 'Anonymous', SOCKET_TYPE.UNINITIALIZED);
+    constructor(socket: LipwigSocket, logger: LipwigLogger) {
+        super(socket, 'Anonymous', SOCKET_TYPE.UNINITIALIZED, logger);
     }
 
     protected override setListeners(): void {
@@ -17,11 +18,15 @@ export class AnonymousSocket extends AbstractSocket {
         this.socket.on('close', (code: CLOSE_CODE) => {
             // Update logger for close after initialization
             const socket = this.socket.socket;
-            this.logger.setGroup(socket.type);
-            this.logger.setId(socket.id);
+            this.logTemplate.socket = socket.id;
+            this.logTemplate.room = socket.room?.id;
 
             const reason = CLOSE_CODE[code]; // BUG: This list is non-comprehensive
-            this.logger.debug(`Disconnected with code ${code} (${reason})`);
+            this.logger.debug({
+                ...this.logTemplate,
+                message: `${code} (${reason})`,
+                event: 'Disconnected',
+            });
         });
     }
 }

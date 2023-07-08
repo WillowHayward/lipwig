@@ -3,12 +3,13 @@ import { RoomService } from '../../room/service/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { AnonymousSocket, AdminSocket } from '../../socket';
+import { LipwigLogger } from '../../logging/logger/lipwig.logger';
 
 // TODO: Guards - AdminGuard to check they're admin sending the commands
 @Injectable()
 export class AdminService {
     private admin: AdminSocket[] = [];
-    constructor(private rooms: RoomService) { }
+    constructor(private rooms: RoomService, private logger: LipwigLogger) { }
 
     getAdmin(): AdminSocket[] {
         return this.admin;
@@ -17,7 +18,7 @@ export class AdminService {
     administrate(user: AnonymousSocket) {
         const id = v4();
         const socket = user.socket;
-        const admin = new AdminSocket(socket, id);
+        const admin = new AdminSocket(socket, id, this.logger);
 
         this.admin.push(admin);
         admin.send({

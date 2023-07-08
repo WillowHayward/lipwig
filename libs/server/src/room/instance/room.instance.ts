@@ -13,7 +13,7 @@ import {
 import { AnonymousSocket, HostSocket, ClientSocket, SOCKET_TYPE } from '../../socket';
 import { Repository } from 'typeorm';
 import { RoomEntity } from '../../data/entities/room.entity';
-import { RoomLogger } from '../../logging/logger/room.logger';
+import { LipwigLogger } from '../../logging/logger/lipwig.logger';
 
 interface Poll {
     id: string;
@@ -49,8 +49,6 @@ export class Room {
 
     private polls: Poll[] = [];
 
-    private logger: RoomLogger;
-
     // TODO: This feels hacky
     public onclose: () => void = () => null;
     public closed = false;
@@ -59,10 +57,10 @@ export class Room {
         socket: AnonymousSocket,
         public code: string,
         config: CreateOptions,
-        private repository: Repository<RoomEntity>
+        private repository: Repository<RoomEntity>,
+        private logger: LipwigLogger
     ) {
         // TODO: Room config
-        this.logger = new RoomLogger(this.id);
         const host = this.initializeHost(socket);
         this.host = host;
 
@@ -78,7 +76,8 @@ export class Room {
 
         this.initEntity();
 
-        this.logger.debug(`${this.code} created by ${host.id}`);
+
+        this.log('Created', `Host: ${host.id}`);
         host.send({
             event: SERVER_HOST_EVENT.CREATED,
             data: {
@@ -131,7 +130,7 @@ export class Room {
     private initializeClient(client: AnonymousSocket, id?: string): ClientSocket {
         id = id || v4();
         const socket = client.socket;
-        const newClient = new ClientSocket(socket, id, this);
+        const newClient = new ClientSocket(socket, id, this.logger, this);
         socket.socket = newClient;
 
         newClient.on('leave', (reason?: string) => {
@@ -148,7 +147,7 @@ export class Room {
     private initializeHost(host: AnonymousSocket, id?: string): HostSocket {
         id = id || v4();
         const socket = host.socket;
-        const newHost = new HostSocket(socket, id, this);
+        const newHost = new HostSocket(socket, id, this.logger, this);
         socket.socket = newHost;
 
         newHost.on('close', (reason?: string) => {
@@ -208,7 +207,7 @@ export class Room {
 
         if (this.approvals) {
             const tempId = v4();
-            this.logger.debug(`Client requested to join`);
+            this.log('Join Request', tempId);
             const pending = {
                 client,
                 options,
@@ -250,7 +249,7 @@ export class Room {
             },
         });
 
-        this.logger.debug(`${id} rejoined`);
+        this.log('Client Rejoined', id);
     }
 
     public joinResponse(
@@ -295,23 +294,19 @@ export class Room {
                 data: options?.data,
             },
         });
-        this.logger.debug(`${id} joined`);
+        this.log('Joined', id);
     }
 
     public lock(host: HostSocket, reason?: string) {
         this.locked = true;
         this.lockReason = reason;
-        if (reason) {
-            this.logger.debug(`Locked - ${reason}`);
-        } else {
-            this.logger.debug('Locked');
-        }
+        this.log('Locked', reason);
     }
 
     public unlock(host: HostSocket) {
         this.locked = false;
         this.lockReason = undefined;
-        this.logger.debug('Unlocked');
+        this.log('Unlocked');
     }
 
     private disconnect(disconnected: HostSocket | ClientSocket) {
@@ -358,8 +353,7 @@ export class Room {
                     id: client.id,
                 },
             });
-
-            this.logger.debug(`${id} reconnected`);
+            this.log('Client Reconnected', id);
         }
 
         return true;
@@ -388,7 +382,7 @@ export class Room {
             });
         }
 
-        this.logger.debug(`Host reconnected`);
+        this.log('Host reconnected');
 
         return true;
     }
@@ -420,11 +414,7 @@ export class Room {
             client.close(CLOSE_CODE.CLOSED, reason);
         }
 
-        if (reason) {
-            this.logger.debug(`Closed - ${reason}`);
-        } else {
-            this.logger.debug('Closed');
-        }
+        this.log('Closed', reason);
 
         const closedAt = (new Date()).getTime();
 
@@ -452,11 +442,7 @@ export class Room {
             return;
         }
 
-        if (reason) {
-            this.logger.debug(`${client.id} left - ${reason}`);
-        } else {
-            this.logger.debug(`${client.id} left`);
-        }
+        this.log('Client Left', [client.id, reason].join(' - '));
 
         this.clients.splice(index, 1);
         this.syncClients();
@@ -480,11 +466,7 @@ export class Room {
             return;
         }
 
-        if (reason) {
-            this.logger.debug(`${id} kicked - ${reason}`);
-        } else {
-            this.logger.debug(`${id} kicked`);
-        }
+        this.log('Client Kicked', [id, reason].join(' - '));
 
         target.close(CLOSE_CODE.KICKED, reason);
         this.clients.splice(index, 1);
@@ -504,7 +486,7 @@ export class Room {
     }
 
     private handleHost(host: HostSocket, data: HostEvents.MessageData) {
-        this.logger.debug(`Received '${data.event}' message from host`);
+        this.log('Message From Host', data.event);
         for (const id of data.recipients) {
             //TODO: Disconnected message queuing
             const client = this.clients.find((value) => id === value.id);
@@ -513,6 +495,7 @@ export class Room {
                 continue;
             }
 
+            this.logSubevent('Message To Client', client.id, data.event);
             client.send({
                 event: SERVER_CLIENT_EVENT.MESSAGE,
                 data: {
@@ -524,9 +507,7 @@ export class Room {
     }
 
     private handleClient(client: ClientSocket, data: ClientEvents.MessageData) {
-        this.logger.debug(
-            `Received '${data.event}' message from ${client.id}`
-        );
+        this.log('Message From Client', data.event);
         this.host.send({
             event: SERVER_HOST_EVENT.MESSAGE,
             data: {
@@ -663,7 +644,7 @@ export class Room {
     }
 
     localJoin(host: HostSocket, id: string) {
-        this.logger.debug(`${id} joined (local)`);
+        this.log('Local Joined', id);
         this.localClients.push(id);
         this.syncClients(id);
     }
@@ -677,7 +658,20 @@ export class Room {
 
         this.localClients.splice(index, 1);
         this.syncClients();
-        this.logger.debug(`${id} left (local)`);
+        this.log('Local Left', id);
+    }
+
+    private log(event: string, message = '') {
+        this.logSubevent(event, message);
+    }
+
+    private logSubevent(event: string, message: string, subevent?: string) {
+        this.logger.log({
+            room: this.id,
+            event,
+            subevent,
+            message
+        });
     }
 
     // Database functions

@@ -1,7 +1,9 @@
 import { CLOSE_CODE, ERROR_CODE, SERVER_GENERIC_EVENTS, ServerAdminEvents, ServerClientEvents, ServerGenericEvents, ServerHostEvents } from '@lipwig/model';
-import { SocketLogger } from '../logging/logger/socket.logger';
 import { SOCKET_TYPE } from './socket.model';
 import { LipwigSocket } from './lipwig.socket';
+import { LipwigLogger } from '../logging/logger/lipwig.logger';
+import { Log } from '../logging/logging.model';
+import { Room } from '../room/instance/room.instance';
 
 type Callback = (...args: any[]) => void;
 
@@ -9,28 +11,35 @@ export abstract class AbstractSocket {
     private events: {
         [event: string]: Callback[];
     } = {};
-    protected logger: SocketLogger;
 
     public connected = false;
 
-    constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, room?: string) {
+    protected logTemplate: Partial<Log>;
+
+    constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, protected logger: LipwigLogger, public room?: Room) {
         this.connected = true;
-        this.logger = new SocketLogger(type, id);
-        if (room) {
-            this.logger.setRoom(room);
-        }
         this.setListeners();
-        this.logger.debug(`${type} Initialized`);
+
+        this.logTemplate = {
+            socket: id,
+            room: room?.id
+        }
+        this.logger.debug({
+            ...this.logTemplate,
+            message: type,
+            event: 'Initialized',
+        });
     }
 
     protected abstract setListeners(): void;
 
-    error(error: ERROR_CODE, message?: string) {
-        if (message) {
-            this.logger.debug(`Sending error ${error} - ${message}`);
-        } else {
-            this.logger.debug(`Sending error ${error}`);
-        }
+    error(error: ERROR_CODE, message = '') {
+        this.logger.debug({
+            ...this.logTemplate,
+            message,
+            event: 'Sending error',
+            subevent: error
+        });
 
         const errorMessage: ServerGenericEvents.Error = {
             event: SERVER_GENERIC_EVENTS.ERROR,
@@ -48,7 +57,16 @@ export abstract class AbstractSocket {
             | ServerGenericEvents.Event
             | ServerAdminEvents.Event
     ) {
-        this.logger.debug(`Sending event '${message.event}'`);
+        let subevent: string | undefined;
+        if (message.event === 'lw-message') { // TODO: Move to enum
+            subevent = message.data.event;
+        }
+        this.logger.debug({
+            ...this.logTemplate,
+            message: message.event,
+            event: 'Sending event',
+            subevent,
+        });
         const messageString = JSON.stringify(message);
         this.socket.send(messageString);
     }

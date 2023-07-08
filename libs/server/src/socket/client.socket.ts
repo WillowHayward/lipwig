@@ -1,12 +1,13 @@
 import { CLOSE_CODE } from "@lipwig/model";
-import { Room } from "../room/instance/room.instance"
 import { AbstractSocket } from "./abstract.socket";
 import { LipwigSocket } from "./lipwig.socket";
 import { SOCKET_TYPE } from "./socket.model";
+import { LipwigLogger } from "../logging/logger/lipwig.logger";
+import { Room } from "../room/instance/room.instance";
 
 export class ClientSocket extends AbstractSocket {
-    constructor(socket: LipwigSocket, id: string, public room: Room) {
-        super(socket, id, SOCKET_TYPE.CLIENT, room.id);
+    constructor(socket: LipwigSocket, id: string, logger: LipwigLogger, public override room: Room) {
+        super(socket, id, SOCKET_TYPE.CLIENT, logger, room);
     }
 
     protected setListeners(): void {
