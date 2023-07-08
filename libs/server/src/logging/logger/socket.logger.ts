@@ -3,6 +3,7 @@ import { Logger, createLogger, transports } from 'winston';
 import { DataTransport } from "./data.transport";
 import { Loggers } from "./loggers.singleton";
 import { SocketLog } from "../logging.model";
+import { formatSocketLog } from "./formatting";
 
 @Injectable()
 export class SocketLogger {
@@ -12,7 +13,9 @@ export class SocketLogger {
         this.logger = createLogger({
             level: 'debug',
             transports: [
-                new transports.Console(),
+                new transports.Console({
+                    format: formatSocketLog
+                }),
                 //new DataTransport(),
             ]
         });
