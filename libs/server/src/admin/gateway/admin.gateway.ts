@@ -2,7 +2,7 @@ import { ADMIN_EVENT, AdminEvents } from '@lipwig/model';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { AdminService } from '../admin/admin.service';
 import { WebSocket } from '../../common/lipwig.model'
-import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { Admin } from '../classes/Admin';
 
 @WebSocketGateway()
@@ -11,7 +11,7 @@ export class AdminGateway {
 
     @SubscribeMessage(ADMIN_EVENT.ADMINISTRATE)
     administrate(socket: WebSocket) {
-        this.admin.administrate(socket.socket as UninitializedSocket);
+        this.admin.administrate(socket.socket as AnonymousSocket);
     }
 
     @SubscribeMessage(ADMIN_EVENT.SUMMARY_REQUEST)

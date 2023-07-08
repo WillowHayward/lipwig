@@ -14,7 +14,7 @@ import { generateString } from '@lipwig/utils';
 
 import { Room } from '../classes/Room';
 import { BANNED_WORDS } from '../../common/lipwig.model';
-import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { HostSocket } from '../classes/HostSocket';
 import { ClientSocket } from '../classes/ClientSocket';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -57,7 +57,7 @@ export class RoomService {
         return this.getRoom(room).isHost(id);
     }
 
-    query(socket: UninitializedSocket, code: string, id?: string) {
+    query(socket: AnonymousSocket, code: string, id?: string) {
         let response: RoomQuery;
         if (!this.roomExists(code)) {
             response = {
@@ -75,7 +75,7 @@ export class RoomService {
         });
     }
 
-    create(socket: UninitializedSocket, config: CreateOptions = {}) {
+    create(socket: AnonymousSocket, config: CreateOptions = {}) {
         const existingCodes = Object.keys(this.rooms);
 
         if (this.roomLimit) {
@@ -95,7 +95,7 @@ export class RoomService {
         };
     }
 
-    join(socket: UninitializedSocket, code: string, options: JoinOptions = {}) {
+    join(socket: AnonymousSocket, code: string, options: JoinOptions = {}) {
         // TODO: Join Options
         const room = this.getRoom(code);
 
@@ -107,7 +107,7 @@ export class RoomService {
         room.join(socket, options);
     }
 
-    rejoin(socket: UninitializedSocket, code: string, id: string) {
+    rejoin(socket: AnonymousSocket, code: string, id: string) {
         const room = this.getRoom(code);
 
         if (!room) {
@@ -138,7 +138,7 @@ export class RoomService {
         room.unlock(host);
     }
 
-    reconnect(socket: UninitializedSocket, code: string, id: string): boolean {
+    reconnect(socket: AnonymousSocket, code: string, id: string): boolean {
         const room = this.getRoom(code);
 
         return room.reconnect(socket, id);

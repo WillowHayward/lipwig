@@ -13,10 +13,10 @@ import {
 import { ClientSocket } from './ClientSocket';
 import { HostSocket } from './HostSocket';
 import { SOCKET_TYPE } from '../../common/lipwig.model';
-import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { Repository } from 'typeorm';
 import { RoomEntity } from '../../logging/entities/room.entity';
-import { LipwigLogger } from '../../logging/logger/logger.service';
+import { RoomLogger } from '../../logging/logger/room.logger';
 
 interface Poll {
     id: string;
@@ -27,7 +27,7 @@ interface Poll {
 
 interface Pending {
     [id: string]: {
-        client: UninitializedSocket;
+        client: AnonymousSocket;
         options: JoinOptions;
     };
 }
@@ -52,20 +52,20 @@ export class Room {
 
     private polls: Poll[] = [];
 
-    private logger: LipwigLogger;
+    private logger: RoomLogger;
 
     // TODO: This feels hacky
     public onclose: () => void = () => null;
     public closed = false;
 
     constructor(
-        socket: UninitializedSocket,
+        socket: AnonymousSocket,
         public code: string,
         config: CreateOptions,
         private repository: Repository<RoomEntity>
     ) {
         // TODO: Room config
-        this.logger = new LipwigLogger('Room', this.id);
+        this.logger = new RoomLogger(this.id);
         const host = this.initializeHost(socket);
         this.host = host;
 
@@ -131,7 +131,7 @@ export class Room {
         };
     }
 
-    private initializeClient(client: UninitializedSocket, id?: string): ClientSocket {
+    private initializeClient(client: AnonymousSocket, id?: string): ClientSocket {
         id = id || v4();
         const socket = client.socket;
         const newClient = new ClientSocket(socket, id, this);
@@ -148,7 +148,7 @@ export class Room {
         return newClient;
     }
 
-    private initializeHost(host: UninitializedSocket, id?: string): HostSocket {
+    private initializeHost(host: AnonymousSocket, id?: string): HostSocket {
         id = id || v4();
         const socket = host.socket;
         const newHost = new HostSocket(socket, id, this);
@@ -165,7 +165,7 @@ export class Room {
         return newHost;
     }
 
-    join(client: UninitializedSocket, options: JoinOptions) {
+    join(client: AnonymousSocket, options: JoinOptions) {
         if (this.password) {
             if (!options.password) {
                 client.error(ERROR_CODE.INCORRECTPASSWORD, 'Password required');
@@ -231,7 +231,7 @@ export class Room {
         this.joinSuccess(client, options);
     }
 
-    public rejoin(socket: UninitializedSocket, id: string) {
+    public rejoin(socket: AnonymousSocket, id: string) {
         const client = this.reconnectClient(socket, id)
         if (!client) {
             return;
@@ -277,7 +277,7 @@ export class Room {
         delete this.pending[id];
     }
 
-    private joinSuccess(socket: UninitializedSocket, options: JoinOptions) {
+    private joinSuccess(socket: AnonymousSocket, options: JoinOptions) {
         const client = this.initializeClient(socket);
         const id = client.id;
         this.clients.push(client);
@@ -335,7 +335,7 @@ export class Room {
         }
     }
 
-    reconnect(socket: UninitializedSocket, id: string): boolean {
+    reconnect(socket: AnonymousSocket, id: string): boolean {
         if (this.isHost(id)) {
             if (!this.reconnectHost(socket, id)) {
                 return false;
@@ -368,7 +368,7 @@ export class Room {
         return true;
     }
 
-    private reconnectHost(host: UninitializedSocket, id: string): boolean {
+    private reconnectHost(host: AnonymousSocket, id: string): boolean {
         this.host = this.initializeHost(host, id);
 
         this.host.send({
@@ -396,7 +396,7 @@ export class Room {
         return true;
     }
 
-    private reconnectClient(socket: UninitializedSocket, id: string): ClientSocket | void {
+    private reconnectClient(socket: AnonymousSocket, id: string): ClientSocket | void {
         const index = this.clients.findIndex((other) => other.id === id);
         if (index === -1) {
             // Could not find user

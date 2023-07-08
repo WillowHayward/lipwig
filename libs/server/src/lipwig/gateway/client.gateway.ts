@@ -5,7 +5,7 @@ import {
 } from '@lipwig/model';
 import { RoomService } from '../room/room.service';
 import { WebSocket } from '../../common/lipwig.model';
-import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { ClientSocket } from '../classes/ClientSocket';
 
 @WebSocketGateway()
@@ -16,14 +16,14 @@ export class ClientGateway {
     join(socket: WebSocket, payload: ClientEvents.JoinData) {
         const code = payload.code;
         const options = payload.options;
-        this.rooms.join(socket.socket as UninitializedSocket, code, options);
+        this.rooms.join(socket.socket as AnonymousSocket, code, options);
     }
 
     @SubscribeMessage(CLIENT_EVENT.REJOIN)
     rejoin(socket: WebSocket, payload: ClientEvents.RejoinData) {
         const code = payload.code;
         const id = payload.id;
-        this.rooms.rejoin(socket.socket as UninitializedSocket, code, id);
+        this.rooms.rejoin(socket.socket as AnonymousSocket, code, id);
     }
 
     @SubscribeMessage(CLIENT_EVENT.POLL_RESPONSE)

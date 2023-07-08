@@ -5,7 +5,7 @@ import {
 } from '@lipwig/model';
 import { RoomService } from '../room/room.service';
 import { WebSocket } from '../../common/lipwig.model';
-import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { HostSocket } from '../classes/HostSocket';
 
 @WebSocketGateway()
@@ -15,7 +15,7 @@ export class HostGateway {
     @SubscribeMessage(HOST_EVENT.CREATE)
     create(socket: WebSocket, payload: HostEvents.CreateData) {
         const config = payload.config;
-        this.rooms.create(socket.socket as UninitializedSocket, config);
+        this.rooms.create(socket.socket as AnonymousSocket, config);
     }
 
     @SubscribeMessage(HOST_EVENT.JOIN_RESPONSE)

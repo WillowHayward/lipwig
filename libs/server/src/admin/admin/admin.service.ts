@@ -2,7 +2,7 @@ import { SERVER_ADMIN_EVENT } from '@lipwig/model';
 import { RoomService } from '../../lipwig/room/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
-import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { Admin } from '../classes/Admin';
 
 // TODO: Guards - AdminGuard to check they're admin sending the commands
@@ -15,7 +15,7 @@ export class AdminService {
         return this.admin;
     }
 
-    administrate(user: UninitializedSocket) {
+    administrate(user: AnonymousSocket) {
         const id = v4();
         const socket = user.socket;
         const admin = new Admin(socket, id);

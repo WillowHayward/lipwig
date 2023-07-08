@@ -8,7 +8,7 @@ import {
 } from '@lipwig/model';
 import { WebSocket } from '../../common/lipwig.model';
 import { RoomService } from '../room/room.service';
-import { UninitializedSocket } from '../../common/classes/UninitializedSocket';
+import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { HostSocket } from '../classes/HostSocket';
 
 @WebSocketGateway()
@@ -17,7 +17,7 @@ export class GenericGateway implements OnGatewayConnection {
 
     handleConnection(socket: WebSocket) {
         // TODO: This is firing twice on reconnection, for some reason
-        socket.socket = new UninitializedSocket(socket);
+        socket.socket = new AnonymousSocket(socket);
     }
 
     // TODO: Should this be a HTTP request?
@@ -25,7 +25,7 @@ export class GenericGateway implements OnGatewayConnection {
     query(socket: WebSocket, payload: GenericEvents.QueryData) {
         const code = payload.room;
         const id = payload.id;
-        this.rooms.query(socket.socket as UninitializedSocket, code, id);
+        this.rooms.query(socket.socket as AnonymousSocket, code, id);
     }
 
     @SubscribeMessage(GENERIC_EVENT.RECONNECT)
@@ -35,7 +35,7 @@ export class GenericGateway implements OnGatewayConnection {
     ) {
         const code = payload.code;
         const id = payload.id;
-        this.rooms.reconnect(socket.socket as UninitializedSocket, code, id);
+        this.rooms.reconnect(socket.socket as AnonymousSocket, code, id);
     }
 
     // TODO: Can these be merged into a generic event? They have different args
