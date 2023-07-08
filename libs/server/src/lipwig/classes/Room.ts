@@ -15,7 +15,7 @@ import { HostSocket } from './HostSocket';
 import { SOCKET_TYPE } from '../../common/lipwig.model';
 import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { Repository } from 'typeorm';
-import { RoomEntity } from '../../logging/entities/room.entity';
+import { RoomEntity } from '../../data/entities/room.entity';
 import { RoomLogger } from '../../logging/logger/room.logger';
 
 interface Poll {

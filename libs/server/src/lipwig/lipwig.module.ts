@@ -6,7 +6,7 @@ import { GenericGateway } from './gateway/generic.gateway';
 import { RoomService } from './room/room.service';
 import { LoggingModule } from '../logging/logging.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoomEntity } from '../logging/entities/room.entity';
+import { RoomEntity } from '../data/entities/room.entity';
 @Module({
     imports: [LoggingModule, TypeOrmModule.forFeature([RoomEntity])],
     controllers: [],

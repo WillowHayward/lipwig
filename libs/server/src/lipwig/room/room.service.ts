@@ -18,7 +18,7 @@ import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
 import { HostSocket } from '../classes/HostSocket';
 import { ClientSocket } from '../classes/ClientSocket';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoomEntity } from '../../logging/entities/room.entity';
+import { RoomEntity } from '../../data/entities/room.entity';
 import { Repository } from 'typeorm';
 
 // TODO: Make @SubscribeHostEvent and @SubscribeClientEvent method decorators
