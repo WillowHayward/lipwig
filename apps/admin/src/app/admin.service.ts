@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LipwigService } from '@lipwig/angular';
 import { Admin } from '@lipwig/js';
-import { LipwigSummary } from '@lipwig/model';
+import { LipwigSummary, RoomSummary } from '@lipwig/model';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -31,4 +31,11 @@ export class AdminService {
         return firstValueFrom(this.http.get<LipwigSummary>('http://localhost:8989/admin/summary'));
     }
 
+    async rooms(): Promise<RoomSummary[]> {
+        return firstValueFrom(this.http.get<RoomSummary[]>('http://localhost:8989/admin/rooms'));
+    }
+
+    async room(id: string): Promise<RoomSummary> {
+        return firstValueFrom(this.http.get<RoomSummary>(`http://localhost:8989/admin/room/${id}`));
+    }
 }

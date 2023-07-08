@@ -11,3 +11,16 @@ export type LipwigSummary = {
         current: number;
     }>
 }
+
+export type RoomSummary = {
+    id: string;
+    name: string;
+    active: boolean;
+}
+
+export type RoomInfo = {
+    // TODO: Expand, like RoomQuery
+    id: string;
+    name: string;
+    active: boolean;
+}

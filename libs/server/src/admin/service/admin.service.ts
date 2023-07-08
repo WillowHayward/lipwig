@@ -1,4 +1,4 @@
-import { LipwigSummary, SERVER_ADMIN_EVENT } from '@lipwig/model';
+import { LipwigSummary, RoomSummary, SERVER_ADMIN_EVENT } from '@lipwig/model';
 import { RoomService } from '../../room/service/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
@@ -60,4 +60,31 @@ export class AdminService {
         }
     }
 
+    private summarizeRoom(room: RoomEntity): RoomSummary {
+        return {
+            id: room.uid,
+            name: room.name,
+            active: !room.closed
+        }
+    }
+
+    async rooms(): Promise<RoomSummary[]> {
+        const rooms = await this.roomRepo.find();
+        const summaries: RoomSummary[] = [];
+        for (const room of rooms) {
+            const summary = this.summarizeRoom(room);
+            summaries.push(summary);
+        }
+
+        return summaries;
+    }
+
+    async room(id: string): Promise<RoomSummary> {
+        const room = await this.roomRepo.findOneBy({ uid: id });
+        if (!room) {
+            throw new Error('Room Not Found'); // TODO: Handle this better
+        }
+
+        return this.summarizeRoom(room);
+    }
 }

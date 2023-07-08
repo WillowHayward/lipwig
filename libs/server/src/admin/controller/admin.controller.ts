@@ -1,5 +1,5 @@
-import { LipwigSummary } from '@lipwig/model';
-import { Controller, Get } from '@nestjs/common';
+import { LipwigSummary, RoomSummary } from '@lipwig/model';
+import { Controller, Get, Param } from '@nestjs/common';
 import { AdminService } from '../service/admin.service';
 
 @Controller('admin')
@@ -9,5 +9,15 @@ export class AdminController {
     @Get('summary')
     summary(): Promise<LipwigSummary> {
         return this.admin.summary();
+    }
+
+    @Get('rooms')
+    rooms(): Promise<RoomSummary[]> {
+        return this.admin.rooms();
+    }
+
+    @Get('room/:id')
+    room(@Param('id') id: string): Promise<RoomSummary> {
+        return this.admin.room(id);
     }
 }

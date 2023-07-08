@@ -16,6 +16,10 @@ export class DashboardComponent implements OnInit {
     constructor(private admin: AdminService) {}
 
     ngOnInit(): void {
+        this.getSummary();
+    }
+
+    getSummary() {
         this.admin.summary().then(summary => {
             this.summary = summary;
         });
