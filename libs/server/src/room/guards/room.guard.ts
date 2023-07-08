@@ -129,7 +129,7 @@ export class RoomGuard implements CanActivate {
 
     private validateUser(): boolean {
         switch (this.socket.type) {
-            case SOCKET_TYPE.UNINITIALIZED:
+            case SOCKET_TYPE.ANONYMOUS:
                 // socket improperly initialized
                 this.socket.error(ERROR_CODE.MALFORMED);
                 return false;

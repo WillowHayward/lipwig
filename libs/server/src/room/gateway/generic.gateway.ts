@@ -16,6 +16,7 @@ export class GenericGateway implements OnGatewayConnection {
 
     handleConnection(socket: LipwigSocket) {
         // TODO: This is firing twice on reconnection, for some reason
+        socket.setMaxListeners(12);
         socket.socket = new AnonymousSocket(socket, this.logger);
     }
 

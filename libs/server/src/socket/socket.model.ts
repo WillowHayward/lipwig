@@ -1,5 +1,5 @@
 export enum SOCKET_TYPE {
-    UNINITIALIZED = 'Socket',
+    ANONYMOUS = 'Anonymous',
     HOST = 'Host',
     CLIENT = 'Client',
     ADMIN = 'Admin'

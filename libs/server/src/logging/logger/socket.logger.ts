@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
-import { Logger, createLogger, transports } from "winston";
-import { RoomLog } from "../logging.model";
+import { Logger, createLogger, transports } from 'winston';
 import { DataTransport } from "./data.transport";
 import { Loggers } from "./loggers.singleton";
+import { SocketLog } from "../logging.model";
 
 @Injectable()
-export class RoomLogger {
+export class SocketLogger {
     private logger: Logger;
     constructor() {
-        Loggers.setRoomLogger(this);
+        Loggers.setSocketLogger(this);
         this.logger = createLogger({
             level: 'debug',
             transports: [
@@ -18,14 +18,14 @@ export class RoomLogger {
         });
     }
 
-    debug(log: RoomLog) {
+    debug(log: SocketLog) {
         this.logger.log({
             level: 'debug',
             ...log
         });
     }
 
-    log(log: RoomLog) {
+    log(log: SocketLog) {
         this.logger.log({
             level: 'info',
             ...log

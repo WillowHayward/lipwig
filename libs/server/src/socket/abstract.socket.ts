@@ -2,7 +2,6 @@ import { CLOSE_CODE, ERROR_CODE, SERVER_GENERIC_EVENTS, ServerAdminEvents, Serve
 import { SOCKET_TYPE } from './socket.model';
 import { LipwigSocket } from './lipwig.socket';
 import { SocketLogger } from '../logging/logger/socket.logger';
-import { Log } from '../logging/logging.model';
 import { Room } from '../room/instance/room.instance';
 
 type Callback = (...args: any[]) => void;
@@ -14,34 +13,24 @@ export abstract class AbstractSocket {
 
     public connected = false;
 
-    protected logTemplate: Partial<Log>;
+    private closeCallback: (code: CLOSE_CODE) => void;
 
     constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, protected logger: SocketLogger, public room?: Room) {
         this.connected = true;
+        if (socket.socket) {
+            socket.socket.cleanup(id);
+        }
+        //TODO: Set socket.socket here?
+        this.setCloseListener();
         this.setListeners();
 
-        this.logTemplate = {
-            socket: id,
-            socketType: type,
-            room: room?.id,
-        }
-
-        this.logger.debug({
-            ...this.logTemplate,
-            message: type,
-            event: 'Initialized',
-        });
+        this.log('Initialized', type);
     }
 
     protected abstract setListeners(): void;
 
     error(error: ERROR_CODE, message = '') {
-        this.logger.debug({
-            ...this.logTemplate,
-            message,
-            event: 'Sending error',
-            subevent: error
-        });
+        this.log('Sending Error', message, error);
 
         const errorMessage: ServerGenericEvents.Error = {
             event: SERVER_GENERIC_EVENTS.ERROR,
@@ -63,12 +52,7 @@ export abstract class AbstractSocket {
         if (message.event === 'lw-message') { // TODO: Move to enum
             subevent = message.data.event;
         }
-        this.logger.debug({
-            ...this.logTemplate,
-            message: message.event,
-            event: 'Sending event',
-            subevent,
-        });
+        this.log('Sending Event', message.event, subevent);
         const messageString = JSON.stringify(message);
         this.socket.send(messageString);
     }
@@ -89,5 +73,33 @@ export abstract class AbstractSocket {
         for (const callback of callbacks) {
             callback(...args);
         }
+    }
+
+    protected log(event: string, message: string, subevent?: string) {
+        this.logger.debug({
+            event,
+            subevent,
+            message,
+            socketId: this.id,
+            type: this.type,
+            roomId: this.room?.id
+        });
+    }
+
+    private setCloseListener() {
+        this.closeCallback = (code: CLOSE_CODE) => {
+            let message = code.toString();
+            if (code >= 3000) {
+                const reason = CLOSE_CODE[code];
+                message += ` (${reason})`;
+            }
+            this.log('Disconnected', message);
+        }
+        this.socket.on('close', this.closeCallback);
+    }
+
+    public cleanup(newId: string) {
+        this.log('Cleaning Up', newId);
+        this.socket.removeListener('close', this.closeCallback);
     }
 }

@@ -499,7 +499,7 @@ export class Room {
                 continue;
             }
 
-            this.logSubevent('Message To Client', client.id, data.event);
+            this.log('Message To Client', client.id, data.event);
             client.send({
                 event: SERVER_CLIENT_EVENT.MESSAGE,
                 data: {
@@ -665,13 +665,9 @@ export class Room {
         this.log('Local Left', id);
     }
 
-    private log(event: string, message = '') {
-        this.logSubevent(event, message);
-    }
-
-    private logSubevent(event: string, message: string, subevent?: string) {
+    private log(event: string, message = '', subevent?: string) {
         this.logger.log({
-            room: this.id,
+            roomId: this.id,
             event,
             subevent,
             message
