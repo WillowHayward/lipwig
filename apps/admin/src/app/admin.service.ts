@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { LipwigService } from '@lipwig/angular';
 import { Admin } from '@lipwig/js';
 import { LipwigSummary } from '@lipwig/model';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -9,7 +11,7 @@ import { LipwigSummary } from '@lipwig/model';
 export class AdminService {
     private admin?: Admin;
 
-    constructor(private lipwig: LipwigService) {}
+    constructor(private lipwig: LipwigService, private http: HttpClient) {}
 
     init(): Promise<Admin> {
         this.lipwig.setUrl('ws://localhost:8989');
@@ -25,18 +27,8 @@ export class AdminService {
         return this.admin;
     }
 
-    async summary(subscribe = false): Promise<LipwigSummary> {
-        return new Promise(resolve => {
-            if (!this.admin) {
-                throw new Error('Admin not initialized');
-            }
-
-            this.admin.once('summary', (summary: LipwigSummary) => {
-                resolve(summary);
-            });
-
-            this.admin.summary(subscribe);
-        });
+    async summary(): Promise<LipwigSummary> {
+        return firstValueFrom(this.http.get<LipwigSummary>('http://localhost:8989/admin/summary'));
     }
 
 }

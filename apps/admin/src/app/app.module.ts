@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http'
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
@@ -16,6 +17,7 @@ import { RoomComponent } from './room/room.component';
     ],
     imports: [
         BrowserModule,
+        HttpClientModule,
         RouterModule.forRoot(appRoutes, {
             initialNavigation: 'enabledBlocking',
         }),
@@ -23,4 +25,4 @@ import { RoomComponent } from './room/room.component';
     providers: [],
     bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

@@ -11,10 +11,4 @@ export class AdminGateway {
     administrate(socket: LipwigSocket) {
         this.admin.administrate(socket.socket as AnonymousSocket);
     }
-
-    @SubscribeMessage(ADMIN_EVENT.SUMMARY_REQUEST)
-    summaryRequest(socket: LipwigSocket, payload: AdminEvents.SummaryRequestData) {
-        const subscribe = payload.subscribe || false;
-        this.admin.summary(socket.socket as AdminSocket, subscribe);
-    }
 }

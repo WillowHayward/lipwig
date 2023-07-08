@@ -9,7 +9,9 @@ import { LipwigSummary } from '@lipwig/model';
 })
 export class DashboardComponent implements OnInit {
     summary: LipwigSummary = {
-        total: -1
+        total: 0,
+        current: 0,
+        names: {}
     };
     constructor(private admin: AdminService) {}
 

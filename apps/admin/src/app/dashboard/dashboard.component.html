@@ -1,3 +1,8 @@
 <h1>Lipwig Dashboard</h1>
 
-<h3>{{summary.total}} current rooms</h3>
+<h3>{{summary.total}} total rooms</h3>
+<h3>{{summary.current}} current rooms</h3>
+<h3>Names</h3>
+<ul>
+    <li *ngFor="let name of summary.names | keyvalue">{{name.key}}: {{name.value.total}} total, {{name.value.current}} current</li>
+</ul>

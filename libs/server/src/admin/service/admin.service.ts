@@ -1,15 +1,23 @@
-import { SERVER_ADMIN_EVENT } from '@lipwig/model';
+import { LipwigSummary, SERVER_ADMIN_EVENT } from '@lipwig/model';
 import { RoomService } from '../../room/service/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { AnonymousSocket, AdminSocket } from '../../socket';
 import { SocketLogger } from '../../logging/logger/socket.logger';
+import { InjectRepository } from '@nestjs/typeorm';
+import { RoomEntity } from '../../data/entities/room.entity';
+import { Repository } from 'typeorm';
 
 // TODO: Guards - AdminGuard to check they're admin sending the commands
 @Injectable()
 export class AdminService {
     private admin: AdminSocket[] = [];
-    constructor(private rooms: RoomService, private logger: SocketLogger) { }
+    constructor(
+        private roomService: RoomService,
+        @InjectRepository(RoomEntity)
+        private roomRepo: Repository<RoomEntity>,
+        private logger: SocketLogger,
+    ) { }
 
     getAdmin(): AdminSocket[] {
         return this.admin;
@@ -26,18 +34,30 @@ export class AdminService {
         });
     }
 
-    summary(admin: AdminSocket, subscribe: boolean) {
-        const rooms = this.rooms.getRooms();
-        const count = Object.keys(rooms).length; //TODO: This does not account for recently closed
-        admin.send({
-            event: SERVER_ADMIN_EVENT.SUMMARY,
-            data: {
-                summary: {
-                    total: count
-                },
-                subscribed: subscribe
+    async summary(): Promise<LipwigSummary> {
+        const rooms = await this.roomRepo.find();
+        const active = rooms.filter(room => !room.closed);
+
+        const nameBreakdown: Record<string, {
+            total: number;
+            current: number;
+        }> = {};
+
+        const names = new Set<string>(rooms.map(room => room.name));
+        for (const name of names) {
+            const total = rooms.filter(room => room.name === name).length;
+            const current = active.filter(room => room.name === name).length;
+            nameBreakdown[name] = {
+                total,
+                current
             }
-        });
+        }
+
+        return {
+            total: rooms.length,
+            current: active.length,
+            names: nameBreakdown
+        }
     }
 
 }

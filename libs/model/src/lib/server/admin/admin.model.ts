@@ -5,4 +5,9 @@ export enum SERVER_ADMIN_EVENT {
 
 export type LipwigSummary = {
     total: number;
+    current: number;
+    names: Record<string, {
+        total: number;
+        current: number;
+    }>
 }
