@@ -7,10 +7,14 @@ import { DataTransport } from "./data.transport";
 import { Loggers } from "./loggers.singleton";
 import { formatConsole, formatFile } from "./formatting";
 
+import { InjectRepository } from "@nestjs/typeorm";
+import { LogEntity } from "../../data/entities/log.entity";
+import { Repository } from "typeorm";
+
 @Injectable()
 export class RoomLogger {
     private logger: Logger;
-    constructor() {
+    constructor(@InjectRepository(LogEntity) logRepo: Repository<LogEntity>) {
         Loggers.setRoomLogger(this);
         this.logger = createLogger({
             level: 'debug',
@@ -21,8 +25,8 @@ export class RoomLogger {
                 new transports.DailyRotateFile({
                     format: formatFile,
                     filename: 'logs/lipwig.rooms.log.%DATE%'
-                })
-                //new DataTransport(),
+                }),
+                new DataTransport(logRepo),
             ]
         });
     }

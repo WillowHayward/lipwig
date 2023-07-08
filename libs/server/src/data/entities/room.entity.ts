@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 // NOTE: Part of the rationale for this is that it should mostly be information that can't be recreated from the logs
-@Entity()
+@Entity('rooms')
 export class RoomEntity {
     @PrimaryGeneratedColumn()
         id: number;

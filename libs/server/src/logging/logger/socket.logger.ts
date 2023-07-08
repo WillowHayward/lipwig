@@ -6,11 +6,14 @@ import { DataTransport } from "./data.transport";
 import { Loggers } from "./loggers.singleton";
 import { SocketLog } from "../logging.model";
 import { formatConsole, formatFile } from "./formatting";
+import { InjectRepository } from "@nestjs/typeorm";
+import { LogEntity } from "../../data/entities/log.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class SocketLogger {
     private logger: Logger;
-    constructor() {
+    constructor(@InjectRepository(LogEntity) logRepo: Repository<LogEntity>) {
         Loggers.setSocketLogger(this);
         this.logger = createLogger({
             level: 'debug',
@@ -21,8 +24,8 @@ export class SocketLogger {
                 new transports.DailyRotateFile({
                     format: formatFile,
                     filename: 'logs/lipwig.sockets.log.%DATE%'
-                })
-                //new DataTransport(),
+                }),
+                new DataTransport(logRepo),
             ]
         });
     }
