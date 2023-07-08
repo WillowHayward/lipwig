@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AdminGateway } from './gateway/admin.gateway';
-import { AdminService } from './admin/admin.service';
-import { LipwigModule } from '../lipwig/lipwig.module';
+import { AdminService } from './service/admin.service';
 import { LoggingModule } from '../logging/logging.module';
+import { RoomModule } from '../room/room.module';
 
 @Module({
-    imports: [LipwigModule, LoggingModule],
+    imports: [RoomModule, LoggingModule],
     controllers: [],
     providers: [AdminGateway, AdminService],
     exports: [],
 })
-export class LipwigAdminModule {}
+export class AdminModule {}

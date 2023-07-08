@@ -1,4 +1,3 @@
-export * from './common/defaults.model';
-export * from './common/lipwig.model';
-export * from './lipwig/lipwig.module';
-export * from './admin/admin.module';
+export * from './lipwig.model.default';
+export * from './lipwig.model';
+export * from './lipwig.module';

@@ -1,17 +1,14 @@
 import { Reflector } from '@nestjs/core';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { RoomService } from '../room/room.service';
-import { SOCKET_TYPE, WebSocket } from '../../common/lipwig.model';
-import { AbstractSocket } from '../../common/classes/AbstractSocket';
 import {
     CLIENT_EVENT,
     ERROR_CODE,
     GENERIC_EVENT,
     HOST_EVENT,
 } from '@lipwig/model';
-import { HostSocket } from '../classes/HostSocket';
-import { ClientSocket } from '../classes/ClientSocket';
+import { RoomService } from '../service/room.service';
+import { LipwigSocket, AbstractSocket, HostSocket, ClientSocket, SOCKET_TYPE } from '../../socket';
 
 interface Validator {
     required?: string[]; // Required paramaters on request
@@ -30,7 +27,7 @@ export class RoomGuard implements CanActivate {
     canActivate(
         context: ExecutionContext
     ): boolean | Promise<boolean> | Observable<boolean> {
-        const rawSocket: WebSocket = context.switchToWs().getClient();
+        const rawSocket: LipwigSocket = context.switchToWs().getClient();
         this.socket = rawSocket.socket;
         const event = this.reflector.get<string>(
             'message',

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 
-import { LipwigAdminModule, LipwigModule } from '@lipwig/server';
+import { LipwigModule } from '@lipwig/server';
 
 @Module({
-    imports: [LipwigModule, LipwigAdminModule],
+    imports: [LipwigModule],
     controllers: [],
     providers: [],
 })

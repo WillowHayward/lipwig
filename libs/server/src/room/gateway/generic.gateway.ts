@@ -6,23 +6,21 @@ import {
     ClientEvents,
     HostEvents,
 } from '@lipwig/model';
-import { WebSocket } from '../../common/lipwig.model';
-import { RoomService } from '../room/room.service';
-import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
-import { HostSocket } from '../classes/HostSocket';
+import { RoomService } from '../service/room.service';
+import { LipwigSocket, AnonymousSocket, HostSocket } from '../../socket';
 
 @WebSocketGateway()
 export class GenericGateway implements OnGatewayConnection {
     constructor(private rooms: RoomService) { }
 
-    handleConnection(socket: WebSocket) {
+    handleConnection(socket: LipwigSocket) {
         // TODO: This is firing twice on reconnection, for some reason
         socket.socket = new AnonymousSocket(socket);
     }
 
     // TODO: Should this be a HTTP request?
     @SubscribeMessage(GENERIC_EVENT.QUERY)
-    query(socket: WebSocket, payload: GenericEvents.QueryData) {
+    query(socket: LipwigSocket, payload: GenericEvents.QueryData) {
         const code = payload.room;
         const id = payload.id;
         this.rooms.query(socket.socket as AnonymousSocket, code, id);
@@ -30,7 +28,7 @@ export class GenericGateway implements OnGatewayConnection {
 
     @SubscribeMessage(GENERIC_EVENT.RECONNECT)
     reconnect(
-        socket: WebSocket,
+        socket: LipwigSocket,
         payload: GenericEvents.ReconnectData
     ) {
         const code = payload.code;
@@ -41,7 +39,7 @@ export class GenericGateway implements OnGatewayConnection {
     // TODO: Can these be merged into a generic event? They have different args
     @SubscribeMessage(GENERIC_EVENT.MESSAGE)
     message(
-        socket: WebSocket,
+        socket: LipwigSocket,
         payload: HostEvents.MessageData | ClientEvents.MessageData
     ) {
         this.rooms.message(socket.socket as HostSocket, payload); // TODO: Make this more generic
@@ -49,7 +47,7 @@ export class GenericGateway implements OnGatewayConnection {
 
     @SubscribeMessage(PING_EVENT.PING_SERVER)
     pingServer(
-        socket: WebSocket,
+        socket: LipwigSocket,
         payload: HostEvents.PingServerData | ClientEvents.PingServerData
     ) {
         const time = payload.time;

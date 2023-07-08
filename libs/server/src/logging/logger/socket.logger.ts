@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { AbstractLogger } from "./abstract.logger";
-import { SOCKET_TYPE } from "../../common/lipwig.model";
+import { SOCKET_TYPE } from "../../socket";
 
 @Injectable()
 export class SocketLogger extends AbstractLogger {

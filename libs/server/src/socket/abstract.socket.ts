@@ -1,6 +1,7 @@
-import { SocketLogger } from '../../logging/logger/socket.logger';
-import { SOCKET_TYPE, WebSocket } from '../lipwig.model';
 import { CLOSE_CODE, ERROR_CODE, SERVER_GENERIC_EVENTS, ServerAdminEvents, ServerClientEvents, ServerGenericEvents, ServerHostEvents } from '@lipwig/model';
+import { SocketLogger } from '../logging/logger/socket.logger';
+import { SOCKET_TYPE } from './socket.model';
+import { LipwigSocket } from './lipwig.socket';
 
 type Callback = (...args: any[]) => void;
 
@@ -12,7 +13,7 @@ export abstract class AbstractSocket {
 
     public connected = false;
 
-    constructor(public socket: WebSocket, public id: string, public type: SOCKET_TYPE, room?: string) {
+    constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, room?: string) {
         this.connected = true;
         this.logger = new SocketLogger(type, id);
         if (room) {

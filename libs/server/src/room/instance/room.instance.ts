@@ -10,10 +10,7 @@ import {
     JoinOptions,
     RoomQuery,
 } from '@lipwig/model';
-import { ClientSocket } from './ClientSocket';
-import { HostSocket } from './HostSocket';
-import { SOCKET_TYPE } from '../../common/lipwig.model';
-import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
+import { AnonymousSocket, HostSocket, ClientSocket, SOCKET_TYPE } from '../../socket';
 import { Repository } from 'typeorm';
 import { RoomEntity } from '../../data/entities/room.entity';
 import { RoomLogger } from '../../logging/logger/room.logger';

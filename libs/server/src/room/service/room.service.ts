@@ -12,11 +12,9 @@ import {
 
 import { generateString } from '@lipwig/utils';
 
-import { Room } from '../classes/Room';
-import { BANNED_WORDS } from '../../common/lipwig.model';
-import { AnonymousSocket } from '../../common/classes/AnonymousSocket';
-import { HostSocket } from '../classes/HostSocket';
-import { ClientSocket } from '../classes/ClientSocket';
+import { Room } from '../instance/room.instance';
+import { BANNED_WORDS } from '../../lipwig.model';
+import { AnonymousSocket, HostSocket, ClientSocket } from '../../socket';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomEntity } from '../../data/entities/room.entity';
 import { Repository } from 'typeorm';

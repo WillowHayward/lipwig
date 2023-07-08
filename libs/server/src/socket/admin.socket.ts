@@ -1,9 +1,10 @@
-import { SOCKET_TYPE, WebSocket } from "../../common/lipwig.model";
-import { AbstractSocket } from "../../common/classes/AbstractSocket";
 import { ServerAdminEvents, ServerGenericEvents } from "@lipwig/model";
+import { AbstractSocket } from './abstract.socket';
+import { LipwigSocket } from './lipwig.socket';
+import { SOCKET_TYPE } from './socket.model';
 
-export class Admin extends AbstractSocket {
-    constructor(socket: WebSocket, id: string) {
+export class AdminSocket extends AbstractSocket {
+    constructor(socket: LipwigSocket, id: string) {
         super(socket, id, SOCKET_TYPE.ADMIN);
     }
 

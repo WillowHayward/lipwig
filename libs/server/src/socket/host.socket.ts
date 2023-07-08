@@ -1,10 +1,11 @@
-import { SOCKET_TYPE, WebSocket } from "../../common/lipwig.model";
-import { AbstractSocket } from "../../common/classes/AbstractSocket";
 import { CLOSE_CODE } from "@lipwig/model";
-import { Room } from "./Room";
+import { SOCKET_TYPE } from "./socket.model";
+import { LipwigSocket } from "./lipwig.socket";
+import { AbstractSocket } from "./abstract.socket";
+import { Room } from "../room/instance/room.instance"
 
 export class HostSocket extends AbstractSocket {
-    constructor(socket: WebSocket, id: string, public room: Room) {
+    constructor(socket: LipwigSocket, id: string, public room: Room) {
         super(socket, id, SOCKET_TYPE.HOST, room.id);
     }
 

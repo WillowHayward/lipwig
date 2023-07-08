@@ -1,11 +1,10 @@
 import { SERVER_CLIENT_EVENT, SERVER_HOST_EVENT } from '@lipwig/model';
-import { WebSocket } from '../app/app.model';
-import { AbstractSocket } from './AbstractSocket';
-import { Room } from './Room';
+import { AbstractSocket, LipwigSocket } from '../../socket';
+import { Room } from './room.instance';
 jest.mock('./AbstractSocket');
 jest.mock('../app/app.model', () => {
     return {
-        WebSocket: jest.fn().mockImplementation(() => {
+        LipwigSocket: jest.fn().mockImplementation(() => {
             return {
                 on: jest.fn(),
                 send: jest.fn(),
@@ -20,11 +19,11 @@ const mockedAbstractSocket = AbstractSocket as jest.MockedClass<
 >;
 
 describe('Room', () => {
-    let socket: WebSocket;
+    let socket: LipwigSocket;
     let host: AbstractSocket;
     beforeEach(async () => {
         mockedAbstractSocket.mockClear();
-        socket = new WebSocket('');
+        socket = new LipwigSocket('');
         host = new AbstractSocket(socket);
         host.id = 'HOSTID';
     });
