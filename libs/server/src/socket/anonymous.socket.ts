@@ -2,10 +2,10 @@ import { CLOSE_CODE } from "@lipwig/model";
 import { AbstractSocket } from "./abstract.socket";
 import { LipwigSocket } from "./lipwig.socket";
 import { SOCKET_TYPE } from "./socket.model";
-import { LipwigLogger } from "../logging/logger/lipwig.logger";
+import { SocketLogger } from "../logging/logger/socket.logger";
 
 export class AnonymousSocket extends AbstractSocket {
-    constructor(socket: LipwigSocket, logger: LipwigLogger) {
+    constructor(socket: LipwigSocket, logger: SocketLogger) {
         super(socket, 'Anonymous', SOCKET_TYPE.UNINITIALIZED, logger);
     }
 

@@ -13,7 +13,8 @@ import {
 import { AnonymousSocket, HostSocket, ClientSocket, SOCKET_TYPE } from '../../socket';
 import { Repository } from 'typeorm';
 import { RoomEntity } from '../../data/entities/room.entity';
-import { LipwigLogger } from '../../logging/logger/lipwig.logger';
+import { RoomLogger } from '../../logging/logger/room.logger';
+import { Loggers } from '../../logging/logger/loggers.singleton';
 
 interface Poll {
     id: string;
@@ -49,6 +50,8 @@ export class Room {
 
     private polls: Poll[] = [];
 
+    private logger: RoomLogger;
+
     // TODO: This feels hacky
     public onclose: () => void = () => null;
     public closed = false;
@@ -58,7 +61,6 @@ export class Room {
         public code: string,
         config: CreateOptions,
         private repository: Repository<RoomEntity>,
-        private logger: LipwigLogger
     ) {
         // TODO: Room config
         const host = this.initializeHost(socket);
@@ -76,7 +78,7 @@ export class Room {
 
         this.initEntity();
 
-
+        this.logger = Loggers.getRoomLogger();
         this.log('Created', `Host: ${host.id}`);
         host.send({
             event: SERVER_HOST_EVENT.CREATED,
@@ -130,7 +132,8 @@ export class Room {
     private initializeClient(client: AnonymousSocket, id?: string): ClientSocket {
         id = id || v4();
         const socket = client.socket;
-        const newClient = new ClientSocket(socket, id, this.logger, this);
+        const logger = Loggers.getSocketLogger();
+        const newClient = new ClientSocket(socket, id, logger, this);
         socket.socket = newClient;
 
         newClient.on('leave', (reason?: string) => {
@@ -147,7 +150,8 @@ export class Room {
     private initializeHost(host: AnonymousSocket, id?: string): HostSocket {
         id = id || v4();
         const socket = host.socket;
-        const newHost = new HostSocket(socket, id, this.logger, this);
+        const logger = Loggers.getSocketLogger();
+        const newHost = new HostSocket(socket, id, logger, this);
         socket.socket = newHost;
 
         newHost.on('close', (reason?: string) => {
@@ -694,6 +698,7 @@ export class Room {
     }
 
     private saveEntity() {
+        // BUG: This is currently creating new entries each time
         this.repository.save(this.entity);
     }
 

@@ -8,11 +8,11 @@ import {
 } from '@lipwig/model';
 import { RoomService } from '../service/room.service';
 import { LipwigSocket, AnonymousSocket, HostSocket } from '../../socket';
-import { LipwigLogger } from '../../logging/logger/lipwig.logger';
+import { SocketLogger } from '../../logging/logger/socket.logger';
 
 @WebSocketGateway()
 export class GenericGateway implements OnGatewayConnection {
-    constructor(private rooms: RoomService, private logger: LipwigLogger) { }
+    constructor(private rooms: RoomService, private logger: SocketLogger) { }
 
     handleConnection(socket: LipwigSocket) {
         // TODO: This is firing twice on reconnection, for some reason

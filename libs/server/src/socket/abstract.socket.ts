@@ -1,7 +1,7 @@
 import { CLOSE_CODE, ERROR_CODE, SERVER_GENERIC_EVENTS, ServerAdminEvents, ServerClientEvents, ServerGenericEvents, ServerHostEvents } from '@lipwig/model';
 import { SOCKET_TYPE } from './socket.model';
 import { LipwigSocket } from './lipwig.socket';
-import { LipwigLogger } from '../logging/logger/lipwig.logger';
+import { SocketLogger } from '../logging/logger/socket.logger';
 import { Log } from '../logging/logging.model';
 import { Room } from '../room/instance/room.instance';
 
@@ -16,14 +16,16 @@ export abstract class AbstractSocket {
 
     protected logTemplate: Partial<Log>;
 
-    constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, protected logger: LipwigLogger, public room?: Room) {
+    constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, protected logger: SocketLogger, public room?: Room) {
         this.connected = true;
         this.setListeners();
 
         this.logTemplate = {
             socket: id,
-            room: room?.id
+            socketType: type,
+            room: room?.id,
         }
+
         this.logger.debug({
             ...this.logTemplate,
             message: type,
