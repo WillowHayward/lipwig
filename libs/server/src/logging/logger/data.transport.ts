@@ -20,12 +20,6 @@ export class DataTransport extends Transport {
     public override log(info: RoomLogInfo | SocketLogInfo, next: () => void) {
         setImmediate(() => {
             const now = (new Date()).getTime();
-            let type: string;
-            if ('type' in info) {
-                type = info.type;
-            } else {
-                type = 'ROOM';
-            }
 
             let room: string | undefined;
             if ('room' in info) {
@@ -35,10 +29,10 @@ export class DataTransport extends Transport {
             const entity = this.logs.create({
                 timestamp: now,
                 level: info.level,
-                type,
+                type: info.type,
                 uid: info.id,
                 event: info.event,
-                message: info.message,
+                data: info.data,
                 subevent: info.subevent,
                 room
             });

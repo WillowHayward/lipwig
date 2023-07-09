@@ -20,13 +20,14 @@ export class LogEntity {
     @Column()
         event: string;
 
-    @Column()
-        message: string;
 
     @Column({nullable:true})
         subevent?: string;
 
+    @Column({nullable: true})
+        data?: string;
+
     @Column({nullable:true})
-        room: string;
+        room?: string;
 
 }

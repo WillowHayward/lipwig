@@ -4,7 +4,7 @@
 *.db
 
 #logs
-logs
+/logs
 
 # NPM
 .npmrc

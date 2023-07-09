@@ -1,4 +1,4 @@
-import { CLOSE_CODE, ERROR_CODE, SERVER_GENERIC_EVENTS, ServerAdminEvents, ServerClientEvents, ServerGenericEvents, ServerHostEvents } from '@lipwig/model';
+import { CLOSE_CODE, ERROR_CODE, LOG_TYPE, SERVER_GENERIC_EVENTS, SOCKET_LOG_EVENT, ServerAdminEvents, ServerClientEvents, ServerGenericEvents, ServerHostEvents } from '@lipwig/model';
 import { SOCKET_TYPE } from './socket.model';
 import { LipwigSocket } from './lipwig.socket';
 import { LipwigLogger } from '../logging/logger/lipwig.logger';
@@ -13,7 +13,10 @@ export abstract class AbstractSocket {
 
     public connected = false;
 
-    private closeCallback: (code: CLOSE_CODE) => void;
+    private callbacks: {
+        close: (code: CLOSE_CODE) => void;
+        message: (data: Buffer) => void;
+    };
 
     constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, protected logger: LipwigLogger, public room?: Room) {
         this.connected = true;
@@ -21,11 +24,11 @@ export abstract class AbstractSocket {
             socket.socket.cleanup(id);
         }
         //TODO: Set socket.socket here?
-        this.setCloseListener();
+        this.setInternalListeners();
         this.setListeners();
 
         let message: string;
-        switch(type) {
+        switch (type) {
             case SOCKET_TYPE.ANONYMOUS:
                 message = 'Anonymous Socket';
                 break;
@@ -40,13 +43,13 @@ export abstract class AbstractSocket {
                 break;
         }
 
-        this.log('Initialized', message);
+        this.log(SOCKET_LOG_EVENT.INITIALIZED, message);
     }
 
     protected abstract setListeners(): void;
 
     error(error: ERROR_CODE, message = '') {
-        this.log('Sending Error', message, error);
+        this.log(SOCKET_LOG_EVENT.ERROR, message, error);
 
         const errorMessage: ServerGenericEvents.Error = {
             event: SERVER_GENERIC_EVENTS.ERROR,
@@ -64,11 +67,11 @@ export abstract class AbstractSocket {
             | ServerGenericEvents.Event
             | ServerAdminEvents.Event
     ) {
-        let subevent: string | undefined;
+        let messageEvent: string | undefined;
         if (message.event === 'lw-message') { // TODO: Move to enum
-            subevent = message.data.event;
+            messageEvent = message.data.event;
         }
-        this.log('Sending Event', message.event, subevent);
+        this.log(SOCKET_LOG_EVENT.SENDING, messageEvent, message.event);
         const messageString = JSON.stringify(message);
         this.socket.send(messageString);
     }
@@ -91,31 +94,48 @@ export abstract class AbstractSocket {
         }
     }
 
-    protected log(event: string, message: string, subevent?: string) {
+    private setInternalListeners() {
+        this.callbacks = {
+            close: (code: CLOSE_CODE) => {
+                let message = code.toString();
+                if (code >= 3000) {
+                    const reason = CLOSE_CODE[code];
+                    message += ` (${reason})`;
+                }
+                this.log(SOCKET_LOG_EVENT.DISCONNECTED, message);
+            },
+            message: (data: Buffer) => {
+                try {
+                    const parsed = JSON.parse(data.toString('utf8'));
+                    if (parsed.event) {
+                        this.log(SOCKET_LOG_EVENT.RECEIVED, undefined, parsed.event);
+                    } else {
+                        throw new Error(); // Catch
+                    }
+                } catch {
+                    this.log(SOCKET_LOG_EVENT.RECEIVED, 'Could not parse message', 'unknown');
+                }
+            }
+        }
+        this.socket.on('close', this.callbacks.close);
+        this.socket.on('message', this.callbacks.message);
+    }
+
+    public cleanup(newId: string) {
+        this.log(SOCKET_LOG_EVENT.CLEANUP, newId);
+        this.socket.removeListener('close', this.callbacks.close);
+        this.socket.removeListener('message', this.callbacks.message);
+    }
+
+    protected log(event: SOCKET_LOG_EVENT, data?: string, subevent?: string) {
         this.logger.debug({
             event,
             subevent,
-            message,
+            data,
             id: this.id,
-            type: this.type,
+            type: this.type as unknown as LOG_TYPE, //LOG_TYPE is a superset of SOCKET_TYPE. This is fine. It's okay.
             room: this.room?.id
         });
     }
 
-    private setCloseListener() {
-        this.closeCallback = (code: CLOSE_CODE) => {
-            let message = code.toString();
-            if (code >= 3000) {
-                const reason = CLOSE_CODE[code];
-                message += ` (${reason})`;
-            }
-            this.log('Disconnected', message);
-        }
-        this.socket.on('close', this.closeCallback);
-    }
-
-    public cleanup(newId: string) {
-        this.log('Cleaning Up', newId);
-        this.socket.removeListener('close', this.closeCallback);
-    }
 }

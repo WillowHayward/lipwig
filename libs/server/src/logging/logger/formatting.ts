@@ -18,21 +18,21 @@ const levelColorizer = colorize({
     }
 });
 
-const formatSections = (id: string, event: string, message: string, type?: string, subevent?: string): [string, string] => {
+const formatSections = (id: string, event: string, data: string, type?: string, subevent?: string): [string, string] => {
     const fullId = `[${type} - ${id}]`;
     const fullEvent = subevent ? `${event} (${subevent})` : event;
-    const fullMessage = `${fullEvent}: ${message}`;
+    const fullMessage = `${fullEvent}: ${data}`;
 
     return [fullId, fullMessage];
 }
 
 export const formatConsole = combine(
     timestamp(),
-    printf(({ timestamp, level, id, type, event, subevent, message }) => {
+    printf(({ timestamp, level, id, type, event, subevent, data }) => {
         if (!type) {
             type = 'ROOM';
         }
-        let [fullId, fullMessage] = formatSections(id, event, message, type, subevent);
+        let [fullId, fullMessage] = formatSections(id, event, data, type, subevent);
         fullId = idColorizer.colorize(type, fullId);
         fullMessage = levelColorizer.colorize(level, fullMessage);
         return `${timestamp} ${fullId} ${fullMessage}`;
@@ -41,11 +41,11 @@ export const formatConsole = combine(
 
 export const formatFile = combine(
     timestamp(),
-    printf(({ timestamp, id, type, event, subevent, message }) => {
+    printf(({ timestamp, id, type, event, subevent, data }) => {
         if (!type) {
             type = 'ROOM';
         }
-        const [fullId, fullMessage] = formatSections(id, event, message, type, subevent);
+        const [fullId, fullMessage] = formatSections(id, event, data, type, subevent);
         return `${timestamp} ${fullId} ${fullMessage}`;
     })
 )

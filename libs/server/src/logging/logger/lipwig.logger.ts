@@ -30,16 +30,10 @@ export class LipwigLogger {
     }
 
     debug(log: RoomLog | SocketLog) {
-        this.logger.log({
-            level: 'debug',
-            ...log
-        });
+        this.logger.log('debug', log);
     }
 
     log(log: RoomLog | SocketLog) {
-        this.logger.log({
-            level: 'info',
-            ...log
-        });
+        this.logger.log('info', log);
     }
 }
