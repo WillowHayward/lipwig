@@ -17,6 +17,7 @@ WORKDIR /usr/src/app
 COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=deps /usr/src/app/package.json ./package.json
 COPY dist/apps/lipwig .
+COPY dist/apps/admin ./dist/apps/admin
 RUN chown -R node:node .
 USER node
 EXPOSE 8989

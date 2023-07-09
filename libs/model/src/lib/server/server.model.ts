@@ -1,3 +1,4 @@
+// TODO: These are... not used anywhere
 export type LipwigOptions = {
     port: number;
     roomNumberLimit: number;

@@ -3,6 +3,7 @@ import {
     Disconnected,
     HostDisconnected,
     Reconnected,
+    ReconnectedData,
     HostReconnected,
     DisconnectedData,
     HostReconnectedData,
@@ -15,7 +16,6 @@ import {
     PongServer,
     PongServerData,
 } from './ping.model';
-import { ReconnectData } from '../../../host/events.model';
 
 export * from './lipwig.model';
 export * from './connection.model';
@@ -43,7 +43,7 @@ export type EventData =
     | MessageData
     // Connection Events
     | DisconnectedData
-    | /* HostDisconnectedData | */ ReconnectData
+    | ReconnectedData
     | HostReconnectedData
     // Ping Events
     | PingClientData

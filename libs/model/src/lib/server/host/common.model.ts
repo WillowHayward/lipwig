@@ -1,4 +1,4 @@
-import { PING_EVENT } from '../../common.model';
+import { PING_EVENT } from '../generic';
 
 export enum SERVER_HOST_EVENT {
     // Generic events

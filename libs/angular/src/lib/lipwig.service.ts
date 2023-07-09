@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { CreateOptions, JoinOptions, RoomQuery } from '@lipwig/model';
-import { Client, Host, Lipwig, LocalClient, LocalHost } from '@lipwig/js';
+import { Admin, Client, Host, Lipwig, LocalClient, LocalHost } from '@lipwig/js';
 
 // TODO: It's an edge case, but accounting for multiple hosts/clients in a single connection could be neat
 @Injectable({
@@ -10,6 +10,7 @@ import { Client, Host, Lipwig, LocalClient, LocalHost } from '@lipwig/js';
 export class LipwigService {
     private url?: string;
     private host?: Host;
+    private admin?: Admin;
     private client?: Client;
     public connected = false;
 
@@ -18,9 +19,11 @@ export class LipwigService {
     }
 
     public async query(room: string, id?: string): Promise<RoomQuery> {
+        // NOTE: This is here as well as ApiService for legacy reasons. ApiService uses the Angular HTTP Client, this uses fetch.
         if (!this.url) {
             throw new Error('Lipwig URL not set');
         }
+
         return Lipwig.query(this.url, room, id);
     }
 
@@ -81,11 +84,29 @@ export class LipwigService {
         return client;
     }
 
+    public async administrate(): Promise<Admin> {
+        if (!this.url) {
+            throw new Error('Lipwig URL not set');
+        }
+
+        const promise = Lipwig.administrate(this.url);
+        promise.then(admin => {
+            this.admin = admin;
+            this.connected = true;
+        });
+
+        return promise;
+    }
+
     public getHost(): Host | undefined {
         return this.host;
     }
 
     public getClient(): Client | undefined {
         return this.client;
+    }
+
+    public getAdmin(): Admin | undefined {
+        return this.admin;
     }
 }

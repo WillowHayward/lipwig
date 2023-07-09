@@ -10,13 +10,7 @@
       }
     },
     "prerelease": {
-      "executor": "@jscutlery/semver:version",
-      "options": {
-        "syncVersions": true,
-        "releaseAs": "prerelease",
-        "preid": "next",
-        "trackDeps": true,
-      }
+        "executor": "@lipwig/nx:prerelease"
     }
   }
 }

@@ -1,5 +1,4 @@
-import { ERROR_CODE, RoomQuery } from '../../common.model';
-import { SERVER_GENERIC_EVENTS } from './generic.model';
+import { SERVER_GENERIC_EVENTS, ERROR_CODE, RoomQuery  } from './generic.model';
 
 // Generic events dispatched by the server
 interface EventStructure {

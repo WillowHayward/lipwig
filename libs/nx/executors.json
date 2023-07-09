@@ -4,6 +4,11 @@
             "implementation": "./src/executors/sync-deps/executor",
             "schema": "./src/executors/sync-deps/schema.json",
             "description": "sync-deps executor"
+        },
+        "prerelease": {
+            "implementation": "./src/executors/prerelease/executor",
+            "schema": "./src/executors/prerelease/schema.json",
+            "description": "prerelease executor"
         }
     }
 }

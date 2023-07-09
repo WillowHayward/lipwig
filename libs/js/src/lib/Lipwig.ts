@@ -8,17 +8,28 @@ import {
     CreateOptions,
     JoinOptions,
     RoomQuery,
-    GENERIC_EVENT,
 } from '@lipwig/model';
 import { Host } from './host';
 import { Client } from './client';
-import { Socket } from './Socket';
+import { Admin } from './admin';
 
 export class Lipwig {
+    static async query(url: string, code: string, id?: string): Promise<RoomQuery> {
+        // NOTE: This accepts a websocket url for legacy reasons
+        if (url.startsWith('wss')) {
+            url = url.replace('wss', 'https');
+        } else if (url.startsWith('ws')) {
+            url = url.replace('ws', 'http');
+        }
+
+        const query = id ? `code=${code}&id=${id}` : `code=${code}`;
+        return fetch(`${url}/api/query?${query}`).then(response => response.json()).then(json => json as RoomQuery);
+    }
+
     static create(url: string, config: CreateOptions = {}): Promise<Host> {
         return new Promise((resolve, reject) => {
             const host = new Host(url, config);
-            host.on('created', (code: string, ...args: any) => {
+            host.on('created', () => {
                 resolve(host);
             });
 
@@ -67,21 +78,18 @@ export class Lipwig {
         });
     }
 
-    static query(url: string, code: string, id?: string): Promise<RoomQuery> {
-        return new Promise((resolve) => {
-            const socket = new Socket(url, 'Query');
-            socket.on('connected', () => {
-                socket.send({
-                    event: GENERIC_EVENT.QUERY,
-                    data: {
-                        room: code,
-                        id
-                    },
-                });
+    static administrate(
+        url: string,
+    ): Promise<Admin> {
+        return new Promise((resolve, reject) => {
+            const admin = new Admin(url);
+
+            admin.on('administrating', () => {
+                resolve(admin);
             });
 
-            socket.on('query-response', (response: RoomQuery) => {
-                resolve(response);
+            admin.once('error', (error: ERROR_CODE, message?: string) => {
+                reject({ error, message });
             });
         });
     }

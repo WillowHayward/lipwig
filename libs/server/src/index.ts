@@ -1,2 +1,3 @@
-export * from './lib/lipwig.module';
-export * from './lib/defaults.model';
+export * from './lipwig.model.default';
+export * from './lipwig.model';
+export * from './lipwig.module';

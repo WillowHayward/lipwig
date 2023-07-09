@@ -2,8 +2,16 @@
  *
  * @author: Willow Hayward, whc.fyi
  */
+import { GENERIC_EVENT } from '../generic';
+import { PING_EVENT } from '../server';
 
-import { PING_EVENT } from '../common.model';
+export type CreateOptions = Partial<{
+    size: number;
+    name: string;
+    password: string;
+    approvals: boolean; // True for Host manually approving join requests
+    required: string[]; // List of required paramaters to join a room
+}>;
 
 // Events sent from a Host to the Server
 export enum HOST_EVENT {
@@ -11,7 +19,7 @@ export enum HOST_EVENT {
     JOIN_RESPONSE = 'join-response',
     LOCK = 'lock',
     UNLOCK = 'unlock',
-    MESSAGE = 'lw-message',
+    MESSAGE = GENERIC_EVENT.MESSAGE,
     POLL = 'poll',
     KICK = 'lw-kick',
     RECONNECT = 'reconnect',

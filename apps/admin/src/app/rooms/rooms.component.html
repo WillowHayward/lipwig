@@ -1,0 +1,15 @@
+<table>
+    <tr>
+        <th>Room</th>
+        <th>Name</th>
+        <th>Active</th>
+        <th></th>
+    </tr>
+
+    <tr *ngFor="let room of rooms">
+        <td>{{room.id}}</td>
+        <td>{{room.name || 'unnamed'}}</td>
+        <td>{{room.active ? 'Active' : 'Closed'}}</td>
+        <td><button (click)="viewRoom(room.id)">View</button></td>
+    </tr>
+</table>

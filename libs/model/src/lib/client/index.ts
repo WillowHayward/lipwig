@@ -1,2 +1,2 @@
-export * as ClientEvents from './events.model';
+export * as ClientEvents from './client.events';
 export * from './client.model';

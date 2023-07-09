@@ -1,10 +1,11 @@
 import {
-    CLIENT_EVENT,
     SERVER_GENERIC_EVENTS,
+    GENERIC_EVENT,
     CLOSE_CODE,
     ClientEvents,
     HostEvents,
     GenericEvents,
+    AdminEvents,
 } from '@lipwig/model';
 import { EventManager } from './EventManager';
 import * as Logger from 'loglevel';
@@ -89,7 +90,7 @@ export class Socket extends EventManager {
     }
 
     public send(
-        message: GenericEvents.Event | ClientEvents.Event | HostEvents.Event
+        message: GenericEvents.Event | ClientEvents.Event | HostEvents.Event | AdminEvents.Event
     ): void {
         //TODO: Add in contingency system for messages sent during a disconnection
         //CONT: A queue of messages to be sent in bulk on resumption of connection
@@ -131,8 +132,8 @@ export class Socket extends EventManager {
         this.socket = socket;
         this.addListeners();
         //TODO: Try and make this account for ServerClient and ServerHost split
-        const message: ClientEvents.Reconnect = {
-            event: CLIENT_EVENT.RECONNECT,
+        const message: GenericEvents.Reconnect = {
+            event: GENERIC_EVENT.RECONNECT,
             data: {
                 code: this.room,
                 id: this.id,
