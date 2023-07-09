@@ -4,7 +4,7 @@
     "projectType": "application",
     "prefix": "app",
     "sourceRoot": "apps/admin/src",
-    "tags": [],
+    "tags": ["deploy"],
     "targets": {
         "build": {
             "executor": "@angular-devkit/build-angular:browser",
@@ -20,7 +20,8 @@
                     "apps/admin/src/assets"
                 ],
                 "styles": ["apps/admin/src/styles.scss"],
-                "scripts": []
+                "scripts": [],
+                "baseHref": "/admin/"
             },
             "configurations": {
                 "production": {
@@ -94,5 +95,6 @@
                 }
             }
         }
-    }
+    },
+    "implicitDependencies": ["admin"]
 }

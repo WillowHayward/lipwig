@@ -55,6 +55,20 @@
         "passWithNoTests": true
       }
     },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "metadata": {
+          "images": ["willowhayward/lipwig"],
+          "load": true,
+          "tags": [
+            "local",
+          ]
+        }
+      }
+    },
     "deploy": {
       "executor": "@nx-tools/nx-container:build",
       "dependsOn": ["build"],
