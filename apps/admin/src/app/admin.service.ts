@@ -12,8 +12,12 @@ export class AdminService {
     constructor(private lipwig: LipwigService, private api: LipwigApiService) {}
 
     init(): Promise<Admin> {
-        this.lipwig.setUrl('ws://localhost:8989');
-        this.api.setUrl('http://localhost:8989');
+        const host = location.host; // TODO: This does not account for lipwig being hosted on a subpath
+        const protocol = location.protocol;
+        const wsProtocol = protocol.replace('http', 'ws');
+
+        this.lipwig.setUrl(`${wsProtocol}//${host}`);
+        this.api.setUrl(`${protocol}//${host}`);
         const promise = this.lipwig.administrate();
         promise.then(admin => {
             this.admin = admin;
