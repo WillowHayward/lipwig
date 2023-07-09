@@ -51,6 +51,7 @@ export class Room {
 
     private polls: Poll[] = [];
 
+    private timeoutListener: ReturnType<typeof setTimeout>;
 
     // TODO: This feels hacky
     public onclose: () => void = () => null;
@@ -319,6 +320,10 @@ export class Room {
                     event: SERVER_CLIENT_EVENT.HOST_DISCONNECTED,
                 });
             }
+            // TODO: Should this also lock the room?
+            this.timeoutListener = setTimeout(() => {
+                this.close('Host Timeout'); // TODO: Should this have its own event?
+            }, 1000 * 60 * 10); // 10 minutes // TODO: Make configurable
         } else {
             this.host.send({
                 event: SERVER_HOST_EVENT.CLIENT_DISCONNECTED,
@@ -327,6 +332,7 @@ export class Room {
                 },
             });
         }
+        this.log(ROOM_LOG_EVENT.HOST_DISCONNECTED);
     }
 
     reconnect(socket: AnonymousSocket, id: string): boolean {
@@ -363,6 +369,7 @@ export class Room {
 
     private reconnectHost(host: AnonymousSocket, id: string): boolean {
         this.host = this.initializeHost(host, id);
+        clearTimeout(this.timeoutListener);
 
         this.host.send({
             event: SERVER_HOST_EVENT.RECONNECTED,
@@ -382,6 +389,7 @@ export class Room {
                     id: this.host.id, // TODO: Why does this get sent?
                 },
             });
+
         }
 
         this.log(ROOM_LOG_EVENT.HOST_RECONNECTED);
