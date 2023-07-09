@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Logger, createLogger, transports } from "winston";
 import 'winston-daily-rotate-file';
 
-import { RoomLog, SocketLog } from "../logging.model";
+import { ApiLog, RoomLog, SocketLog } from "../logging.model";
 import { DataTransport } from "./data.transport";
 import { formatConsole, formatFile } from "./formatting";
 
@@ -29,11 +29,11 @@ export class LipwigLogger {
         });
     }
 
-    debug(log: RoomLog | SocketLog) {
+    debug(log: RoomLog | SocketLog | ApiLog) {
         this.logger.log('debug', log);
     }
 
-    log(log: RoomLog | SocketLog) {
+    log(log: RoomLog | SocketLog | ApiLog) {
         this.logger.log('info', log);
     }
 }

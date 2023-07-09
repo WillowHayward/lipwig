@@ -7,7 +7,8 @@ const idColorizer = colorize({
         ANON: 'grey bold',
         HOST: 'cyan bold',
         CLNT: 'yellow bold',
-        ADMN: 'green bold'
+        ADMN: 'green bold',
+        API: 'blue bold',
     }
 });
 
@@ -18,8 +19,8 @@ const levelColorizer = colorize({
     }
 });
 
-const formatSections = (id: string, event: string, data?: string, type?: string, subevent?: string): [string, string] => {
-    const fullId = `[${type} - ${id}]`;
+const formatSections = (event: string, type: string, id?: string, data?: string, subevent?: string): [string, string] => {
+    const fullId = id ? `[${type} - ${id}]` : `[${type}]`;
     const fullEvent = subevent ? `${event} (${subevent})` : event;
     const fullMessage = data ? `${fullEvent}: ${data}` : fullEvent;
 
@@ -29,7 +30,7 @@ const formatSections = (id: string, event: string, data?: string, type?: string,
 export const formatConsole = combine(
     timestamp(),
     printf(({ timestamp, level, id, type, event, subevent, data }) => {
-        let [fullId, fullMessage] = formatSections(id, event, data, type, subevent);
+        let [fullId, fullMessage] = formatSections(event, type, id, data, subevent);
         fullId = idColorizer.colorize(type, fullId);
         fullMessage = levelColorizer.colorize(level, fullMessage);
         return `${timestamp} ${fullId} ${fullMessage}`;
@@ -39,7 +40,7 @@ export const formatConsole = combine(
 export const formatFile = combine(
     timestamp(),
     printf(({ timestamp, id, type, event, subevent, data }) => {
-        const [fullId, fullMessage] = formatSections(id, event, data, type, subevent);
+        const [fullId, fullMessage] = formatSections(event, type, id, data, subevent);
         return `${timestamp} ${fullId} ${fullMessage}`;
     })
 )

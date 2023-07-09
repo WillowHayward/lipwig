@@ -1,5 +1,5 @@
 import * as Transport from 'winston-transport';
-import { RoomLog, SocketLog } from '../logging.model';
+import { ApiLog, RoomLog, SocketLog } from '../logging.model';
 import { Repository } from 'typeorm';
 import { LogEntity } from '../../data/entities/log.entity';
 
@@ -12,14 +12,23 @@ interface SocketLogInfo extends SocketLog {
     level: LogLevel;
 }
 
+interface ApiLogInfo extends ApiLog {
+    level: LogLevel;
+}
+
 export class DataTransport extends Transport {
     constructor(private logs: Repository<LogEntity>) {
         super();
     }
 
-    public override log(info: RoomLogInfo | SocketLogInfo, next: () => void) {
+    public override log(info: RoomLogInfo | SocketLogInfo | ApiLogInfo, next: () => void) {
         setImmediate(() => {
             const now = (new Date()).getTime();
+
+            let uid: string | undefined;
+            if ('id' in info) {
+                uid = info.id;
+            }
 
             let room: string | undefined;
             if ('room' in info) {
@@ -30,11 +39,11 @@ export class DataTransport extends Transport {
                 timestamp: now,
                 level: info.level,
                 type: info.type,
-                uid: info.id,
                 event: info.event,
                 data: info.data,
                 subevent: info.subevent,
-                room
+                uid,
+                room,
             });
             this.logs.save(entity);
         });

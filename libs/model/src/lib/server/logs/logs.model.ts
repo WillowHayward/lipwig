@@ -4,7 +4,8 @@ export enum LOG_TYPE {
     ANONYMOUS = 'ANON',
     HOST = 'HOST',
     CLIENT = 'CLNT',
-    ADMIN = 'ADMN'
+    ADMIN = 'ADMN',
+    API = 'API',
 }
 
 export enum ROOM_LOG_EVENT {
@@ -36,4 +37,8 @@ export enum SOCKET_LOG_EVENT {
     ERROR = 'error',
     SENDING = 'sending',
     RECEIVED = 'received', // TODO - implement
+}
+
+export enum API_LOG_EVENT {
+    GET = 'get',
 }

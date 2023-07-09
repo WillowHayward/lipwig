@@ -1,4 +1,4 @@
-import { LipwigSummary, RoomSummary, SERVER_ADMIN_EVENT } from '@lipwig/model';
+import { API_LOG_EVENT, LOG_TYPE, LipwigSummary, RoomSummary, SERVER_ADMIN_EVENT } from '@lipwig/model';
 import { RoomService } from '../../../room/service/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
@@ -53,6 +53,13 @@ export class AdminService {
             }
         }
 
+        this.logger.log({
+            type: LOG_TYPE.API,
+            event: API_LOG_EVENT.GET,
+            subevent: 'admin/summary',
+            data: '200'
+        });
+
         return {
             total: rooms.length,
             current: active.length,
@@ -76,6 +83,13 @@ export class AdminService {
             summaries.push(summary);
         }
 
+        this.logger.log({
+            type: LOG_TYPE.API,
+            event: API_LOG_EVENT.GET,
+            subevent: 'admin/rooms',
+            data: '200'
+        });
+
         return summaries;
     }
 
@@ -84,6 +98,13 @@ export class AdminService {
         if (!room) {
             throw new Error('Room Not Found'); // TODO: Handle this better
         }
+
+        this.logger.log({
+            type: LOG_TYPE.API,
+            event: API_LOG_EVENT.GET,
+            subevent: `admin/room/${id}`,
+            data: '200'
+        });
 
         return this.summarizeRoom(room);
     }

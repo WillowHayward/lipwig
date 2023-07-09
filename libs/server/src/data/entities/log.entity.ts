@@ -14,12 +14,12 @@ export class LogEntity {
     @Column()
         type: string;
 
-    @Column()
-        uid: string;
 
     @Column()
         event: string;
 
+    @Column({nullable:true})
+        uid?: string;
 
     @Column({nullable:true})
         subevent?: string;
