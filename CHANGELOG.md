@@ -2,6 +2,15 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+# [2.1.0-next.1](https://git.whc.fyi/WillowHayward/lipwig/compare/v2.1.0-next.0...v2.1.0-next.1) (2023-07-09)
+
+
+### Features
+
+* **admin:** Determined lipwig host based on location ([e17e198](https://git.whc.fyi/WillowHayward/lipwig/commits/e17e198ac680d6d363c8e80d2c7e9dcb98162e12))
+
+
+
 # [2.1.0-next.0](https://git.whc.fyi/WillowHayward/lipwig/compare/v2.0.0...v2.1.0-next.0) (2023-07-09)
 
 
