@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RoomQuery } from '@lipwig/model';
+import { LipwigSummary, RoomQuery, RoomSummary } from '@lipwig/model';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -19,23 +19,40 @@ export class LipwigApiService {
         return this.getRequest<RoomQuery>('query', { code, id });
     }
 
-    private getRequest<T>(endpoint: string, params: Record<string, string | undefined>): Promise<T> {
+    public async adminSummary(): Promise<LipwigSummary> {
+        return this.getRequest<LipwigSummary>('admin/summary');
+    }
+
+    public async adminRooms(): Promise<RoomSummary[]> {
+        return this.getRequest<RoomSummary[]>('admin/rooms');
+    }
+
+    public async adminRoom(id: string): Promise<RoomSummary> {
+        return this.getRequest<RoomSummary>(`admin/room/${id}`);
+    }
+
+    private getRequest<T>(endpoint: string, params?: Record<string, string | undefined>): Promise<T> {
         if (!this.url) {
             throw new Error('Lipwig API URL not set');
         }
 
-        const queryParams = new URLSearchParams();
+        let query = '';
+        if (params) {
+            const queryParams = new URLSearchParams();
 
-        for (const param in params) {
-            const value = params[param];
-            if (value === undefined) {
-                continue;
+            for (const param in params) {
+                const value = params[param];
+                if (value === undefined) {
+                    continue;
+                }
+
+                queryParams.set(param, value);
             }
 
-            queryParams.set(param, value);
+            query = '?' + queryParams.toString();
         }
 
-        const url = `${this.url}/api/${endpoint}?${queryParams.toString()}`;
+        const url = `${this.url}/api/${endpoint}${query}`;
 
         return firstValueFrom(this.http.get<T>(url));
     }

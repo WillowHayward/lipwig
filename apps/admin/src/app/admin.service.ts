@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { LipwigService } from '@lipwig/angular';
+import { LipwigApiService, LipwigService } from '@lipwig/angular';
 import { Admin } from '@lipwig/js';
 import { LipwigSummary, RoomSummary } from '@lipwig/model';
-import { firstValueFrom } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -11,10 +9,11 @@ import { firstValueFrom } from 'rxjs';
 export class AdminService {
     private admin?: Admin;
 
-    constructor(private lipwig: LipwigService, private http: HttpClient) {}
+    constructor(private lipwig: LipwigService, private api: LipwigApiService) {}
 
     init(): Promise<Admin> {
         this.lipwig.setUrl('ws://localhost:8989');
+        this.api.setUrl('http://localhost:8989');
         const promise = this.lipwig.administrate();
         promise.then(admin => {
             this.admin = admin;
@@ -28,14 +27,14 @@ export class AdminService {
     }
 
     async summary(): Promise<LipwigSummary> {
-        return firstValueFrom(this.http.get<LipwigSummary>('http://localhost:8989/admin/summary'));
+        return this.api.adminSummary();
     }
 
     async rooms(): Promise<RoomSummary[]> {
-        return firstValueFrom(this.http.get<RoomSummary[]>('http://localhost:8989/admin/rooms'));
+        return this.api.adminRooms();
     }
 
     async room(id: string): Promise<RoomSummary> {
-        return firstValueFrom(this.http.get<RoomSummary>(`http://localhost:8989/admin/room/${id}`));
+        return this.api.adminRoom(id);
     }
 }
