@@ -3,7 +3,7 @@ import { RoomService } from '../../room/service/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { AnonymousSocket, AdminSocket } from '../../socket';
-import { SocketLogger } from '../../logging/logger/socket.logger';
+import { LipwigLogger } from '../../logging/logger/lipwig.logger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomEntity } from '../../data/entities/room.entity';
 import { Repository } from 'typeorm';
@@ -16,7 +16,7 @@ export class AdminService {
         private roomService: RoomService,
         @InjectRepository(RoomEntity)
         private roomRepo: Repository<RoomEntity>,
-        private logger: SocketLogger,
+        private logger: LipwigLogger,
     ) { }
 
     getAdmin(): AdminSocket[] {

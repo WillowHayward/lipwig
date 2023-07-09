@@ -1,7 +1,7 @@
 import { CLOSE_CODE, ERROR_CODE, SERVER_GENERIC_EVENTS, ServerAdminEvents, ServerClientEvents, ServerGenericEvents, ServerHostEvents } from '@lipwig/model';
 import { SOCKET_TYPE } from './socket.model';
 import { LipwigSocket } from './lipwig.socket';
-import { SocketLogger } from '../logging/logger/socket.logger';
+import { LipwigLogger } from '../logging/logger/lipwig.logger';
 import { Room } from '../room/instance/room.instance';
 
 type Callback = (...args: any[]) => void;
@@ -15,7 +15,7 @@ export abstract class AbstractSocket {
 
     private closeCallback: (code: CLOSE_CODE) => void;
 
-    constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, protected logger: SocketLogger, public room?: Room) {
+    constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, protected logger: LipwigLogger, public room?: Room) {
         this.connected = true;
         if (socket.socket) {
             socket.socket.cleanup(id);
