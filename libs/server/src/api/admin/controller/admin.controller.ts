@@ -2,7 +2,7 @@ import { LipwigSummary, RoomSummary } from '@lipwig/model';
 import { Controller, Get, Param } from '@nestjs/common';
 import { AdminService } from '../service/admin.service';
 
-@Controller('admin')
+@Controller('api/admin')
 export class AdminController {
     constructor(private admin: AdminService) { }
 

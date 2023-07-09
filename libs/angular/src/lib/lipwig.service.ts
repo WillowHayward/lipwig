@@ -19,9 +19,11 @@ export class LipwigService {
     }
 
     public async query(room: string, id?: string): Promise<RoomQuery> {
+        // NOTE: This is here as well as ApiService for legacy reasons. ApiService uses the Angular HTTP Client, this uses fetch.
         if (!this.url) {
             throw new Error('Lipwig URL not set');
         }
+
         return Lipwig.query(this.url, room, id);
     }
 

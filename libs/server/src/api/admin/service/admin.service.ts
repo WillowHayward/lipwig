@@ -1,11 +1,11 @@
 import { LipwigSummary, RoomSummary, SERVER_ADMIN_EVENT } from '@lipwig/model';
-import { RoomService } from '../../room/service/room.service';
+import { RoomService } from '../../../room/service/room.service';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
-import { AnonymousSocket, AdminSocket } from '../../socket';
-import { LipwigLogger } from '../../logging/logger/lipwig.logger';
+import { AnonymousSocket, AdminSocket } from '../../../socket';
+import { LipwigLogger } from '../../../logging/logger/lipwig.logger';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoomEntity } from '../../data/entities/room.entity';
+import { RoomEntity } from '../../../data/entities/room.entity';
 import { Repository } from 'typeorm';
 
 // TODO: Guards - AdminGuard to check they're admin sending the commands

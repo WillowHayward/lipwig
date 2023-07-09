@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LipwigService } from '@lipwig/angular';
+import { LipwigApiService, LipwigService } from '@lipwig/angular';
 
 @Component({
     selector: 'lwc-root',
@@ -9,7 +9,8 @@ import { LipwigService } from '@lipwig/angular';
 export class AppComponent {
     title = 'lipwig-chat';
 
-    constructor(lipwig: LipwigService) {
+    constructor(lipwig: LipwigService, api: LipwigApiService) {
         lipwig.setUrl('ws://localhost:8989');
+        api.setUrl('http://localhost:8989');
     }
 }

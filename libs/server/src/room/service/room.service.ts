@@ -57,24 +57,6 @@ export class RoomService {
         return this.getRoom(room).isHost(id);
     }
 
-    query(socket: AnonymousSocket, code: string, id?: string) {
-        let response: RoomQuery;
-        if (!this.roomExists(code)) {
-            response = {
-                exists: false,
-                room: code,
-            };
-        } else {
-            const room = this.getRoom(code);
-            response = room.query(id);
-        }
-
-        socket.send({
-            event: SERVER_GENERIC_EVENTS.QUERY_RESPONSE,
-            data: response,
-        });
-    }
-
     create(socket: AnonymousSocket, config: CreateOptions = {}) {
         const existingCodes = Object.keys(this.rooms);
 

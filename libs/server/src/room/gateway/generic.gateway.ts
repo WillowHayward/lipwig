@@ -20,14 +20,6 @@ export class GenericGateway implements OnGatewayConnection {
         socket.socket = new AnonymousSocket(socket, this.logger);
     }
 
-    // TODO: Should this be a HTTP request?
-    @SubscribeMessage(GENERIC_EVENT.QUERY)
-    query(socket: LipwigSocket, payload: GenericEvents.QueryData) {
-        const code = payload.room;
-        const id = payload.id;
-        this.rooms.query(socket.socket as AnonymousSocket, code, id);
-    }
-
     @SubscribeMessage(GENERIC_EVENT.RECONNECT)
     reconnect(
         socket: LipwigSocket,

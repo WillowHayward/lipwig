@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { RoomModule } from './room/room.module';
-import { AdminModule } from './admin/admin.module';
+import { ApiModule } from './api/api.module';
 
 @Module({
-    imports: [RoomModule, AdminModule]
+    imports: [RoomModule, ApiModule],
 })
-export class LipwigModule { }
+export class LipwigModule {}

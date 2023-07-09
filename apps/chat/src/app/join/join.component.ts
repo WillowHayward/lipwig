@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { LipwigService, LazyLoaderService } from '@lipwig/angular';
+import { LipwigService, LazyLoaderService, LipwigApiService } from '@lipwig/angular';
 import { NgForm } from '@angular/forms';
 import { Client } from '@lipwig/js';
 
@@ -20,7 +20,7 @@ export class JoinComponent implements OnInit {
 
     private id?: string;
 
-    constructor(private lipwig: LipwigService, private lazy: LazyLoaderService) {
+    constructor(private lipwig: LipwigService, private api: LipwigApiService, private lazy: LazyLoaderService) {
         lazy.register('lipwig-chat', 'Lipwig Chat', () => import('@lipwig/chat/client').then(mod => mod.lipwigChatClientRoutes));
     }
 
@@ -36,7 +36,7 @@ export class JoinComponent implements OnInit {
             }
 
             if (value.code.length === 4) {
-                this.lipwig.query(value.code, this.id).then(response => {
+                this.api.query(value.code, this.id).then(response => {
                     if (response.room !== value.code) {
                         // Query for another code
                         return;
