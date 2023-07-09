@@ -13,6 +13,7 @@ export enum ROOM_LOG_EVENT {
     UNLOCKED = 'unlocked',
     CLOSED = 'closed',
 
+    HOST_DISCONNECTED = 'host-disconnected',
     HOST_RECONNECTED = 'host-reconnected',
     HOST_MESSAGE = 'host-message',
 
