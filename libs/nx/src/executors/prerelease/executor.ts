@@ -23,12 +23,16 @@ export default async function runExecutor(options: PrereleaseExecutorSchema) {
 
 function getCurrentVersion(): Version {
     const packageJson = JSON.parse(readFileSync('./package.json', { encoding: 'utf8' }));
+    const packageVersion = packageJson.version;
+    if (packageVersion.includes('-')) {
+        // TODO - Already a prerelease. Parseint should handle it fine?
+    }
     const versionParts = packageJson.version.split('.');
 
     const version: Version = {
         major: Number.parseInt(versionParts[0]),
         minor: Number.parseInt(versionParts[1]),
-        patch: Number.parseInt(versionParts[1]),
+        patch: Number.parseInt(versionParts[2]),
     }
 
     return version;
@@ -51,7 +55,7 @@ function getNextVersion(): Version {
     return version;
 }
 
-function getReleaseType(current: Version, next: Version): 'premajor' | 'preminor' | 'prepatch' {
+function getReleaseType(current: Version, next: Version): 'premajor' | 'preminor' | 'prepatch' | 'prerelease' {
     if (next.major > current.major) {
         return 'premajor';
     }
@@ -64,5 +68,5 @@ function getReleaseType(current: Version, next: Version): 'premajor' | 'preminor
         return 'prepatch';
     }
 
-    throw new Error('Could not determine release type');
+    return 'prerelease';
 }
