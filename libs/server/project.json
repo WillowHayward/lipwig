@@ -3,6 +3,7 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "libs/server/src",
     "projectType": "library",
+    "tags": ["deploy"],
     "targets": {
         "build": {
             "executor": "@nx/js:tsc",
@@ -45,6 +46,5 @@
                 "tag": "next"
             }
         }
-    },
-    "tags": ["deploy"]
+    }
 }
