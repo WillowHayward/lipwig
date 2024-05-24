@@ -4,7 +4,6 @@
     "projectType": "application",
     "sourceRoot": "apps/chat/src",
     "prefix": "lwc",
-    "tags": [],
     "targets": {
         "build": {
             "executor": "@nx/angular:webpack-browser",
@@ -76,5 +75,6 @@
                 "jestConfig": "apps/chat/jest.config.ts"
             }
         }
-    }
+    },
+    "tags": []
 }

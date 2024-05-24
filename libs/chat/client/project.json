@@ -3,8 +3,8 @@
     "$schema": "../../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "libs/chat/client/src",
     "prefix": "lwc",
-    "projectType": "library",
     "tags": [],
+    "projectType": "library",
     "targets": {
         "test": {
             "executor": "@nx/jest:jest",

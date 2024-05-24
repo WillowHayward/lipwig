@@ -15,7 +15,6 @@
         "@angular/language-service": "17.3.9",
         "@commitlint/cli": "^17.0.0",
         "@commitlint/config-conventional": "^17.0.0",
-        "@eslint/eslintrc": "^2.1.1",
         "@jscutlery/semver": "^3.0.0",
         "@nestjs/schematics": "^10.0.1",
         "@nestjs/testing": "^10.0.2",

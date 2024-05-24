@@ -5,7 +5,6 @@
     "prefix": "app",
     "sourceRoot": "apps/admin/src",
     "tags": ["deploy"],
-    "implicitDependencies": ["admin"],
     "targets": {
         "build": {
             "executor": "@angular-devkit/build-angular:browser",
@@ -83,5 +82,6 @@
                 "jestConfig": "apps/admin/jest.config.ts"
             }
         }
-    }
+    },
+    "implicitDependencies": ["admin"]
 }
