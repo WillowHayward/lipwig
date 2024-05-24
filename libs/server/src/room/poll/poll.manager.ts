@@ -5,7 +5,7 @@ import { Poll } from "./poll";
 
 
 export class PollManager {
-    private polls: Map<string, Poll> = new Map();
+    private polls = new Map<string, Poll>();
 
     createPoll(id: string, recipients: ClientSocket[]): Poll {
         const poll = new Poll(id, recipients);

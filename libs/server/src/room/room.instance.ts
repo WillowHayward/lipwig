@@ -370,7 +370,7 @@ export class Room {
         return true;
     }
 
-    private reconnectClient(socket: AnonymousSocket, id: string): ClientSocket | void {
+    private reconnectClient(socket: AnonymousSocket, id: string): ClientSocket {
 
         const existing = this.clientManager.findClientOrThrow(id);
         if (existing.connected) {

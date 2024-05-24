@@ -9,9 +9,9 @@ export interface Pending {
 
 // TODO: SocketManager instead?
 export class ClientManager {
-    private pending: Map<string, Pending> = new Map();
-    private clients: Map<string, ClientSocket> = new Map();
-    private localClients: Set<string> = new Set();
+    private pending = new Map<string, Pending>();
+    private clients = new Map<string, ClientSocket>();
+    private localClients = new Set<string>();
 
     // Clients that are not yet fully connected
     addPending(tempId: string, socket: AnonymousSocket, options: JoinOptions) {

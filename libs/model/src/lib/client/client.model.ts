@@ -6,9 +6,7 @@ export const DEFAULTS = {
 };
 
 export type JoinOptions = Partial<{
-    data: {
-        [index: string]: unknown;
-    };
+    data: Record<string, unknown>;
     password: string;
 }>;
 

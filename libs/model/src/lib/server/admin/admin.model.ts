@@ -3,7 +3,7 @@ export enum SERVER_ADMIN_EVENT {
     SUMMARY = 'summary',
 }
 
-export type LipwigSummary = {
+export interface LipwigSummary {
     total: number;
     current: number;
     names: Record<string, {
@@ -12,13 +12,13 @@ export type LipwigSummary = {
     }>
 }
 
-export type RoomSummary = {
+export interface RoomSummary {
     id: string;
     name: string;
     active: boolean;
 }
 
-export type RoomInfo = {
+export interface RoomInfo {
     // TODO: Expand, like RoomQuery
     id: string;
     name: string;

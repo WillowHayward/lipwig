@@ -5,7 +5,6 @@ import {
     BaseClientErrorCode,
     BaseJoinErrorCode,
     CLIENT_EVENT,
-    ERROR_CODE,
     GENERIC_EVENT,
     GenericErrorCode,
     HOST_EVENT,
@@ -149,7 +148,7 @@ export class RoomGuard implements CanActivate {
     private getValidator(event: CLIENT_EVENT | HOST_EVENT): Validator {
         // TODO: COnfirm all of these
         // TODO: holy shit rework this whole thing yo
-        const hostValidators: Map<HOST_EVENT, Validator> = new Map([
+        const hostValidators = new Map<HOST_EVENT, Validator>([
             // Host events
             [HOST_EVENT.CREATE, {}],
             [HOST_EVENT.PING_CLIENT, { required: ['time', 'id'], isHost: true }],
@@ -158,13 +157,13 @@ export class RoomGuard implements CanActivate {
             [HOST_EVENT.KICK, { required: ['id'], isHost: true }],
         ]);
 
-        const clientValidators: Map<CLIENT_EVENT, Validator> = new Map([
+        const clientValidators = new Map<CLIENT_EVENT, Validator>([
             // Client events
             [CLIENT_EVENT.JOIN, { required: ['code'], roomExists: true }],
             [CLIENT_EVENT.RECONNECT, { required: ['code', 'id'], roomExists: true }],
         ]);
 
-        const genericValidators: Map<GENERIC_EVENT, Validator> = new Map([
+        const genericValidators = new Map<GENERIC_EVENT, Validator>([
             [GENERIC_EVENT.MESSAGE, {
                 required: ['event', 'args'],
                 validUser: true,

@@ -17,7 +17,7 @@ async function fetchRoomQuery(url: string, code: string, id?: string): Promise<R
 }
 
 // TODO: Determine better way to handle this any any[]
-function createInstance<T extends Host | Client | Admin>(InstanceType: { new(...args: any[]): T }, resolveEvent: string, ...args: unknown[]): Promise<T> {
+function createInstance<T extends Host | Client | Admin>(InstanceType: new(...args: any[]) => T, resolveEvent: string, ...args: unknown[]): Promise<T> {
     return new Promise((resolve, reject) => {
         const instance = new InstanceType(...args);
         instance.on(resolveEvent, () => resolve(instance));

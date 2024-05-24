@@ -5,7 +5,7 @@ import { PollError } from ".././errors";
 export class Poll {
     open = true;
     pending: Set<ClientSocket>;
-    received: Set<ClientSocket> = new Set();
+    received = new Set<ClientSocket>();
 
     constructor(public id: string, recipients: ClientSocket[]) {
         this.pending = new Set(recipients);

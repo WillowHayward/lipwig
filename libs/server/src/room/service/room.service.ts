@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
 import {
-    SERVER_GENERIC_EVENTS,
     ClientEvents,
     HostEvents,
     CreateOptions,
     JoinOptions,
-    RoomQuery,
 } from '@lipwig/model';
 
 import { generateString } from '@lipwig/utils';
@@ -23,7 +21,7 @@ import { LipwigLogger } from '../../logging/logger/lipwig.logger';
 // TODO: Make exception which sends error?
 @Injectable()
 export class RoomService {
-    private rooms: Map<string, Room> = new Map();
+    private rooms = new Map<string, Room>();
     private roomLimit = 0; // 0 for no limit
 
     constructor(

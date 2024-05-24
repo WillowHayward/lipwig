@@ -19,7 +19,7 @@ export interface Joined extends EventStructure {
 
 export interface JoinedData {
     id: string;
-    data?: { [index: string]: any };
+    data?: Record<string, any>;
 }
 
 export interface Rejoined extends EventStructure {
@@ -38,7 +38,7 @@ export interface JoinRequest extends EventStructure {
 
 export interface JoinRequestData {
     id: string;
-    data?: { [index: string]: any };
+    data?: Record<string, any>;
 }
 
 export interface Left {

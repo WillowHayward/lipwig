@@ -10,10 +10,8 @@ export interface Poll {
 }
 
 // TODO: CHange to Map
-export interface Pending {
-    [id: string]: {
+export type Pending = Record<string, {
         client: AnonymousSocket;
         options: JoinOptions;
-    };
-}
+    }>;
 

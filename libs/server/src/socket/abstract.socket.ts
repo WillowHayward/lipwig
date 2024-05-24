@@ -7,9 +7,7 @@ import { Room } from '../room/room.instance';
 type Callback = (...args: any[]) => void;
 
 export abstract class AbstractSocket {
-    private events: {
-        [event: string]: Callback[];
-    } = {};
+    private events: Record<string, Callback[]> = {};
 
     public connected = false;
 

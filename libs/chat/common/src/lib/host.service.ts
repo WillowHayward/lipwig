@@ -70,7 +70,7 @@ export class HostService {
             user.send('chatters', this.getChatters());
         });
 
-        this.host.on('join-request', (request: JoinRequest, data: { [key: string]: any }) => {
+        this.host.on('join-request', (request: JoinRequest, data: Record<string, any>) => {
             const name = data['name'];
             if (this.host.getUsers().some(user => user.data['name'] === name)) {
                 request.reject(`User with name '${name}' already in room`);
