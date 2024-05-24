@@ -5,22 +5,23 @@ import { EventManager } from '../EventManager';
 import { User } from './User';
 
 export class Poll extends EventManager {
-    public id: string;
     constructor(
         private host: Host,
         users: User[],
         public query: string,
-        id?: string
+        public id: string = v4()
     ) {
         super();
-        this.id = id || v4();
-        const recipients = users.map((user) => user.id);
+        this.sendPoll(users);
+    }
+
+    private sendPoll(users: User[]): void {
         this.host.send({
             event: HOST_EVENT.POLL,
             data: {
                 id: this.id,
-                recipients,
-                query,
+                recipients: users.map((user) => user.id),
+                query: this.query,
             },
         });
     }

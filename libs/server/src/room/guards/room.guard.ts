@@ -2,27 +2,24 @@ import { Reflector } from '@nestjs/core';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import {
+    BaseClientErrorCode,
+    BaseJoinErrorCode,
     CLIENT_EVENT,
     ERROR_CODE,
     GENERIC_EVENT,
+    GenericErrorCode,
     HOST_EVENT,
 } from '@lipwig/model';
 import { RoomService } from '../service/room.service';
 import { LipwigSocket, AbstractSocket, HostSocket, ClientSocket, SOCKET_TYPE } from '../../socket';
+import { Validator } from './guards.model';
 
-interface Validator {
-    required?: string[]; // Required paramaters on request
-    roomExists?: boolean; // Code parameter passed is real room
-    validUser?: boolean; // User is valid (initialised, exists in room)
-    isHost?: boolean; // If the user is or isn't the host. Leave undefined for either.
-    other?: (args: any) => boolean; // Event-specific validation function
-}
 
 @Injectable()
 export class RoomGuard implements CanActivate {
     private socket: AbstractSocket;
 
-    constructor(private reflector: Reflector, private rooms: RoomService) {}
+    constructor(private reflector: Reflector, private rooms: RoomService) { }
 
     canActivate(
         context: ExecutionContext
@@ -40,7 +37,7 @@ export class RoomGuard implements CanActivate {
 
     private validate(event: string, args: any): boolean {
         if (!this.isValidEvent(event)) {
-            this.socket.error(ERROR_CODE.MALFORMED, `Invalid event '${event}'`);
+            this.socket.error(GenericErrorCode.MALFORMED, `Invalid event '${event}'`);
             return false;
         }
 
@@ -64,12 +61,12 @@ export class RoomGuard implements CanActivate {
         if (validator.isHost !== undefined) {
             const isHost = this.socket.type === SOCKET_TYPE.HOST;
             if (!isHost && validator.isHost) {
-                this.socket.error(ERROR_CODE.INSUFFICIENTPERMISSIONS);
+                this.socket.error(BaseClientErrorCode.INSUFFICIENTPERMISSIONS);
                 return false;
             } else if (isHost && !validator.isHost) {
                 // TODO: Is this also just insufficient permissions?
                 this.socket.error(
-                    ERROR_CODE.MALFORMED,
+                    GenericErrorCode.MALFORMED,
                     `Cannot use event '${event}' as host`
                 );
                 return false;
@@ -99,13 +96,13 @@ export class RoomGuard implements CanActivate {
             return true;
         }
 
-        this.socket.error(ERROR_CODE.MALFORMED, `No such event '${event}'`);
+        this.socket.error(GenericErrorCode.MALFORMED, `No such event '${event}'`);
         return false;
     }
 
     private validateRoomExists(room: string): boolean {
         if (!room || !this.rooms.roomExists(room)) {
-            this.socket.error(ERROR_CODE.ROOMNOTFOUND);
+            this.socket.error(BaseJoinErrorCode.ROOMNOTFOUND);
             return false;
         }
 
@@ -118,7 +115,7 @@ export class RoomGuard implements CanActivate {
 
         if (missing.length) {
             this.socket.error(
-                ERROR_CODE.MALFORMED,
+                GenericErrorCode.MALFORMED,
                 `Missing required parameters: ${missing.join(', ')}`
             );
             return false;
@@ -131,18 +128,18 @@ export class RoomGuard implements CanActivate {
         switch (this.socket.type) {
             case SOCKET_TYPE.ANONYMOUS:
                 // socket improperly initialized
-                this.socket.error(ERROR_CODE.MALFORMED);
+                this.socket.error(GenericErrorCode.MALFORMED);
                 return false;
             case SOCKET_TYPE.ADMIN:
                 // I'm not even sure how this would happen
-                this.socket.error(ERROR_CODE.MALFORMED);
+                this.socket.error(GenericErrorCode.MALFORMED);
                 return false;
         }
 
         const socket: HostSocket | ClientSocket = this.socket as HostSocket; //TODO: Try to make this more generic than hostsocket
         const room = socket.room;
         if (room.closed) {
-            this.socket.error(ERROR_CODE.ROOMCLOSED);
+            this.socket.error(BaseJoinErrorCode.ROOMCLOSED);
             return false;
         }
 
@@ -150,69 +147,57 @@ export class RoomGuard implements CanActivate {
     }
 
     private getValidator(event: CLIENT_EVENT | HOST_EVENT): Validator {
-        switch (event) {
-            case HOST_EVENT.CREATE:
-                return {};
-            case CLIENT_EVENT.JOIN:
-                return {
-                    required: ['code'],
-                    roomExists: true,
-                };
-            case CLIENT_EVENT.RECONNECT:
-                return {
-                    required: ['code', 'id'],
-                    roomExists: true,
-                };
-            //case CLIENT_EVENT.ADMINISTRATE:
-            //return {}; // TODO: Determine administrate flow
-            case CLIENT_EVENT.MESSAGE:
-                return {
-                    required: ['event', 'args'],
-                    validUser: true,
-                    other: (args: any) => {
-                        if (this.socket.type === SOCKET_TYPE.HOST && !args.recipients) {
-                            this.socket.error(
-                                ERROR_CODE.MALFORMED,
-                                'Message from host must contain recipients'
-                            );
-                            return false;
-                        } else if (this.socket.type !== SOCKET_TYPE.HOST && args.recipients) {
-                            this.socket.error(
-                                ERROR_CODE.MALFORMED,
-                                'Message from client must not contain recipients'
-                            );
-                            return false;
-                        }
+        // TODO: COnfirm all of these
+        // TODO: holy shit rework this whole thing yo
+        const hostValidators: Map<HOST_EVENT, Validator> = new Map([
+            // Host events
+            [HOST_EVENT.CREATE, {}],
+            [HOST_EVENT.PING_CLIENT, { required: ['time', 'id'], isHost: true }],
+            [HOST_EVENT.PONG_HOST, { required: ['time', 'id'], isHost: true }],
+            [HOST_EVENT.PING_SERVER, { required: ['time'] }],
+            [HOST_EVENT.KICK, { required: ['id'], isHost: true }],
+        ]);
 
-                        return true;
-                    },
-                };
-            /*case CLIENT_EVENT.PING:
-  return {
-      required: ['time'],
-      validUser: true,
-  };*/
-            case HOST_EVENT.PING_CLIENT:
-            case HOST_EVENT.PONG_HOST:
-                return {
-                    required: ['time', 'id'],
-                    isHost: true,
-                };
-            case CLIENT_EVENT.PING_HOST:
-            case CLIENT_EVENT.PONG_CLIENT:
-            case CLIENT_EVENT.PING_SERVER:
-            case HOST_EVENT.PING_SERVER:
-                return {
-                    required: ['time'],
-                };
-            case HOST_EVENT.KICK:
-                return {
-                    required: ['id'],
-                    isHost: true,
-                };
-            default:
-                console.warn(`Guard not set up for event '${event}'`);
-                return {};
+        const clientValidators: Map<CLIENT_EVENT, Validator> = new Map([
+            // Client events
+            [CLIENT_EVENT.JOIN, { required: ['code'], roomExists: true }],
+            [CLIENT_EVENT.RECONNECT, { required: ['code', 'id'], roomExists: true }],
+        ]);
+
+        const genericValidators: Map<GENERIC_EVENT, Validator> = new Map([
+            [GENERIC_EVENT.MESSAGE, {
+                required: ['event', 'args'],
+                validUser: true,
+                other: (args: any) => {
+                    if (this.socket.type === SOCKET_TYPE.HOST && !args.recipients) {
+                        this.socket.error(
+                            GenericErrorCode.MALFORMED,
+                            'Message from host must contain recipients'
+                        );
+                        return false;
+                    } else if (this.socket.type !== SOCKET_TYPE.HOST && args.recipients) {
+                        this.socket.error(
+                            GenericErrorCode.MALFORMED,
+                            'Message from client must not contain recipients'
+                        );
+                        return false;
+                    }
+                    return true;
+                },
+            }],
+        ]);
+
+        // TODO: thanks, i hate it
+        const validators = new Map();
+        hostValidators.forEach((v, k) => validators.set(k, v));
+        clientValidators.forEach((v, k) => validators.set(k, v));
+        genericValidators.forEach((v, k) => validators.set(k, v));
+
+        if (!validators.has(event)) {
+            console.warn(`Guard not set up for event '${event}'`);
+            return {};
         }
+
+        return validators.get(event);
     }
 }

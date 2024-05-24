@@ -14,11 +14,35 @@ export type RoomQuery = Partial<{
     rejoin: boolean; // ID of client for rejoining requests
 }>;
 
-export enum ERROR_CODE {
-    SUCCESS = 'SUCCESS',
+export enum GenericErrorCode {
+    SUCCESS = 'SUCCESS', // TODO: Wait why is this an error?
     MALFORMED = 'MALFORMED',
+}
+
+export enum BasePollErrorCode {
+    // Poll errors
+    POLLALREADYEXISTS = 'POLLALREADYEXISTS', // TODO: Host error?
+    POLLCLOSED = 'POLLCLOSED',
+    POLLALREADYRESPONSED = 'POLLALREADYRESPONSED',
+    POLLUSERNOTFOUND = 'POLLUSERNOTFOUND',
+    POLLNOTFOUND = 'POLLNOTFOUND',
+    // TODO: Poll already exists
+}
+
+export enum BaseHostErrorCode {
+    // TODO: USER -> CLIENT?
     USERNOTFOUND = 'USERNOTFOUND',
-    INSUFFICIENTPERMISSIONS = 'INSUFFICIENTPERMISSIONS',
+    LOCALUSEREXISTS = 'LOCALUSEREXISTS',
+    LOCALUSERNOTFOUND = 'LOCALUSERNOTFOUND',
+}
+
+export enum BaseClientErrorCode {
+    INSUFFICIENTPERMISSIONS = 'INSUFFICIENTPERMISSIONS', // TODO: If we add "admin errors", this could apply to hosts as well
+}
+
+export enum BaseJoinErrorCode { // TODO: These are distinct from Cliet Errors, yeah?
+    // User already in room - TODO: Is this already handled?
+    ALREADYCONNECTED = 'ALREADYCONNECTED',
     // Room join errors
     ROOMNOTFOUND = 'ROOMNOTFOUND',
     ROOMFULL = 'ROOMFULL',
@@ -27,14 +51,21 @@ export enum ERROR_CODE {
     INCORRECTPASSWORD = 'INCORRECTPASSWORD',
     MISSINGPARAM = 'MISSINGPARAM',
     REJECTED = 'REJECTED',
-    // Room rejoin errors
-    ALREADYCONNECTED = 'ALREADYCONNECTED',
-    // Poll errors
-    POLLCLOSED = 'POLLCLOSED',
-    POLLALREADYRESPONSED = 'POLLALREADYRESPONSED',
-    POLLUSERNOTFOUND = 'POLLUSERNOTFOUND',
-    POLLNOTFOUND = 'POLLNOTFOUND',
 }
+
+export enum BaseRejoinErrorCode {
+    // Room rejoin errors
+    ALREADYCONNECTED = BaseJoinErrorCode.ALREADYCONNECTED,
+    USERNOTFOUND = BaseHostErrorCode.USERNOTFOUND,
+}
+
+export type HostErrorCode = BaseHostErrorCode | GenericErrorCode;
+export type ClientErrorCode = BaseClientErrorCode | GenericErrorCode;
+export type JoinErrorCode = BaseJoinErrorCode | GenericErrorCode;
+export type RejoinErrorCode = BaseRejoinErrorCode | GenericErrorCode;
+export type PollErrorCode = BasePollErrorCode | GenericErrorCode;
+export type ERROR_CODE = HostErrorCode | ClientErrorCode | JoinErrorCode | RejoinErrorCode | PollErrorCode; // TODO: Rename for consistency
+
 
 // 3000-3999 reserved close codes https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
 export enum CLOSE_CODE {

@@ -37,6 +37,8 @@ export class User extends EventManager {
         for (const group of this.groups) {
             group.emit(event, this, ...args);
         }
+
+        return true; // TODO: I'm not sure why this is is here, without it it doesn't conform to EventManager. Investigate.
     }
 
     public send(event: string, ...args: unknown[]): void {

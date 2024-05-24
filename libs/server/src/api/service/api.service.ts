@@ -9,14 +9,14 @@ export class ApiService {
 
     async query(code: string, id?: string): Promise<RoomQuery> {
         let response: RoomQuery;
-        if (!this.rooms.roomExists(code)) {
+        const room = this.rooms.getRoom(code);
+        if (room) {
+            response = room.query(id);
+        } else {
             response = {
                 exists: false,
                 room: code,
             };
-        } else {
-            const room = this.rooms.getRoom(code);
-            response = room.query(id);
         }
 
         this.logger.log({

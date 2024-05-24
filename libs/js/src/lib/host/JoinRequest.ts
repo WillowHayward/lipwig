@@ -4,22 +4,20 @@ import { Host } from './Host';
 export class JoinRequest {
     constructor(private host: Host, private id: string) {}
 
-    public approve() {
-        this.host.send({
-            event: HOST_EVENT.JOIN_RESPONSE,
-            data: {
-                id: this.id,
-                response: true,
-            },
-        });
+    public approve(): void {
+        this.sendJoinResponse(true);
     }
 
-    public reject(reason?: string) {
+    public reject(reason?: string): void {
+        this.sendJoinResponse(false, reason);
+    }
+
+    private sendJoinResponse(response: boolean, reason?: string): void {
         this.host.send({
             event: HOST_EVENT.JOIN_RESPONSE,
             data: {
                 id: this.id,
-                response: false,
+                response,
                 reason,
             },
         });

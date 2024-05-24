@@ -24,7 +24,7 @@ export class Socket extends EventManager {
         if (this.local) {
             return;
         }
-        console.log(this.url, this.name);
+        Logger.debug(this.url, this.name);
 
         // This is a tiny bit hacky, but for the LocalClient functionality this had to be option here or in Client, and this has less potential impact
         this.socket = new WebSocket(url);
@@ -48,7 +48,7 @@ export class Socket extends EventManager {
         this.socket.addEventListener('message', (event: MessageEvent) => {
             const message = JSON.parse(event.data);
             if (message.event === SERVER_GENERIC_EVENTS.ERROR) {
-                console.log(message);
+                Logger.info(message);
                 this.emit('lw-error', message.data.error, message.data.message);
             } else if (message.event === SERVER_GENERIC_EVENTS.QUERY_RESPONSE) {
                 this.emit('query-response', message.data);
@@ -103,12 +103,11 @@ export class Socket extends EventManager {
             return;
         }
 
-        Logger.debug(`[${this.name}] Attempting to reconnect`);
-        console.log('Attempting to reconnect');
+        Logger.info(`[${this.name}] Attempting to reconnect`);
         const socket: WebSocket = new WebSocket(this.url);
 
         socket.addEventListener('error', (): void => {
-            Logger.debug(`[${this.name}] Reconnect failed, retrying in 1000ms`);
+            Logger.info(`[${this.name}] Reconnect failed, retrying in 1000ms`);
             setTimeout(this.autoReconnect, 1000);
         });
 

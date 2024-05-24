@@ -2,7 +2,6 @@ import { v4 } from 'uuid';
 import {
     SERVER_HOST_EVENT,
     SERVER_CLIENT_EVENT,
-    ERROR_CODE,
     CLOSE_CODE,
     HostEvents,
     ClientEvents,
@@ -11,25 +10,18 @@ import {
     RoomQuery,
     ROOM_LOG_EVENT,
     LOG_TYPE,
+    BaseJoinErrorCode,
+    BaseRejoinErrorCode,
+    BaseClientErrorCode,
+    BaseHostErrorCode,
 } from '@lipwig/model';
-import { AnonymousSocket, HostSocket, ClientSocket, SOCKET_TYPE } from '../../socket';
+import { AnonymousSocket, HostSocket, ClientSocket, SOCKET_TYPE, LipwigSocket } from '../socket';
 import { Repository } from 'typeorm';
-import { RoomEntity } from '../../data/entities/room.entity';
-import { LipwigLogger } from '../../logging/logger/lipwig.logger';
-
-interface Poll {
-    id: string;
-    pending: string[];
-    received: string[];
-    open: boolean;
-}
-
-interface Pending {
-    [id: string]: {
-        client: AnonymousSocket;
-        options: JoinOptions;
-    };
-}
+import { RoomEntity } from '../data/entities/room.entity';
+import { LipwigLogger } from '../logging/logger/lipwig.logger';
+import { PollManager } from './poll/poll.manager';
+import { ClientManager } from './client/client.manager';
+import { ClientError, HostError, JoinError, RejoinError } from './errors';
 
 export class Room {
     public id = v4();
@@ -44,12 +36,9 @@ export class Room {
     private required: string[];
     private approvals: boolean;
 
+    private pollManager: PollManager = new PollManager();
+    private clientManager: ClientManager = new ClientManager();
     private host: HostSocket;
-    private clients: ClientSocket[] = [];
-    private pending: Pending = {};
-    private localClients: string[] = [];
-
-    private polls: Poll[] = [];
 
     private timeoutListener: ReturnType<typeof setTimeout>;
 
@@ -64,10 +53,9 @@ export class Room {
         private repository: Repository<RoomEntity>,
         private logger: LipwigLogger,
     ) {
+        this.clientManager = new ClientManager();
+        this.host = this.initializeHost(socket);
         // TODO: Room config
-        const host = this.initializeHost(socket);
-        this.host = host;
-
         this.name = config.name;
         if (config.password && config.password.length) {
             this.password = config.password;
@@ -80,22 +68,18 @@ export class Room {
 
         this.initEntity();
 
-        this.log(ROOM_LOG_EVENT.CREATED, `Host: ${host.id}`);
-        host.send({
+        this.log(ROOM_LOG_EVENT.CREATED, `Host: ${this.host.id}`);
+        this.host.send({
             event: SERVER_HOST_EVENT.CREATED,
             data: {
                 code,
-                id: host.id,
+                id: this.host.id,
             },
         });
     }
 
     inRoom(id: string) {
-        if (this.isHost(id)) {
-            return true;
-        }
-
-        return this.clients.some((client) => id === client.id);
+        return this.isHost(id) || this.clientManager.clientExists(id);
     }
 
     isHost(id: string) {
@@ -104,7 +88,7 @@ export class Room {
 
     query(id?: string): RoomQuery {
         let isProtected = false;
-        const currentSize = this.clients.length + this.localClients.length; // TODO: THis is duplicated, could be a function
+        const currentSize = this.clientManager.clientCount;
         const capacity = this.size - currentSize;
         if (this.password && this.password.length > 0) {
             isProtected = true;
@@ -112,7 +96,7 @@ export class Room {
 
         let rejoin = false;
         if (id) {
-            const client = this.clients.find(client => client.id === id);
+            const client = this.clientManager.findClient(id);
             if (client && !client.connected) {
                 rejoin = true;
             }
@@ -130,35 +114,38 @@ export class Room {
         };
     }
 
-    private initializeClient(client: AnonymousSocket, id?: string): ClientSocket {
+    private initializeSocket<T extends ClientSocket | HostSocket>(
+        socketClass: new (socket: LipwigSocket, id: string, logger: LipwigLogger, room: Room) => T,
+        anonymousSocket: AnonymousSocket,
+        id?: string
+    ): T {
         id = id || v4();
-        const socket = client.socket;
-        const newClient = new ClientSocket(socket, id, this.logger, this);
-        socket.socket = newClient;
+        const { socket } = anonymousSocket;
+        const newSocket = new socketClass(socket, id, this.logger, this);
+        socket.socket = newSocket;
+
+        newSocket.on('disconnect', () => {
+            this.disconnect(newSocket);
+        });
+
+        return newSocket;
+    }
+
+    private initializeClient(client: AnonymousSocket, id?: string): ClientSocket {
+        const newClient = this.initializeSocket(ClientSocket, client, id);
 
         newClient.on('leave', (reason?: string) => {
             this.leave(newClient, reason);
-        });
-
-        newClient.on('disconnect', () => {
-            this.disconnect(newClient);
         });
 
         return newClient;
     }
 
     private initializeHost(host: AnonymousSocket, id?: string): HostSocket {
-        id = id || v4();
-        const socket = host.socket;
-        const newHost = new HostSocket(socket, id, this.logger, this);
-        socket.socket = newHost;
+        const newHost = this.initializeSocket(HostSocket, host, id);
 
         newHost.on('close', (reason?: string) => {
             this.close(reason);
-        });
-
-        newHost.on('disconnect', () => {
-            this.disconnect(newHost);
         });
 
         return newHost;
@@ -167,24 +154,19 @@ export class Room {
     join(client: AnonymousSocket, options: JoinOptions) {
         if (this.password) {
             if (!options.password) {
-                client.error(ERROR_CODE.INCORRECTPASSWORD, 'Password required');
-                return;
+                throw new JoinError(BaseJoinErrorCode.INCORRECTPASSWORD, 'Password required'); // TODO: Missing param? Actually probs dedicated "missing password" code
             }
             if (this.password.localeCompare(options.password) !== 0) {
-                client.error(ERROR_CODE.INCORRECTPASSWORD);
-                return;
+                throw new JoinError(BaseJoinErrorCode.INCORRECTPASSWORD);
             }
         }
 
         if (this.locked) {
-            client.error(ERROR_CODE.ROOMLOCKED, this.lockReason);
-            return;
+            throw new JoinError(BaseJoinErrorCode.ROOMLOCKED, this.lockReason);
         }
 
-        const currentSize = this.clients.length + this.localClients.length;
-        if (currentSize >= this.size) {
-            client.error(ERROR_CODE.ROOMFULL);
-            return;
+        if (this.clientManager.clientCount >= this.size) {
+            throw new JoinError(BaseJoinErrorCode.ROOMFULL);
         }
 
         if (!options.data) {
@@ -199,23 +181,17 @@ export class Room {
         }
 
         if (missing.length) {
-            client.error(
-                ERROR_CODE.MISSINGPARAM,
+            throw new JoinError(BaseJoinErrorCode.MISSINGPARAM,
                 `Join request missing the following parameters: ${missing.join(
                     ', '
                 )}`
             );
-            return;
         }
 
         if (this.approvals) {
             const tempId = v4();
             this.log(ROOM_LOG_EVENT.JOIN_REQUEST, tempId);
-            const pending = {
-                client,
-                options,
-            };
-            this.pending[tempId] = pending;
+            this.clientManager.addPending(tempId, client, options);
 
             this.host.send({
                 event: SERVER_HOST_EVENT.JOIN_REQUEST,
@@ -261,25 +237,19 @@ export class Room {
         response: boolean,
         reason?: string
     ) {
-        const target = this.pending[id];
-        if (!target) {
-            host.error(ERROR_CODE.USERNOTFOUND);
-            return;
-        }
-
+        const target = this.clientManager.findAndRemovePendingOrThrow(id);
         if (response) {
-            this.joinSuccess(target.client, target.options);
-            return;
+            this.joinSuccess(target.socket, target.options);
+        } else {
+            throw new JoinError(BaseJoinErrorCode.REJECTED, reason);
         }
 
-        target.client.error(ERROR_CODE.REJECTED, reason);
-        delete this.pending[id];
     }
 
     private joinSuccess(socket: AnonymousSocket, options: JoinOptions) {
         const client = this.initializeClient(socket);
         const id = client.id;
-        this.clients.push(client);
+        this.clientManager.addClient(client);
         this.syncClients(id);
 
         client.send({
@@ -315,7 +285,8 @@ export class Room {
     private disconnect(disconnected: HostSocket | ClientSocket) {
         disconnected.connected = false;
         if (disconnected.type === SOCKET_TYPE.HOST) {
-            for (const client of this.clients) {
+            const clients = this.clientManager.getClients();
+            for (const client of clients) {
                 client.send({
                     event: SERVER_CLIENT_EVENT.HOST_DISCONNECTED,
                 });
@@ -376,12 +347,14 @@ export class Room {
             data: {
                 room: this.code,
                 id: this.host.id,
-                users: this.clients.map((client) => client.id),
-                local: this.localClients,
+                users: this.clientManager.getClientIds(),
+                local: this.clientManager.getLocalClientIds()
+                // TODO: Pending?
             },
         });
 
-        for (const client of this.clients) {
+        const clients = this.clientManager.getClients();
+        for (const client of clients) {
             client.send({
                 event: SERVER_CLIENT_EVENT.HOST_RECONNECTED,
                 data: {
@@ -398,29 +371,24 @@ export class Room {
     }
 
     private reconnectClient(socket: AnonymousSocket, id: string): ClientSocket | void {
-        const index = this.clients.findIndex((other) => other.id === id);
-        if (index === -1) {
-            // Could not find user
-            socket.error(ERROR_CODE.USERNOTFOUND);
-            return;
-        }
 
-        const existing = this.clients[index];
+        const existing = this.clientManager.findClientOrThrow(id);
         if (existing.connected) {
-            socket.error(ERROR_CODE.ALREADYCONNECTED);
-            return;
+            // TODO: Confirm if this can only be trigger by a Client
+            throw new RejoinError(BaseRejoinErrorCode.ALREADYCONNECTED);
         }
 
         const client = this.initializeClient(socket, id);
 
-        this.clients.splice(index, 1, client);
+        this.clientManager.setClient(client);
 
         return client;
     }
 
     close(reason?: string) {
         this.closed = true;
-        for (const client of this.clients) {
+        const clients = this.clientManager.getClients();
+        for (const client of clients) {
             client.close(CLOSE_CODE.CLOSED, reason);
         }
 
@@ -432,12 +400,11 @@ export class Room {
         this.entity.closed = true;
         this.saveEntity();
 
-        if (this.onclose) {
-            this.onclose();
-        }
+        this.onclose?.(); // TODO: Like, verify this
     }
 
     leave(client: ClientSocket, reason?: string) {
+        // TODO: Does this need to handle the given client not being in the room? Surely a guard will be handling that
         this.host.send({
             event: SERVER_HOST_EVENT.LEFT,
             data: {
@@ -446,40 +413,24 @@ export class Room {
             },
         });
 
-        const index = this.clients.indexOf(client);
-        if (index === -1) {
-            // TODO: Handle
-            return;
-        }
+        this.clientManager.removeClient(client);
 
         this.log(ROOM_LOG_EVENT.CLIENT_LEFT, [client.id, reason].join(' - '));
-
-        this.clients.splice(index, 1);
         this.syncClients();
     }
 
     kick(host: HostSocket, id: string, reason?: string) {
+        // TODO: Move this to a guard. There should be a list of privileged actions which can only be taken by the HostSocket
         if (host.type !== SOCKET_TYPE.HOST) {
-            host.error(ERROR_CODE.INSUFFICIENTPERMISSIONS);
-            return;
+            throw new ClientError(BaseClientErrorCode.INSUFFICIENTPERMISSIONS);
         }
 
-        const target = this.clients.find((client) => client.id === id);
-        if (!target) {
-            host.error(ERROR_CODE.USERNOTFOUND);
-            return;
-        }
-
-        const index = this.clients.indexOf(target);
-        if (index === -1) {
-            host.error(ERROR_CODE.USERNOTFOUND);
-            return;
-        }
+        const client = this.clientManager.findClientOrThrow(id);
 
         this.log(ROOM_LOG_EVENT.CLIENT_KICKED, [id, reason].join(' - '));
 
-        target.close(CLOSE_CODE.KICKED, reason);
-        this.clients.splice(index, 1);
+        client.close(CLOSE_CODE.KICKED, reason);
+        this.clientManager.removeClient(client);
         this.syncClients();
     }
 
@@ -497,14 +448,13 @@ export class Room {
 
     private handleHost(host: HostSocket, data: HostEvents.MessageData) {
         this.log(ROOM_LOG_EVENT.HOST_MESSAGE, `Recipients: ${data.recipients.join(', ')}`, data.event);
-        for (const id of data.recipients) {
-            //TODO: Disconnected message queuing
-            const client = this.clients.find((value) => id === value.id);
-            if (!client) {
-                host.error(ERROR_CODE.USERNOTFOUND);
-                continue;
-            }
-
+        const [clients, missing] = this.clientManager.findClientsAndMissing(data.recipients);
+        if (missing.length) {
+            // TODO: DOes this warrant a "USERSNOTFOUND" error? Distinct from user singular
+            // CONT: No, I think just make the text more consistent across errors - it doesn't need to be plain english
+            throw new HostError(BaseHostErrorCode.USERNOTFOUND, `User ${missing.join(', ')} not found`);
+        }
+        for (const client of clients) {
             client.send({
                 event: SERVER_CLIENT_EVENT.MESSAGE,
                 data: {
@@ -527,23 +477,19 @@ export class Room {
         });
     }
 
+    // TODO: Method to close poll? Option to timeout poll? DISCUSS
     poll(host: HostSocket, id: string, query: string, recipients: string[]) {
-        const poll: Poll = {
-            id,
-            pending: recipients,
-            received: [],
-            open: true,
-        };
+        // NOTE: This throws USERNOTFOUND before it'll throw POLLALREADYEXISTS
+        const [clients, missing] = this.clientManager.findClientsAndMissing(recipients);
+        if (missing.length) {
+            // TODO: DOes this warrant a "USERSNOTFOUND" error? Distinct from user singular
+            // CONT: No, I think just make the text more consistent across errors - it doesn't need to be plain english
+            throw new HostError(BaseHostErrorCode.USERNOTFOUND, `User ${missing.join(', ')} not found`);
+        }
 
-        this.polls.push(poll);
+        this.pollManager.createPoll(id, clients);
 
-        for (const clientId of recipients) {
-            const client = this.clients.find((client) => client.id === clientId);
-            if (!client) {
-                host.error(ERROR_CODE.USERNOTFOUND);
-                continue;
-            }
-
+        for (const client of clients) {
             client.send({
                 event: SERVER_CLIENT_EVENT.POLL,
                 data: {
@@ -555,42 +501,14 @@ export class Room {
     }
 
     pollResponse(client: ClientSocket, id: string, response: unknown) {
-        const poll = this.polls.find((poll) => poll.id === id);
-        if (!poll) {
-            client.error(ERROR_CODE.POLLNOTFOUND);
-            return;
-        }
-
-        const clientId = client.id;
-
-        if (poll.received.includes(clientId)) {
-            client.error(ERROR_CODE.POLLALREADYRESPONSED);
-            return;
-        }
-
-        if (!poll.pending.includes(clientId)) {
-            client.error(ERROR_CODE.POLLUSERNOTFOUND);
-            return;
-        }
-
-        if (!poll.open) {
-            client.error(ERROR_CODE.POLLCLOSED);
-            return;
-        }
-
-        const clientIndex = poll.pending.indexOf(clientId);
-        poll.pending.splice(clientIndex, 1);
-        poll.received.push(clientId);
-
-        if (!poll.pending.length) {
-            poll.open = false;
-        }
+        const poll = this.pollManager.findPollOrThrow(id);
+        poll.markResponded(client);
 
         this.host.send({
             event: SERVER_HOST_EVENT.POLL_RESPONSE,
             data: {
                 id,
-                client: clientId,
+                client: client.id,
                 response,
             },
         });
@@ -609,12 +527,7 @@ export class Room {
     }
 
     pongHost(host: HostSocket, time: number, id: string) {
-        const client = this.clients.find((client) => client.id === id);
-
-        if (!client) {
-            host.error(ERROR_CODE.USERNOTFOUND);
-            return;
-        }
+        const client = this.clientManager.findClientOrThrow(id);
 
         client.send({
             event: SERVER_CLIENT_EVENT.PONG_HOST,
@@ -625,12 +538,7 @@ export class Room {
     }
 
     pingClient(host: HostSocket, time: number, id: string) {
-        const client = this.clients.find((client) => client.id === id);
-
-        if (!client) {
-            host.error(ERROR_CODE.USERNOTFOUND);
-            return;
-        }
+        const client = this.clientManager.findClientOrThrow(id);
 
         client.send({
             event: SERVER_CLIENT_EVENT.PING_CLIENT,
@@ -654,18 +562,12 @@ export class Room {
 
     localJoin(host: HostSocket, id: string) {
         this.log(ROOM_LOG_EVENT.LOCAL_JOINED, id);
-        this.localClients.push(id);
+        this.clientManager.addLocalClient(id);
         this.syncClients(id);
     }
 
     localLeave(host: HostSocket, id: string) {
-        const index = this.localClients.indexOf(id);
-
-        if (index === -1) {
-            host.error(ERROR_CODE.USERNOTFOUND, `Local user ${id} not found`);
-        }
-
-        this.localClients.splice(index, 1);
+        this.clientManager.removeLocalClient(id);
         this.syncClients();
         this.log(ROOM_LOG_EVENT.LOCAL_LEFT, id);
     }
@@ -706,8 +608,8 @@ export class Room {
 
     private syncClients(add?: string) {
         const currentClients: string[] = [];
-        currentClients.push(...this.clients.map(client => client.id));
-        currentClients.push(...this.localClients);
+        currentClients.push(...this.clientManager.getClientIds());
+        currentClients.push(...this.clientManager.getLocalClientIds());
         this.entity.currentClients = currentClients;
 
         if (add) {

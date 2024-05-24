@@ -3,7 +3,7 @@ import { AbstractSocket } from "./abstract.socket";
 import { LipwigSocket } from "./lipwig.socket";
 import { SOCKET_TYPE } from "./socket.model";
 import { LipwigLogger } from "../logging/logger/lipwig.logger";
-import { Room } from "../room/instance/room.instance";
+import { Room } from "../room/room.instance";
 
 export class ClientSocket extends AbstractSocket {
     constructor(socket: LipwigSocket, id: string, logger: LipwigLogger, public override room: Room) {

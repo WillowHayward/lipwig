@@ -2,7 +2,7 @@ import { CLOSE_CODE, ERROR_CODE, LOG_TYPE, SERVER_GENERIC_EVENTS, SOCKET_LOG_EVE
 import { SOCKET_TYPE } from './socket.model';
 import { LipwigSocket } from './lipwig.socket';
 import { LipwigLogger } from '../logging/logger/lipwig.logger';
-import { Room } from '../room/instance/room.instance';
+import { Room } from '../room/room.instance';
 
 type Callback = (...args: any[]) => void;
 
@@ -27,21 +27,14 @@ export abstract class AbstractSocket {
         this.setInternalListeners();
         this.setListeners();
 
-        let message: string;
-        switch (type) {
-            case SOCKET_TYPE.ANONYMOUS:
-                message = 'Anonymous Socket';
-                break;
-            case SOCKET_TYPE.HOST:
-                message = 'Host Socket';
-                break;
-            case SOCKET_TYPE.CLIENT:
-                message = 'Client Socket';
-                break;
-            case SOCKET_TYPE.ADMIN:
-                message = 'Admin Socket';
-                break;
-        }
+        const socketTypeMessages = {
+            [SOCKET_TYPE.ANONYMOUS]: 'Anonymous Socket',
+            [SOCKET_TYPE.HOST]: 'Host Socket',
+            [SOCKET_TYPE.CLIENT]: 'Client Socket',
+            [SOCKET_TYPE.ADMIN]: 'Admin Socket',
+        };
+
+        const message = socketTypeMessages[this.type];
 
         this.log(SOCKET_LOG_EVENT.INITIALIZED, message);
     }

@@ -1,21 +1,17 @@
 import { EventEmitter } from 'events';
 
 export class EventManager {
-    protected events: EventEmitter;
+    private events = new EventEmitter();
 
-    constructor() {
-        this.events = new EventEmitter();
-    }
-
-    public on(eventName: string, listener: ((...args: any[]) => void)) {
+    on(eventName: string, listener: (...args: any[]) => void): void {
         this.events.on(eventName, listener);
     }
 
-    public once(eventName: string, listener: ((...args: any[]) => void)) {
+    once(eventName: string, listener: (...args: any[]) => void): void {
         this.events.once(eventName, listener);
     }
 
-    public emit(eventName: string, ...args: any[]) {
-        this.events.emit(eventName, ...args);
+    emit(eventName: string, ...args: any[]): boolean {
+        return this.events.emit(eventName, ...args);
     }
 }
