@@ -1,106 +1,95 @@
 {
-  "name": "lipwig",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/lipwig/src",
-  "projectType": "application",
-  "targets": {
-    "build": {
-      "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "target": "node",
-        "compiler": "tsc",
-        "outputPath": "dist/apps/lipwig",
-        "main": "apps/lipwig/src/main.ts",
-        "tsConfig": "apps/lipwig/tsconfig.app.json",
-        "assets": ["apps/lipwig/src/assets"]
-      },
-      "configurations": {
-        "production": {
-          "optimization": true,
-          "extractLicenses": true,
-          "inspect": false,
-          "fileReplacements": [
-            {
-              "replace": "apps/lipwig/src/environments/environment.ts",
-              "with": "apps/lipwig/src/environments/environment.prod.ts"
+    "name": "lipwig",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/lipwig/src",
+    "projectType": "application",
+    "targets": {
+        "build": {
+            "executor": "@nx/webpack:webpack",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "target": "node",
+                "compiler": "tsc",
+                "outputPath": "dist/apps/lipwig",
+                "main": "apps/lipwig/src/main.ts",
+                "tsConfig": "apps/lipwig/tsconfig.app.json",
+                "assets": ["apps/lipwig/src/assets"],
+                "webpackConfig": "apps/lipwig/webpack.config.js"
+            },
+            "configurations": {
+                "production": {
+                    "optimization": true,
+                    "extractLicenses": true,
+                    "inspect": false,
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/lipwig/src/environments/environment.ts",
+                            "with": "apps/lipwig/src/environments/environment.prod.ts"
+                        }
+                    ]
+                }
             }
-          ]
+        },
+        "serve": {
+            "executor": "@nx/js:node",
+            "options": {
+                "buildTarget": "lipwig:build"
+            },
+            "configurations": {
+                "production": {
+                    "buildTarget": "lipwig:build:production"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "apps/lipwig/jest.config.ts"
+            }
+        },
+        "container": {
+            "executor": "@nx-tools/nx-container:build",
+            "dependsOn": ["build"],
+            "options": {
+                "engine": "docker",
+                "metadata": {
+                    "images": ["willowhayward/lipwig"],
+                    "load": true,
+                    "tags": ["local"]
+                }
+            }
+        },
+        "deploy": {
+            "executor": "@nx-tools/nx-container:build",
+            "dependsOn": ["build"],
+            "options": {
+                "engine": "docker",
+                "push": true,
+                "metadata": {
+                    "images": ["willowhayward/lipwig"],
+                    "load": true,
+                    "tags": ["latest", "type=semver,pattern={{raw}}"]
+                }
+            }
+        },
+        "deploy-prerelease": {
+            "executor": "@nx-tools/nx-container:build",
+            "dependsOn": ["build"],
+            "options": {
+                "engine": "docker",
+                "push": true,
+                "metadata": {
+                    "images": ["willowhayward/lipwig"],
+                    "load": true,
+                    "tags": ["next", "type=semver,pattern={{raw}}"]
+                }
+            }
         }
-      }
     },
-    "serve": {
-      "executor": "@nx/js:node",
-      "options": {
-        "buildTarget": "lipwig:build"
-      },
-      "configurations": {
-        "production": {
-          "buildTarget": "lipwig:build:production"
-        }
-      }
-    },
-    "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/lipwig/**/*.ts"]
-      }
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "apps/lipwig/jest.config.ts",
-        "passWithNoTests": true
-      }
-    },
-    "container": {
-      "executor": "@nx-tools/nx-container:build",
-      "dependsOn": ["build"],
-      "options": {
-        "engine": "docker",
-        "metadata": {
-          "images": ["willowhayward/lipwig"],
-          "load": true,
-          "tags": [
-            "local",
-          ]
-        }
-      }
-    },
-    "deploy": {
-      "executor": "@nx-tools/nx-container:build",
-      "dependsOn": ["build"],
-      "options": {
-        "engine": "docker",
-        "push": true,
-        "metadata": {
-          "images": ["willowhayward/lipwig"],
-          "load": true,
-          "tags": [
-            "latest",
-            "type=semver,pattern={{raw}}"
-          ]
-        }
-      }
-    },
-    "deploy-prerelease": {
-      "executor": "@nx-tools/nx-container:build",
-      "dependsOn": ["build"],
-      "options": {
-        "engine": "docker",
-        "push": true,
-        "metadata": {
-          "images": ["willowhayward/lipwig"],
-          "load": true,
-          "tags": [
-            "next",
-            "type=semver,pattern={{raw}}"
-          ]
-        }
-      }
-    }
-  },
     "tags": ["deploy"]
 }

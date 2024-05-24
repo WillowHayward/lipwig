@@ -1,16 +1,16 @@
 {
-  "name": "workspace",
-  "$schema": "node_modules/nx/schemas/project-schema.json",
-  "targets": {
-    "release": {
-      "executor": "@jscutlery/semver:version",
-      "options": {
-        "syncVersions": true,
-        "trackDeps": true,
-      }
-    },
-    "prerelease": {
-        "executor": "@lipwig/nx:prerelease"
+    "name": "workspace",
+    "$schema": "node_modules/nx/schemas/project-schema.json",
+    "targets": {
+        "release": {
+            "executor": "@jscutlery/semver:version",
+            "options": {
+                "syncVersions": true,
+                "trackDeps": true
+            }
+        },
+        "prerelease": {
+            "executor": "@lipwig/nx:prerelease"
+        }
     }
-  }
 }
