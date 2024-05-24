@@ -1,12 +1,35 @@
 {
     "root": true,
     "ignorePatterns": ["**/*"],
-    "plugins": ["@nx"],
+
+    "extends": ["eslint:recommended"],
+
+    "plugins": ["@nx", "@angular-eslint", "unused-imports"],
     "overrides": [
         {
             "files": ["*.ts", "*.tsx"],
-            "extends": ["plugin:@nx/typescript"],
-            "rules": {}
+            "extends": [
+                "plugin:@nx/typescript",
+                "plugin:@typescript-eslint/strict",
+                "plugin:@typescript-eslint/stylistic"
+            ],
+            "plugins": ["@typescript-eslint"],
+            "parser": "@typescript-eslint/parser",
+            "parserOptions": { "project": ["./tsconfig.base.json"] },
+            "rules": {
+                "no-unused-vars": "off",
+                "@typescript-eslint/no-unused-vars": "off",
+                "unused-imports/no-unused-imports": "error",
+                "unused-imports/no-unused-vars": [
+                    "warn",
+                    {
+                        "vars": "all",
+                        "varsIgnorePattern": "^_",
+                        "args": "after-used",
+                        "argsIgnorePattern": "^_"
+                    }
+                ]
+            }
         },
         {
             "files": ["*.js", "*.jsx"],
