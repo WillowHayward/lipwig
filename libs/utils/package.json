@@ -1,5 +1,5 @@
 {
-  "name": "@lipwig/utils",
-  "version": "2.0.1-next.0",
-  "type": "commonjs"
+    "name": "@lipwig/utils",
+    "version": "2.1.0-next.2",
+    "type": "commonjs"
 }
