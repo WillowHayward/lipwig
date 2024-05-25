@@ -10,12 +10,14 @@
             "files": ["*.ts", "*.tsx"],
             "extends": [
                 "plugin:@nx/typescript",
-                "plugin:@typescript-eslint/strict",
-                "plugin:@typescript-eslint/stylistic"
+                "plugin:@typescript-eslint/strict-type-checked",
+                "plugin:@typescript-eslint/stylistic-type-checked"
             ],
             "plugins": ["@typescript-eslint"],
             "parser": "@typescript-eslint/parser",
-            "parserOptions": { "project": ["./tsconfig.base.json"] },
+            "parserOptions": {
+                "project": ["./tsconfig.base.json", "./tsconfig.json"]
+            },
             "rules": {
                 "no-unused-vars": "off",
                 "@typescript-eslint/no-unused-vars": "off",
@@ -35,7 +37,8 @@
                         "allowWithDecorator": true
                     }
                 ],
-                "@typescript-eslint/unified-signatures": "off"
+                "@typescript-eslint/unified-signatures": "off",
+                "@typescript-eslint/no-unsafe-argument": "off"
             }
         },
         {
