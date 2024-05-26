@@ -1,5 +1,9 @@
 import { PING_EVENT } from "../generic";
 
+export interface EventStructure {
+    event: SERVER_CLIENT_EVENT;
+}
+
 export enum SERVER_CLIENT_EVENT {
     // Generic Events
     ERROR = 'error',

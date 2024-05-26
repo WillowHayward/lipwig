@@ -1,4 +1,5 @@
 
+// TODO: This is currently only used for logging in the server. js logging should be transitioned to use this too
 export enum LOG_TYPE {
     ROOM = 'ROOM',
     ANONYMOUS = 'ANON',

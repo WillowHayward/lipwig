@@ -1,3 +1,4 @@
+
 import { SERVER_GENERIC_EVENTS, ERROR_CODE, RoomQuery  } from './generic.model';
 
 // Generic events dispatched by the server
