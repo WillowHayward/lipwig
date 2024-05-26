@@ -3,7 +3,7 @@ import { CommonEvent, ConnectionEvent, PingEvent } from '../common';
 import { BaseServerCommonEvent } from '../common/server.common.events';
 
 // Server -> Client events
-export interface BaseServerClientConnectionMessageData {
+export interface BaseServerClientMessageData {
     [BaseServerCommonEvent.ERROR]: never; // TODO
     // Connection
     [ConnectionEvent.JOINED]: JoinedMessageData;

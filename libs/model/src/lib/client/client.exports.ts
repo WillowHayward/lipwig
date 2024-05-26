@@ -5,7 +5,7 @@ import { BaseServerClientEvent } from "./server.client.model";
 
 // TODO: I'm not sure if it'd be worth exporting the Data interfaces individually. Food for thought.
 export { BaseClientMessageData as ClientMessageData } from "./client.events";
-export { BaseServerClientConnectionMessageData as ServerClientMessageData } from "./server.client.events";
+export { BaseServerClientMessageData as ServerClientMessageData } from "./server.client.events";
 
 // All client -> server events. Should match keys of ClientMessageData
 export enum ClientEvent {
