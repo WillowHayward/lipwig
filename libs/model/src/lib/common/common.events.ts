@@ -1,6 +1,6 @@
 import { CommonEvent } from "./common.model";
 
-export type BaseCommonMessageData = {
+export interface BaseCommonMessageData {
     [CommonEvent.RECONNECT]: ReconnectMessageData;
 }
 

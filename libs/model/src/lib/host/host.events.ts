@@ -1,7 +1,7 @@
 import { BaseHostEvent, CreateOptions } from './host.model';
 import { CommonEvent, PingEvent } from '../common';
 
-export type BaseHostMessageData = {
+export interface BaseHostMessageData {
     [BaseHostEvent.CREATE]: CreateMessageData,
     [BaseHostEvent.JOIN_RESPONSE]: JoinResponseMessageData,
     [BaseHostEvent.LOCK]: LockMessageData,
@@ -14,7 +14,7 @@ export type BaseHostMessageData = {
     [PingEvent.PING_SERVER]: PingServerMessageData,
     [PingEvent.PING_CLIENT]: PingClientMessageData,
     [PingEvent.PONG_HOST]: PongHostMessageData,
-};
+}
 
 export interface CreateMessageData {
     config?: CreateOptions;

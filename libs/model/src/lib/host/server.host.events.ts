@@ -2,7 +2,7 @@ import { CommonEvent, ConnectionEvent, PingEvent } from "../common";
 import { BaseServerHostEvent } from "./server.host.model";
 
 // Server -> Host events
-export type BaseServerHostMessageData = {
+export interface BaseServerHostMessageData {
     // Connections
     [ConnectionEvent.DISCONNECTED]: never;
     [BaseServerHostEvent.CLIENT_DISCONNECTED]: ClientDisconnectedMessageData;
@@ -46,7 +46,7 @@ export interface CreatedMessageData {
 
 export interface JoinedMessageData {
     id: string;
-    data?: Record<string, any>;
+    data?: Record<string, unknown>;
 }
 
 export interface RejoinedMessageData {
@@ -55,7 +55,7 @@ export interface RejoinedMessageData {
 
 export interface JoinRequestMessageData {
     id: string;
-    data?: Record<string, any>;
+    data?: Record<string, unknown>;
 }
 
 export interface Left {
@@ -77,7 +77,7 @@ export interface MessageMessageData {
 export interface PollResponseMessageData {
     id: string;
     client: string;
-    response: any;
+    response: unknown;
 }
 
 // Ping

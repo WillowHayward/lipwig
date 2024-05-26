@@ -1,6 +1,6 @@
 import { LipwigSummary, BaseServerAdminEvent } from './server.admin.model';
 
-export type BaseServerAdminMessageData = {
+export interface BaseServerAdminMessageData {
     [BaseServerAdminEvent.ADMINISTRATING]: never;
     [BaseServerAdminEvent.SUMMARY]: SummaryMessageData;
 }

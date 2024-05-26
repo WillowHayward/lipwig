@@ -2,7 +2,7 @@ import { BaseServerClientEvent } from './server.client.model';
 import { CommonEvent, ConnectionEvent, PingEvent } from '../common';
 
 // Server -> Client events
-export type BaseServerClientConnectionMessageData = {
+export interface BaseServerClientConnectionMessageData {
     // Connection
     [ConnectionEvent.JOINED]: JoinedMessageData;
     [ConnectionEvent.REJOINED]: JoinedMessageData;
@@ -23,7 +23,7 @@ export type BaseServerClientConnectionMessageData = {
 export interface JoinedMessageData {
     id: string;
     name?: string;
-    data?: Record<string, any>;
+    data?: Record<string, unknown>;
 }
 
 export interface DisconnectedMessageData {

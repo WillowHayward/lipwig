@@ -1,6 +1,6 @@
 import { BaseAdminEvent } from "./admin.model";
 
-export type BaseAdminMessageData = {
+export interface BaseAdminMessageData {
     [BaseAdminEvent.ADMINISTRATE]: never;
     [BaseAdminEvent.SUMMARY_REQUEST]: SummaryRequestMessageData;
     [BaseAdminEvent.SUMMARY_UNSUBSCRIBE]: never;

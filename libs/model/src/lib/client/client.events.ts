@@ -1,7 +1,7 @@
 import { BaseClientEvent, JoinOptions } from './client.model';
 import { CommonEvent, PingEvent } from '../common';
 
-export type BaseClientMessageData = {
+export interface BaseClientMessageData {
     [BaseClientEvent.JOIN]: JoinMessageData;
     [BaseClientEvent.REJOIN]: RejoinMessageData;
     [CommonEvent.MESSAGE]: MessageMessageData;
@@ -28,7 +28,7 @@ export interface MessageMessageData {
 
 export interface PollResponseMessageData {
     id: string;
-    response: any;
+    response: unknown;
 }
 
 export interface PingHostMessageData {
