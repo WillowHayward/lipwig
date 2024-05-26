@@ -1,22 +1,11 @@
-import { LipwigSummary, SERVER_ADMIN_EVENT } from "./admin.model";
+import { LipwigSummary, BaseServerAdminEvent } from './server.admin.model';
 
-interface EventStructure {
-    event: SERVER_ADMIN_EVENT;
+export type BaseServerAdminMessageData = {
+    [BaseServerAdminEvent.ADMINISTRATING]: never;
+    [BaseServerAdminEvent.SUMMARY]: SummaryMessageData;
 }
 
-export interface Administrating extends EventStructure {
-    event: SERVER_ADMIN_EVENT.ADMINISTRATING;
-}
-
-export interface Summary extends EventStructure {
-    event: SERVER_ADMIN_EVENT.SUMMARY;
-    data: SummaryData;
-}
-
-export interface SummaryData {
+export interface SummaryMessageData {
     summary: LipwigSummary;
     subscribed: boolean;
 }
-
-export type Event = Administrating | Summary;
-export type EventData = SummaryData;

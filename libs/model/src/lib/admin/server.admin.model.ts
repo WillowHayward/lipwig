@@ -1,4 +1,4 @@
-export enum SERVER_ADMIN_EVENT {
+export enum BaseServerAdminEvent {
     ADMINISTRATING = 'administrating',
     SUMMARY = 'summary',
 }

@@ -1,6 +1,6 @@
 
 // TODO: This is currently only used for logging in the server. js logging should be transitioned to use this too
-export enum LOG_TYPE {
+export enum LogType {
     ROOM = 'ROOM',
     ANONYMOUS = 'ANON',
     HOST = 'HOST',
@@ -9,7 +9,7 @@ export enum LOG_TYPE {
     API = 'API',
 }
 
-export enum ROOM_LOG_EVENT {
+export enum RoomLogEvent {
     CREATED = 'created',
     LOCKED = 'locked',
     UNLOCKED = 'unlocked',
@@ -31,7 +31,7 @@ export enum ROOM_LOG_EVENT {
     LOCAL_LEFT = 'local-left'
 }
 
-export enum SOCKET_LOG_EVENT {
+export enum SocketLogEvent {
     INITIALIZED = 'initialized',
     DISCONNECTED = 'disconnected',
     CLEANUP = 'cleaning-up',
@@ -40,6 +40,6 @@ export enum SOCKET_LOG_EVENT {
     RECEIVED = 'received', // TODO - implement
 }
 
-export enum API_LOG_EVENT {
+export enum ApiLogEvent {
     GET = 'get',
 }

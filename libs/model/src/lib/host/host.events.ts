@@ -1,143 +1,70 @@
-import { HOST_EVENT, CreateOptions } from './host.model';
+import { BaseHostEvent, CreateOptions } from './host.model';
+import { CommonEvent, PingEvent } from '../common';
 
-interface EventStructure {
-    event: HOST_EVENT;
-}
+export type BaseHostMessageData = {
+    [BaseHostEvent.CREATE]: CreateMessageData,
+    [BaseHostEvent.JOIN_RESPONSE]: JoinResponseMessageData,
+    [BaseHostEvent.LOCK]: LockMessageData,
+    [BaseHostEvent.UNLOCK]: never,
+    [CommonEvent.MESSAGE]: HostMessageData,
+    [BaseHostEvent.KICK]: KickMessageData,
+    [BaseHostEvent.POLL]: PollMessageData,
+    [BaseHostEvent.LOCAL_JOIN]: LocalJoinMessageData,
+    [BaseHostEvent.LOCAL_LEAVE]: LocalLeaveMessageData,
+    [PingEvent.PING_SERVER]: PingServerMessageData,
+    [PingEvent.PING_CLIENT]: PingClientMessageData,
+    [PingEvent.PONG_HOST]: PongHostMessageData,
+};
 
-export interface Create extends EventStructure {
-    event: HOST_EVENT.CREATE;
-    data: CreateData;
-}
-
-export interface CreateData {
+export interface CreateMessageData {
     config?: CreateOptions;
 }
 
-export interface JoinResponse extends EventStructure {
-    event: HOST_EVENT.JOIN_RESPONSE;
-    data: JoinResponseData;
-}
-
-export interface JoinResponseData {
+export interface JoinResponseMessageData {
     id: string;
     response: boolean;
     reason?: string;
 }
 
-export interface Lock extends EventStructure {
-    event: HOST_EVENT.LOCK;
-    data: LockData;
-}
-
-export interface LockData {
+export interface LockMessageData {
     reason?: string;
 }
 
-export interface Unlock extends EventStructure {
-    event: HOST_EVENT.UNLOCK;
-}
-
-export interface Message extends EventStructure {
-    event: HOST_EVENT.MESSAGE;
-    data: MessageData;
-}
-
-export interface MessageData {
+export interface HostMessageData {
     event: string;
     recipients: string[];
     args: unknown[];
 }
 
-export interface Poll extends EventStructure {
-    event: HOST_EVENT.POLL;
-    data: PollData;
-}
-
-export interface PollData {
+export interface PollMessageData {
     id: string;
     recipients: string[];
     query: string;
 }
 
-export interface Kick extends EventStructure {
-    event: HOST_EVENT.KICK;
-    data: KickData;
-}
-
-export interface KickData {
+export interface KickMessageData {
     id: string;
     reason?: string;
 }
 
-export interface LocalJoin extends EventStructure {
-    event: HOST_EVENT.LOCAL_JOIN;
-    data: LocalJoinData;
-}
-
-export interface LocalJoinData {
+export interface LocalJoinMessageData {
     id: string;
 }
 
-export interface LocalLeave extends EventStructure {
-    event: HOST_EVENT.LOCAL_LEAVE;
-    data: LocalJoinData;
-}
-
-export interface LocalLeaveData {
+export interface LocalLeaveMessageData {
     id: string;
 }
 
-export interface PingServer extends EventStructure {
-    event: HOST_EVENT.PING_SERVER;
-    data: PingServerData;
-}
-
-export interface PingServerData {
+export interface PingServerMessageData {
     time: number;
 }
 
-export interface PingClient extends EventStructure {
-    event: HOST_EVENT.PING_CLIENT;
-    data: PingClientData;
-}
-
-export interface PingClientData {
+export interface PingClientMessageData {
     time: number;
     id: string;
 }
 
-export interface PongHost extends EventStructure {
-    event: HOST_EVENT.PONG_HOST;
-    data: PongHostData;
-}
-
-export interface PongHostData {
+export interface PongHostMessageData {
     time: number;
     id: string;
 }
-
-export type Event =
-    | Create
-    | JoinResponse
-    | Lock
-    | Unlock
-    | Message
-    | Kick
-    | Poll
-    | LocalJoin
-    | LocalLeave
-    | PingServer
-    | PingClient
-    | PongHost;
-export type EventData =
-    | CreateData
-    | JoinResponseData
-    | LockData
-    | MessageData
-    | KickData
-    | PollData
-    | LocalJoinData
-    | LocalLeaveData
-    | PingServerData
-    | PingClientData
-    | PongHostData;

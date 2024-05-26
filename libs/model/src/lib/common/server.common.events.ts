@@ -1,27 +1,12 @@
+import { ERROR_CODE } from './common.exports';
+import { ServerCommonEvent, RoomQuery } from './server.common.model';
 
-import { SERVER_GENERIC_EVENTS, ERROR_CODE, RoomQuery  } from './generic.model';
-
-// Generic events dispatched by the server
-interface EventStructure {
-    // TODO: At this point this should just be one interface used across all event types
-    // CONT: event: string;
-    event: SERVER_GENERIC_EVENTS;
+export type BaseCommonMessageData = {
+    [ServerCommonEvent.ERROR]: ErrorMessageData;
+    [ServerCommonEvent.QUERY_RESPONSE]: RoomQuery; // TODO: Is this really common? Also, mark this as deprecrated - rest parameter is better by far
 }
 
-export interface Error extends EventStructure {
-    event: SERVER_GENERIC_EVENTS.ERROR;
-    data: ErrorData;
-}
-
-export interface ErrorData {
+export interface ErrorMessageData {
     error: ERROR_CODE;
     message?: string;
 }
-
-export interface QueryResponse {
-    event: SERVER_GENERIC_EVENTS.QUERY_RESPONSE;
-    data: RoomQuery;
-}
-
-export type Event = Error | QueryResponse;
-export type EventData = ErrorData | RoomQuery;

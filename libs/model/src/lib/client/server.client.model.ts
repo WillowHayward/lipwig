@@ -1,27 +1,8 @@
-import { PING_EVENT } from "../generic";
-
-export interface EventStructure {
-    event: SERVER_CLIENT_EVENT;
-}
-
-export enum SERVER_CLIENT_EVENT {
-    // Generic Events
-    ERROR = 'error',
-
+export enum BaseServerClientEvent {
     // Lipwig events
-    JOINED = 'joined',
-    REJOINED = 'rejoined',
-    MESSAGE = 'lw-message',
     POLL = 'poll',
 
     // Connection events
-    DISCONNECTED = 'disconnected',
     HOST_DISCONNECTED = 'host-disconnected', // Sent to clients in case of unexpected host disconnection
-    RECONNECTED = 'reconnected',
     HOST_RECONNECTED = 'host-reconnected',
-
-    // Ping events
-    PING_CLIENT = PING_EVENT.PONG_CLIENT,
-    PONG_HOST = PING_EVENT.PONG_HOST,
-    PONG_SERVER = PING_EVENT.PONG_SERVER,
 }

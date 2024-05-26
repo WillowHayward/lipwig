@@ -1,26 +1,10 @@
-import { ADMIN_EVENT } from "./admin.model";
+import { BaseAdminEvent } from "./admin.model";
 
-interface EventStructure {
-    event: ADMIN_EVENT;
+export type BaseAdminMessageData = {
+    [BaseAdminEvent.ADMINISTRATE]: never;
+    [BaseAdminEvent.SUMMARY_REQUEST]: SummaryRequestMessageData;
+    [BaseAdminEvent.SUMMARY_UNSUBSCRIBE]: never;
 }
-
-export interface Administrate extends EventStructure {
-    event: ADMIN_EVENT.ADMINISTRATE;
-    // TODO: Authentication
-}
-
-export interface SummaryRequest extends EventStructure {
-    event: ADMIN_EVENT.SUMMARY_REQUEST;
-    data: SummaryRequestData;
-}
-
-export interface SummaryRequestData {
+export interface SummaryRequestMessageData {
     subscribe?: boolean;
 }
-
-export interface SummaryUnsubscribe extends EventStructure {
-    event: ADMIN_EVENT.SUMMARY_UNSUBSCRIBE;
-}
-
-export type Event = Administrate | SummaryRequest | SummaryUnsubscribe;
-export type EventData = SummaryRequestData;

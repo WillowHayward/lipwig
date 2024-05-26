@@ -43,9 +43,4 @@ export enum BaseRejoinErrorCode {
     USERNOTFOUND = BaseHostErrorCode.USERNOTFOUND,
 }
 
-export type HostErrorCode = BaseHostErrorCode | GenericErrorCode;
-export type ClientErrorCode = BaseClientErrorCode | GenericErrorCode;
-export type JoinErrorCode = BaseJoinErrorCode | GenericErrorCode;
-export type RejoinErrorCode = BaseRejoinErrorCode | GenericErrorCode;
-export type PollErrorCode = BasePollErrorCode | GenericErrorCode;
-export type ERROR_CODE = HostErrorCode | ClientErrorCode | JoinErrorCode | RejoinErrorCode | PollErrorCode; // TODO: Rename for consistency
+// TODO: A mapping of arguments paired with errors would probably be useful

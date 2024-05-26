@@ -1,91 +1,44 @@
-import { CLIENT_EVENT, JoinOptions } from './client.model';
+import { BaseClientEvent, JoinOptions } from './client.model';
+import { CommonEvent, PingEvent } from '../common';
 
-/**
- * @author: WillHayCode
- */
-interface EventStructure {
-    event: CLIENT_EVENT;
+export type BaseClientMessageData = {
+    [BaseClientEvent.JOIN]: JoinMessageData;
+    [BaseClientEvent.REJOIN]: RejoinMessageData;
+    [CommonEvent.MESSAGE]: MessageMessageData;
+    [BaseClientEvent.POLL_RESPONSE]: PollResponseMessageData;
+    [PingEvent.PING_SERVER]: PingServerMessageData;
+    [PingEvent.PING_HOST]: PingHostMessageData;
+    [PingEvent.PONG_CLIENT]: PongClientMessageData;
 }
 
-export interface Join extends EventStructure {
-    event: CLIENT_EVENT.JOIN;
-    data: JoinData;
-}
-
-export interface JoinData {
+export interface JoinMessageData {
     code: string;
     options?: JoinOptions;
 }
 
-export interface Rejoin extends EventStructure {
-    event: CLIENT_EVENT.REJOIN;
-    data: RejoinData;
-}
-
-export interface RejoinData {
+export interface RejoinMessageData {
     code: string;
     id: string;
 }
 
-export interface Message extends EventStructure {
-    event: CLIENT_EVENT.MESSAGE;
-    data: MessageData;
-}
-
-export interface MessageData {
+export interface MessageMessageData {
     event: string;
     args: unknown[];
 }
 
-export interface PollResponse extends EventStructure {
-    event: CLIENT_EVENT.POLL_RESPONSE;
-    data: PollResponseData;
-}
-
-export interface PollResponseData {
+export interface PollResponseMessageData {
     id: string;
     response: any;
 }
 
-export interface PingHost extends EventStructure {
-    event: CLIENT_EVENT.PING_HOST;
-    data: PingHostData;
-}
-
-export interface PingHostData {
+export interface PingHostMessageData {
     time: number;
 }
 
-export interface PingServer extends EventStructure {
-    event: CLIENT_EVENT.PING_SERVER;
-    data: PingServerData;
-}
-
-export interface PingServerData {
+export interface PingServerMessageData {
     time: number;
 }
 
-export interface PongClient extends EventStructure {
-    event: CLIENT_EVENT.PONG_CLIENT;
-    data: PongClientData;
-}
-
-export interface PongClientData {
+export interface PongClientMessageData {
     time: number;
 }
-
-export type Event =
-    | Join
-    | Rejoin
-    | Message
-    | PollResponse
-    | PingServer
-    | PingHost
-    | PongClient;
-export type EventData =
-    | JoinData
-    | MessageData
-    | PollResponseData
-    | PingServerData
-    | PingHostData
-    | PongClientData;
