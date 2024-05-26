@@ -1,4 +1,5 @@
 import { CommonEvent, ConnectionEvent, PingEvent } from "../common";
+import { BaseServerCommonEvent } from "../common/server.common.events";
 import { BaseHostEvent } from "./host.model";
 import { BaseServerHostEvent } from "./server.host.model";
 
@@ -24,6 +25,7 @@ export enum HostEvent {
 
 // All server -> host events. Should match keys of ServerHostMessageData
 export enum HostServerEvent {
+    ERROR = BaseServerCommonEvent.ERROR,
     DISCONNECTED = ConnectionEvent.DISCONNECTED,
     CLIENT_DISCONNECTED = BaseServerHostEvent.CLIENT_DISCONNECTED,
     RECONNECTED = ConnectionEvent.RECONNECTED,

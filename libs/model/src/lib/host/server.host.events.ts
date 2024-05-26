@@ -1,8 +1,10 @@
 import { CommonEvent, ConnectionEvent, PingEvent } from "../common";
+import { BaseServerCommonEvent } from "../common/server.common.events";
 import { BaseServerHostEvent } from "./server.host.model";
 
 // Server -> Host events
 export interface BaseServerHostMessageData {
+    [BaseServerCommonEvent.ERROR]: never; // TODO
     // Connections
     [ConnectionEvent.DISCONNECTED]: never;
     [BaseServerHostEvent.CLIENT_DISCONNECTED]: ClientDisconnectedMessageData;

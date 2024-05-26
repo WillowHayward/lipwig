@@ -1,8 +1,10 @@
 import { BaseServerClientEvent } from './server.client.model';
 import { CommonEvent, ConnectionEvent, PingEvent } from '../common';
+import { BaseServerCommonEvent } from '../common/server.common.events';
 
 // Server -> Client events
 export interface BaseServerClientConnectionMessageData {
+    [BaseServerCommonEvent.ERROR]: never; // TODO
     // Connection
     [ConnectionEvent.JOINED]: JoinedMessageData;
     [ConnectionEvent.REJOINED]: JoinedMessageData;

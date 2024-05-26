@@ -1,4 +1,5 @@
 import { CommonEvent, ConnectionEvent, PingEvent } from "../common";
+import { BaseServerCommonEvent } from "../common/server.common.events";
 import { BaseClientEvent } from "./client.model";
 import { BaseServerClientEvent } from "./server.client.model";
 
@@ -19,6 +20,7 @@ export enum ClientEvent {
 
 // All server -> client events. Should match keys of ServerClientMessageData
 export enum ServerClientEvent {
+    ERROR = BaseServerCommonEvent.ERROR,
     JOINED = ConnectionEvent.JOINED,
     REJOINED = ConnectionEvent.REJOINED,
     DISCONNECTED = ConnectionEvent.DISCONNECTED,

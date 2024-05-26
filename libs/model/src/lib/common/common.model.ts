@@ -1,7 +1,6 @@
 export enum CommonEvent {
     RECONNECT = 'reconnect',
     MESSAGE = 'lw-message',
-    ERROR = 'error'
 }
 
 // Common events used to establish, re-establish, or terminate a connection

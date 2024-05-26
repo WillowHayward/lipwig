@@ -1,3 +1,4 @@
+import { BaseServerCommonEvent } from '../common/server.common.events';
 import { BaseAdminEvent } from './admin.model';
 import { BaseServerAdminEvent } from './server.admin.model';
 
@@ -12,6 +13,7 @@ export enum AdminEvent {
 
 // All server -> admin events. Should match keys of ServerAdminMessageData
 export enum ServerAdminEvent {
+    ERROR = BaseServerCommonEvent.ERROR,
     ADMINISTRATING = BaseServerAdminEvent.ADMINISTRATING,
     SUMMARY = BaseServerAdminEvent.SUMMARY
 }
