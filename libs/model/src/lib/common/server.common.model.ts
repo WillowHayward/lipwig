@@ -24,6 +24,7 @@ export type RoomQuery = Partial<{
     rejoin: boolean; // ID of client for rejoining requests
 }>;
 
+// TODO: Rename as per convention
 // 3000-3999 reserved close codes https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
 export enum CLOSE_CODE {
     KICKED = 3400,

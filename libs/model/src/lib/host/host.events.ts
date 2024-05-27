@@ -1,7 +1,25 @@
 import { BaseHostEvent, CreateOptions } from './host.model';
 import { CommonEvent, PingEvent } from '../common';
+import { BaseMessageData } from '../common/common.events';
 
-export interface BaseHostMessageData {
+// All host -> server events. Should match keys of HostMessageData
+export const HostEvent = {
+    CREATE: BaseHostEvent.CREATE,
+    JOIN_RESPONSE: BaseHostEvent.JOIN_RESPONSE,
+    LOCK: BaseHostEvent.LOCK,
+    UNLOCK: BaseHostEvent.UNLOCK,
+    MESSAGE: CommonEvent.MESSAGE,
+    KICK: BaseHostEvent.KICK,
+    POLL: BaseHostEvent.POLL,
+    LOCAL_JOIN: BaseHostEvent.LOCAL_JOIN,
+    LOCAL_LEAVE: BaseHostEvent.LOCAL_LEAVE,
+    PING_SERVER: PingEvent.PING_SERVER,
+    PING_CLIENT: PingEvent.PING_CLIENT,
+    PONG_HOST: PingEvent.PONG_HOST,
+} as const;
+
+
+export interface HostEventData {
     [BaseHostEvent.CREATE]: CreateMessageData,
     [BaseHostEvent.JOIN_RESPONSE]: JoinResponseMessageData,
     [BaseHostEvent.LOCK]: LockMessageData,
@@ -30,10 +48,8 @@ export interface LockMessageData {
     reason?: string;
 }
 
-export interface HostMessageData {
-    event: string;
+export interface HostMessageData extends BaseMessageData {
     recipients: string[];
-    args: unknown[];
 }
 
 export interface PollMessageData {

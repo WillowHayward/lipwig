@@ -9,6 +9,7 @@ There are four main directories under `src/lib`, `host`, `client`, `admin`, and 
 In each connection type directory, there are the following files
  - `<connection type>.model.ts` - This contains enums for the events related to messages sent from the connection to the server
  - `<connection type>.event.ts` - This contains the interfaces needed for handling each connection -> server event
+ - `<connection type>.errors.ts` - This includes all the errors that might be sent to the connection. This is inherently server -> connection, but this naming _feels_ cleaner.
  - `server.<connection type>.model.ts` - This contains enums for the events related to messages sent from the server to the connection
  - `server.<connection type>.event.ts` - This contains the interfaces needed for handling each connection -> server event
  - `<connection type>.exports.ts` - This formats everything for export from `@lipwig/model`

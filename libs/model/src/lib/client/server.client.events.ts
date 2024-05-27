@@ -1,10 +1,31 @@
 import { BaseServerClientEvent } from './server.client.model';
 import { CommonEvent, ConnectionEvent, PingEvent } from '../common';
-import { BaseServerCommonEvent } from '../common/server.common.events';
+import { BaseServerCommonEvent, ErrorMessageData } from '../common/server.common.events';
+
+import { ClientError } from './client.errors';
+
+import { BaseMessageData as ServerClientMessageData } from '../common/common.events';
+
+
+// All server -> client events. Should match keys of ServerClientMessageData
+export const ServerClientEvent = {
+    ERROR: BaseServerCommonEvent.ERROR,
+    JOINED: ConnectionEvent.JOINED,
+    REJOINED: ConnectionEvent.REJOINED,
+    DISCONNECTED: ConnectionEvent.DISCONNECTED,
+    HOST_DISCONNECTED: BaseServerClientEvent.HOST_DISCONNECTED,
+    RECONNECTED: ConnectionEvent.RECONNECTED,
+    HOST_RECONNECTED: BaseServerClientEvent.HOST_RECONNECTED,
+    MESSAGE: CommonEvent.MESSAGE,
+    POLL: BaseServerClientEvent.POLL,
+    PONG_CLIENT: PingEvent.PONG_CLIENT,
+    PING_HOST: PingEvent.PING_HOST,
+    PONG_SERVER: PingEvent.PONG_SERVER,
+} as const;
 
 // Server -> Client events
-export interface BaseServerClientMessageData {
-    [BaseServerCommonEvent.ERROR]: never; // TODO
+export interface ServerClientEventData {
+    [BaseServerCommonEvent.ERROR]: ErrorMessageData<typeof ClientError>; // TODO
     // Connection
     [ConnectionEvent.JOINED]: JoinedMessageData;
     [ConnectionEvent.REJOINED]: JoinedMessageData;
@@ -40,12 +61,6 @@ export interface ReconnectedMessageData {
 export interface HostReconnectedMessageData {
     room: string;
     id: string;
-}
-
-// Lipwig
-export interface ServerClientMessageData {
-    event: string;
-    args: unknown[];
 }
 
 export interface PollMessageData {

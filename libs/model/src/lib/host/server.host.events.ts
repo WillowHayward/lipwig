@@ -1,10 +1,30 @@
 import { CommonEvent, ConnectionEvent, PingEvent } from "../common";
-import { BaseServerCommonEvent } from "../common/server.common.events";
+import { BaseServerCommonEvent, ErrorMessageData } from "../common/server.common.events";
 import { BaseServerHostEvent } from "./server.host.model";
+import { BaseMessageData } from '../common/common.events';
+import { HostError } from "./host.errors";
 
-// Server -> Host events
-export interface BaseServerHostMessageData {
-    [BaseServerCommonEvent.ERROR]: never; // TODO
+// All server -> host events. Should match keys of ServerHostMessageData
+export const ServerHostEvent = {
+    ERROR: BaseServerCommonEvent.ERROR,
+    DISCONNECTED: ConnectionEvent.DISCONNECTED,
+    CLIENT_DISCONNECTED: BaseServerHostEvent.CLIENT_DISCONNECTED,
+    RECONNECTED: ConnectionEvent.RECONNECTED,
+    CLIENT_RECONNECTED: BaseServerHostEvent.CLIENT_RECONNECTED,
+    CREATED: ConnectionEvent.CREATED,
+    JOINED: ConnectionEvent.JOINED,
+    REJOINED: ConnectionEvent.REJOINED,
+    JOIN_REQUEST: BaseServerHostEvent.JOIN_REQUEST,
+    LEFT: BaseServerHostEvent.LEFT,
+    MESSAGE: CommonEvent.MESSAGE,
+    POLL_RESPONSE: BaseServerHostEvent.POLL_RESPONSE,
+    PING_HOST: PingEvent.PING_HOST,
+    PONG_CLIENT: PingEvent.PONG_CLIENT,
+    PONG_SERVER: PingEvent.PONG_SERVER,
+} as const;
+
+export interface ServerHostEventData {
+    [BaseServerCommonEvent.ERROR]: ErrorMessageData<typeof HostError>; // TODO
     // Connections
     [ConnectionEvent.DISCONNECTED]: never;
     [BaseServerHostEvent.CLIENT_DISCONNECTED]: ClientDisconnectedMessageData;
@@ -16,7 +36,7 @@ export interface BaseServerHostMessageData {
     [ConnectionEvent.REJOINED]: RejoinedMessageData;
     [BaseServerHostEvent.JOIN_REQUEST]: JoinRequestMessageData;
     [BaseServerHostEvent.LEFT]: LeftMessageData;
-    [CommonEvent.MESSAGE]: MessageMessageData;
+    [CommonEvent.MESSAGE]: ServerHostMessageData;
     [BaseServerHostEvent.POLL_RESPONSE]: PollResponseMessageData;
     // Ping
     [PingEvent.PING_HOST]: PingHostData;
@@ -60,20 +80,13 @@ export interface JoinRequestMessageData {
     data?: Record<string, unknown>;
 }
 
-export interface Left {
-    event: BaseServerHostEvent.LEFT;
-    data: LeftMessageData;
-}
-
 export interface LeftMessageData {
     id: string;
     reason?: string;
 }
 
-export interface MessageMessageData {
-    event: string;
+export interface ServerHostMessageData extends BaseMessageData {
     sender: string; // Added by server for client -> host messages
-    args: unknown[];
 }
 
 export interface PollResponseMessageData {

@@ -1,19 +1,6 @@
-import { BaseServerCommonEvent } from '../common/server.common.events';
-import { BaseAdminEvent } from './admin.model';
-import { BaseServerAdminEvent } from './server.admin.model';
+// TODO: I'm not sure if it'd be worth exporting the Data interfaces individually. Food for thought.
+export { AdminEvent, AdminEventData } from './admin.events';
+export { ServerAdminEvent, ServerAdminEventData } from './server.admin.events'
 
-export { BaseAdminMessageData as AdminMessageData } from './admin.events';
-export { BaseServerAdminMessageData as ServerAdminMessageData } from './server.admin.events';
-// All admin -> server events. Should match keys of AdminMessageData
-export enum AdminEvent {
-    ADMINISTRATE = BaseAdminEvent.ADMINISTRATE,
-    SUMMARY_REQUEST = BaseAdminEvent.SUMMARY_REQUEST,
-    SUMMARY_UNSUBSCRIBE = BaseAdminEvent.SUMMARY_UNSUBSCRIBE,
-}
+export { AdminError } from './admin.errors';
 
-// All server -> admin events. Should match keys of ServerAdminMessageData
-export enum ServerAdminEvent {
-    ERROR = BaseServerCommonEvent.ERROR,
-    ADMINISTRATING = BaseServerAdminEvent.ADMINISTRATING,
-    SUMMARY = BaseServerAdminEvent.SUMMARY
-}

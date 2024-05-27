@@ -4,9 +4,7 @@
     "overrides": [
         {
             "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-            "rules": {
-                "@typescript-eslint/prefer-literal-enum-member": "off"
-            }
+            "rules": {}
         },
         {
             "files": ["*.ts", "*.tsx"],

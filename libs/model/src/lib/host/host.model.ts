@@ -7,14 +7,14 @@ export type CreateOptions = Partial<{
 }>;
 
 // Events sent from a Host to the Server
-export enum BaseHostEvent {
-    CREATE = 'create',
-    JOIN_RESPONSE = 'join-response',
-    LOCK = 'lock',
-    UNLOCK = 'unlock',
-    POLL = 'poll',
-    KICK = 'lw-kick',
-    RECONNECT = 'reconnect',
-    LOCAL_JOIN = 'lw-local-join', // Used to register local client
-    LOCAL_LEAVE = 'lw-local-leave', // Used to remove local client
-}
+export const BaseHostEvent = {
+    CREATE: 'create',
+    JOIN_RESPONSE: 'join-response',
+    LOCK: 'lock',
+    UNLOCK: 'unlock',
+    POLL: 'poll',
+    KICK: 'lw-kick',
+    RECONNECT: 'reconnect',
+    LOCAL_JOIN: 'lw-local-join', // Used to register local client
+    LOCAL_LEAVE: 'lw-local-leave', // Used to remove local client
+} as const;

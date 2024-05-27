@@ -1,17 +1,10 @@
-import { ERROR_CODE } from './common.exports';
-import { ServerCommonEvent, RoomQuery } from './server.common.model';
+import { ERROR_EVENT } from './common.model';
 
-export const ERROR_EVENT = 'error';
-export enum BaseServerCommonEvent {
-    ERROR = ERROR_EVENT,
-}
+export const BaseServerCommonEvent = {
+    ERROR: ERROR_EVENT,
+} as const;
 
-export interface BaseCommonServerMessageData {
-    [BaseServerCommonEvent.ERROR]: ErrorMessageData;
-    [ServerCommonEvent.QUERY_RESPONSE]: RoomQuery; // TODO: Is this really common? Also, mark this as deprecrated - rest parameter is better by far
-}
-
-export interface ErrorMessageData {
-    error: ERROR_CODE;
+export interface ErrorMessageData<T extends object> {
+    error: keyof T;
     message?: string;
 }

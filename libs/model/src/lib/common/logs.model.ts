@@ -1,4 +1,5 @@
 
+// TODO: Consider moving these to `as const` as well
 // TODO: This is currently only used for logging in the server. js logging should be transitioned to use this too
 export enum LogType {
     ROOM = 'ROOM',
