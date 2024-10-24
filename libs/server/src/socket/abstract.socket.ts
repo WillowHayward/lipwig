@@ -1,4 +1,4 @@
-import { CLOSE_CODE, ERROR_CODE, LOG_TYPE, SERVER_GENERIC_EVENTS, SOCKET_LOG_EVENT, ServerAdminEvents, ServerClientEvents, ServerGenericEvents, ServerHostEvents } from '@lipwig/model';
+import { BaseMessageData, CLOSE_CODE, ERROR_EVENT, ErrorMessageData, LogType, MESSAGE_EVENT, SocketLogEvent, } from '@lipwig/model';
 import { SOCKET_TYPE } from './socket.model';
 import { LipwigSocket } from './lipwig.socket';
 import { LipwigLogger } from '../logging/logger/lipwig.logger';
@@ -6,7 +6,12 @@ import { Room } from '../room/room.instance';
 
 type Callback = (...args: any[]) => void;
 
-export abstract class AbstractSocket {
+interface BaseEventData<T extends object> {
+    [MESSAGE_EVENT]: BaseMessageData;
+    [ERROR_EVENT]: ErrorMessageData<T>;
+}
+
+export abstract class AbstractSocket<Events extends BaseEventData<Errors>, Errors extends object> {
     private events: Record<string, Callback[]> = {};
 
     public connected = false;
@@ -18,9 +23,10 @@ export abstract class AbstractSocket {
 
     constructor(public socket: LipwigSocket, public id: string, public type: SOCKET_TYPE, protected logger: LipwigLogger, public room?: Room) {
         this.connected = true;
-        if (socket.socket) {
+        //socket?.socket?.cleanup(id); // TODO: Figure out what's up here, maybe rework anonymous socket
+        /*if (socket.socket) {
             socket.socket.cleanup(id);
-        }
+        }*/
         //TODO: Set socket.socket here?
         this.setInternalListeners();
         this.setListeners();
@@ -34,37 +40,36 @@ export abstract class AbstractSocket {
 
         const message = socketTypeMessages[this.type];
 
-        this.log(SOCKET_LOG_EVENT.INITIALIZED, message);
+        this.log(SocketLogEvent.INITIALIZED, message);
     }
 
     protected abstract setListeners(): void;
 
-    error(error: ERROR_CODE, message = '') {
-        this.log(SOCKET_LOG_EVENT.ERROR, message, error);
-
-        const errorMessage: ServerGenericEvents.Error = {
-            event: SERVER_GENERIC_EVENTS.ERROR,
+    // TODO: This has to clone the send method. Ideally this should be phased out entirely and errors should be logged at a higher level and then sent using .send
+    error<E extends keyof Errors & string>(error: E, message?: string) {
+        this.log(SocketLogEvent.ERROR, message, error);
+        this.log(SocketLogEvent.SENDING, ERROR_EVENT, error);
+        this.socket.send(JSON.stringify({
+            event,
             data: {
                 error,
-                message,
-            },
-        };
-        this.send(errorMessage);
+                message
+            }
+        }));
     }
 
-    send(
-        message: ServerHostEvents.Event
-            | ServerClientEvents.Event
-            | ServerGenericEvents.Event
-            | ServerAdminEvents.Event
-    ) {
-        let messageEvent: string | undefined;
-        if (message.event === 'lw-message') { // TODO: Move to enum
-            messageEvent = message.data.event;
-        }
-        this.log(SOCKET_LOG_EVENT.SENDING, messageEvent, message.event);
-        const messageString = JSON.stringify(message);
-        this.socket.send(messageString);
+    send<K extends keyof Events>(
+        event: K,
+        ...dataArg: Events[K] extends never ? [] : [data: Events[K]]
+    ): void {
+        const [data] = dataArg;
+        const messageEvent = event === MESSAGE_EVENT ? (data as BaseMessageData).event : event;
+
+        this.log(SocketLogEvent.SENDING, messageEvent as string, event as string);
+        this.socket.send(JSON.stringify({
+            event,
+            data
+        }));
     }
 
     close(code: CLOSE_CODE, reason?: string) {
@@ -93,18 +98,18 @@ export abstract class AbstractSocket {
                     const reason = CLOSE_CODE[code];
                     message += ` (${reason})`;
                 }
-                this.log(SOCKET_LOG_EVENT.DISCONNECTED, message);
+                this.log(SocketLogEvent.DISCONNECTED, message);
             },
             message: (data: Buffer) => {
                 try {
                     const parsed = JSON.parse(data.toString('utf8'));
                     if (parsed.event) {
-                        this.log(SOCKET_LOG_EVENT.RECEIVED, undefined, parsed.event);
+                        this.log(SocketLogEvent.RECEIVED, undefined, parsed.event);
                     } else {
                         throw new Error(); // Catch
                     }
                 } catch {
-                    this.log(SOCKET_LOG_EVENT.RECEIVED, 'Could not parse message', 'unknown');
+                    this.log(SocketLogEvent.RECEIVED, 'Could not parse message', 'unknown');
                 }
             }
         }
@@ -113,18 +118,18 @@ export abstract class AbstractSocket {
     }
 
     public cleanup(newId: string) {
-        this.log(SOCKET_LOG_EVENT.CLEANUP, newId);
+        this.log(SocketLogEvent.CLEANUP, newId);
         this.socket.removeListener('close', this.callbacks.close);
         this.socket.removeListener('message', this.callbacks.message);
     }
 
-    protected log(event: SOCKET_LOG_EVENT, data?: string, subevent?: string) {
+    protected log(event: SocketLogEvent, data?: string, subevent?: string) {
         this.logger.debug({
             event,
             subevent,
             data,
             id: this.id,
-            type: this.type as unknown as LOG_TYPE, //LOG_TYPE is a superset of SOCKET_TYPE. This is fine. It's okay.
+            type: this.type as unknown as LogType, //LOG_TYPE is a superset of SOCKET_TYPE. This is fine. It's okay.
             room: this.room?.id
         });
     }

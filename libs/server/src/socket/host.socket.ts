@@ -1,11 +1,11 @@
-import { CLOSE_CODE } from "@lipwig/model";
+import { CLOSE_CODE, HostError, ServerHostEventData } from "@lipwig/model";
 import { SOCKET_TYPE } from "./socket.model";
 import { LipwigSocket } from "./lipwig.socket";
 import { AbstractSocket } from "./abstract.socket";
 import { LipwigLogger } from "../logging/logger/lipwig.logger";
 import { Room } from "../room/room.instance";
 
-export class HostSocket extends AbstractSocket {
+export class HostSocket extends AbstractSocket<ServerHostEventData, typeof HostError> {
     constructor(socket: LipwigSocket, id: string, logger: LipwigLogger, public override room: Room) {
         super(socket, id, SOCKET_TYPE.HOST, logger, room);
     }
