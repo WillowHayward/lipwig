@@ -11,6 +11,9 @@ importers:
       '@commitlint/cli':
         specifier: ^20.5.0
         version: 20.5.0(@types/node@25.6.0)(conventional-commits-parser@6.4.0)(typescript@6.0.3)
+      '@commitlint/config-conventional':
+        specifier: ^20.5.0
+        version: 20.5.0
       '@commitlint/config-nx-scopes':
         specifier: ^20.5.0
         version: 20.5.0(nx@22.6.5)
@@ -35,6 +38,10 @@ packages:
     resolution: {integrity: sha512-yNkyN/tuKTJS3wdVfsZ2tXDM4G4Gi7z+jW54Cki8N8tZqwKBltbIvUUrSbT4hz1bhW/h0CdR+5sCSpXD+wMKaQ==}
     engines: {node: '>=v18'}
     hasBin: true
+
+  '@commitlint/config-conventional@20.5.0':
+    resolution: {integrity: sha512-t3Ni88rFw1XMa4nZHgOKJ8fIAT9M2j5TnKyTqJzsxea7FUetlNdYFus9dz+MhIRZmc16P0PPyEfh6X2d/qw8SA==}
+    engines: {node: '>=v18'}
 
   '@commitlint/config-nx-scopes@20.5.0':
     resolution: {integrity: sha512-By4+g43Io7kby70InfCS94DX0hGoJUgVeW2VrZzNDe4ZVsmeN34GTyCVOAo59O1f+2e+rvgrUY732iw1V1v5Tw==}
@@ -318,6 +325,10 @@ packages:
 
   conventional-changelog-angular@8.3.1:
     resolution: {integrity: sha512-6gfI3otXK5Ph5DfCOI1dblr+kN3FAm5a97hYoQkqNZxOaYa5WKfXH+AnpsmS+iUH2mgVC2Cg2Qw9m5OKcmNrIg==}
+    engines: {node: '>=18'}
+
+  conventional-changelog-conventionalcommits@9.3.1:
+    resolution: {integrity: sha512-dTYtpIacRpcZgrvBYvBfArMmK2xvIpv2TaxM0/ZI5CBtNUzvF2x0t15HsbRABWprS6UPmvj+PzHVjSx4qAVKyw==}
     engines: {node: '>=18'}
 
   conventional-commits-parser@6.4.0:
@@ -852,6 +863,11 @@ snapshots:
       - conventional-commits-parser
       - typescript
 
+  '@commitlint/config-conventional@20.5.0':
+    dependencies:
+      '@commitlint/types': 20.5.0
+      conventional-changelog-conventionalcommits: 9.3.1
+
   '@commitlint/config-nx-scopes@20.5.0(nx@22.6.5)':
     dependencies:
       '@commitlint/types': 20.5.0
@@ -1140,6 +1156,10 @@ snapshots:
       dot-prop: 5.3.0
 
   conventional-changelog-angular@8.3.1:
+    dependencies:
+      compare-func: 2.0.0
+
+  conventional-changelog-conventionalcommits@9.3.1:
     dependencies:
       compare-func: 2.0.0
 
