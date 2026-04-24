@@ -1,4 +1,9 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "defaultBase": "develop"
+  "defaultBase": "develop",
+  "release": {
+    "version": {
+      "conventionalCommits": true
+    }
+  }
 }
