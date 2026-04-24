@@ -6,7 +6,7 @@ async function getConfig() {
 	} = await import("@commitlint/config-nx-scopes");
 
 	const projects = await getProjects();
-	projects.push("workspace");
+	projects.push("workspace", "github");
 
 	//TODO: ticket number
 
