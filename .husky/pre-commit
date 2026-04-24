@@ -1,1 +1,2 @@
 pnpm dlx branch-name-lint branchlint.config.json
+pnpm dlx lint-staged --config lint-staged.config.json
