@@ -1,21 +1,14 @@
 {
-    "branchNameLinter": {
-        "prefixes": [
-            "develop",
-            "release",
-            "feature",
-            "bugfix",
-            "hotfix",
-            "play"
-        ],
-        "suggestions": {
-            "features": "feature",
-            "feat": "feature",
-            "fix": "bugfix",
-            "bug": "bugfix"
-        },
-        "seperarator": "/",
-        "regex": "^(develop|release|((feature|bugfix)/\\d+-[a-z0-9-]+)|((hotfix|play)/[a-z0-9-]+))$",
-        "errorMessage": "Branch name must follow the format: <type>/<optional-ticket-><description>, where type is one of feature, bugfix, hotfix, release."
-    }
+	"branchNameLinter": {
+		"prefixes": ["develop", "release", "feature", "bugfix", "hotfix", "play"],
+		"suggestions": {
+			"features": "feature",
+			"feat": "feature",
+			"fix": "bugfix",
+			"bug": "bugfix"
+		},
+		"seperarator": "/",
+		"regex": "^(develop|release|((feature|bugfix)/\\d+-[a-z0-9-]+)|((hotfix|play)/[a-z0-9-]+))$",
+		"errorMessage": "Branch name must follow the format: <type>/<optional-ticket-><description>, where type is one of feature, bugfix, hotfix, release."
+	}
 }
