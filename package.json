@@ -1,8 +1,22 @@
 {
-  "name": "lipwig",
-  "version": "0.0.0",
-  "private": true,
-  "devDependencies": {
-    "nx": "22.6.5"
-  }
+	"name": "lipwig",
+	"version": "0.0.0",
+	"description": "Monorepo for Lipwig",
+	"private": true,
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.13",
+		"@commitlint/cli": "^20.5.0",
+		"@commitlint/config-conventional": "^20.5.0",
+		"@commitlint/config-nx-scopes": "^20.5.0",
+		"branch-name-lint": "^3.0.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.4.0",
+		"nx": "22.6.5"
+	},
+	"scripts": {
+		"prepare": "husky"
+	},
+	"keywords": [],
+	"author": "Willow Hayward <willow@whc.fyi> (https://whc.fyi)",
+	"packageManager": "pnpm@10.33.2"
 }
