@@ -1,6 +1,7 @@
 {
   "name": "lipwig",
   "version": "0.0.0",
+  "description": "Monorepo for Lipwig",
   "private": true,
   "devDependencies": {
     "husky": "^9.1.7",
@@ -8,5 +9,8 @@
   },
   "scripts": {
     "prepare": "husky"
-  }
+  },
+  "keywords": [],
+  "author": "Willow Hayward <willow@whc.fyi> (https://whc.fyi)",
+  "packageManager": "pnpm@10.33.2"
 }
