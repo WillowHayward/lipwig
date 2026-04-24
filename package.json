@@ -7,6 +7,7 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@commitlint/config-nx-scopes": "^20.5.0",
+    "branch-name-lint": "^3.0.1",
     "husky": "^9.1.7",
     "nx": "22.6.5"
   },
