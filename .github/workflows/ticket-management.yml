@@ -7,8 +7,13 @@ on:
 jobs:
   ticket-management:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - name: Check out the repository to the runner
         uses: actions/checkout@v6
       - name: Ticket Management
         run: cat ${GITHUB_EVENT_PATH} | ./scripts/ticket-management.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+
