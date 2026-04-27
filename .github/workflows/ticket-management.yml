@@ -1,0 +1,12 @@
+on:
+  issues:
+    types: 
+      - labeled
+      - assigned
+
+jobs:
+  echo-payload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo event payload
+        run: cat ${GITHUB_EVENT_PATH} | scripts/ticket-management.sh
