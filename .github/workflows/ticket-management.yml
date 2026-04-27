@@ -5,8 +5,8 @@ on:
       - assigned
 
 jobs:
-  echo-payload:
+  ticket-management:
     runs-on: ubuntu-latest
     steps:
       - name: Echo event payload
-        run: cat ${GITHUB_EVENT_PATH} | scripts/ticket-management.sh
+        run: cat ${GITHUB_EVENT_PATH} | ./scripts/ticket-management.sh
